@@ -48,9 +48,13 @@ semana10/
 │   ├── generar_documento_entrega.py     # Script generador del informe en Word (.docx)
 │   └── GUÍA DE APRENDIZAJE N.º 10...pdf # Guía de aprendizaje original en PDF
 ├── web/                                 # Frontend Web y Móvil (Next.js 14 + Tailwind CSS)
-│   ├── app/                             # Rutas y páginas reactivas con simulador Guía 10
-│   ├── lib/                             # Modelos TypeScript y subalgoritmos matemáticos
-│   └── package.json                     # Configuración de compilación y despliegue
+│   ├── app/                             # Punto de entrada de Next.js (layout y página)
+│   ├── lib/                             # Dominio puro: constantes, finanzas, matrices, datos semilla
+│   │   └── domain/                      # Reglas de negocio: permisos por rol, contratos, servicios, facturación
+│   ├── store/                           # Estado global, persistencia y hooks por funcionalidad
+│   ├── components/                      # Componentes de interfaz reutilizables y armazón de la app
+│   ├── features/                        # Vistas por rol: auth, catálogo, contratos, profesional, admin
+│   └── package.json                     # Scripts: dev, build, test y type-check
 ├── ejercicio_practico_guia10.py         # Acceso directo al ejercicio guiado de la Sección 2
 ├── ENTREGA_GUIA_10_YPRI.docx            # Acceso directo al informe en Word
 ├── package.json                         # Scripts raíz de la aplicación web
@@ -144,5 +148,20 @@ O ingresando a la carpeta `web`:
 cd web
 npm run dev
 ```
-Abrir en el navegador: [http://localhost:3000](http://localhost:3000).  
-Navega a la pestaña **"Subalgoritmos (Guía 10)"** para interactuar con la calculadora de cotización, el generador de recibos, el tester de lambdas, el comparador de mutabilidad y el simulador de inventario.
+Abrir en el navegador: [http://localhost:3000](http://localhost:3000) e iniciar sesión. La pantalla de acceso incluye tres cuentas de demostración:
+
+| Rol | Correo | Qué puede hacer |
+|---|---|---|
+| Cliente | `juan.perez@email.com` | Explorar servicios, solicitarlos, cancelar solicitudes pendientes y calificar servicios completados. |
+| Profesional | `carlos.gomez@email.com` | Aceptar, rechazar y completar solicitudes; publicar y pausar sus servicios; ver sus ganancias. |
+| Administrador | `admin@ypri.com` | Resumen de la plataforma, facturación (matrices de la Guía 9), todos los contratos, usuarios y el módulo de **Subalgoritmos (Guía 10)**. |
+
+Cada rol solo ve sus propias vistas y datos: los permisos se definen en `web/lib/domain/permissions.ts` y se validan tanto en la navegación como en cada operación.
+
+Pruebas y verificación del frontend:
+```bash
+cd web
+npm test            # Pruebas unitarias del dominio (Vitest)
+npm run type-check  # TypeScript en modo estricto
+npm run build       # Build de producción (falla si hay errores de tipos)
+```
