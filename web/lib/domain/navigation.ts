@@ -47,3 +47,11 @@ export function puedeVerVista(usuario: Usuario | null, vistaId: VistaId): boolea
 export function vistaInicial(usuario: Usuario | null): VistaId | null {
   return vistasPermitidas(usuario)[0]?.id ?? null;
 }
+
+/**
+ * Quien puede solicitar servicios usa la app móvil (inicio, búsqueda, reservas
+ * y perfil); los demás roles usan el panel con barra superior.
+ */
+export function usaAppMovil(usuario: Usuario | null): boolean {
+  return tienePermiso(usuario, "contrato:solicitar");
+}

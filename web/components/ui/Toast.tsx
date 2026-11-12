@@ -52,7 +52,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   return (
     <ToastContext.Provider value={api.current}>
       {children}
-      <div aria-live="polite" className="pointer-events-none fixed inset-x-0 bottom-4 z-[60] flex flex-col items-center gap-2 px-4 sm:items-end sm:pr-6">
+      <div aria-live="polite" className="pointer-events-none fixed inset-x-0 bottom-24 z-[60] flex flex-col items-center gap-2 px-4 sm:items-end sm:pr-6">
         {toasts.map((toast) => {
           const Icono = toast.tono === "exito" ? CheckCircle2 : AlertCircle;
           return (

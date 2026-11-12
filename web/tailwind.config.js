@@ -1,4 +1,10 @@
 /** @type {import('tailwindcss').Config} */
+
+// Colores semánticos de la app móvil del cliente (paleta del prototipo de v0).
+// Se definen como canales RGB en app/globals.css para que funcionen los
+// modificadores de opacidad de Tailwind 3 (por ejemplo bg-card/95).
+const token = (nombre) => `rgb(var(--${nombre}) / <alpha-value>)`;
+
 module.exports = {
   content: [
     "./app/**/*.{js,ts,jsx,tsx,mdx}",
@@ -23,6 +29,14 @@ module.exports = {
           warning: "#D97706",
           danger: "#DC2626",
         },
+        background: token("background"),
+        foreground: token("foreground"),
+        card: token("card"),
+        primary: { DEFAULT: token("primary"), foreground: token("primary-foreground") },
+        accent: { DEFAULT: token("accent"), foreground: token("accent-foreground"), strong: token("accent-strong") },
+        muted: { DEFAULT: token("muted"), foreground: token("muted-foreground") },
+        border: token("border"),
+        destructive: token("destructive"),
       },
     },
   },

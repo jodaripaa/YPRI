@@ -2,6 +2,23 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Paleta YPRI del prototipo de v0 (convertida de OKLCH a canales RGB). */
+:root {
+  --background: 246 249 251;
+  --foreground: 8 12 15;
+  --card: 255 255 255;
+  --primary: 0 49 81;
+  --primary-foreground: 246 249 251;
+  --accent: 61 202 141;
+  --accent-foreground: 0 24 42;
+  /* Variante oscura del acento para texto sobre fondos claros (contraste AA). */
+  --accent-strong: 4 120 87;
+  --muted: 236 239 241;
+  --muted-foreground: 100 106 112;
+  --border: 219 222 225;
+  --destructive: 220 38 38;
+}
+
 body {
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Ubuntu, Cantarell, sans-serif;
 }
@@ -19,4 +36,28 @@ body {
 }
 ::-webkit-scrollbar-thumb:hover {
   background: #94a3b8;
+}
+
+@layer utilities {
+  /* Carruseles horizontales sin barra de desplazamiento visible. */
+  .hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Respuesta táctil al presionar tarjetas y botones. */
+  .touch-feedback {
+    transition: transform 0.1s ease, opacity 0.1s ease;
+  }
+  .touch-feedback:active {
+    transform: scale(0.98);
+    opacity: 0.9;
+  }
+
+  .pb-safe {
+    padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
+  }
 }

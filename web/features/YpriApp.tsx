@@ -3,11 +3,12 @@
 import { useState } from "react";
 import { AppShell } from "@/components/layout/AppShell";
 import { useToast } from "@/components/ui";
-import { puedeVerVista, vistaInicial, vistasPermitidas, type VistaId } from "@/lib/domain/navigation";
+import { puedeVerVista, usaAppMovil, vistaInicial, vistasPermitidas, type VistaId } from "@/lib/domain/navigation";
 import { useAppStore } from "@/store/AppStore";
 import { useSesion } from "@/store/hooks";
 import { LoginView } from "./auth/LoginView";
 import { RegisterView } from "./auth/RegisterView";
+import { ClienteApp } from "./cliente/ClienteApp";
 import { REGISTRO_VISTAS } from "./viewRegistry";
 
 export function YpriApp() {
@@ -35,6 +36,15 @@ export function YpriApp() {
     );
   }
 
+  const salir = () => {
+    cerrarSesion();
+    setPantallaAcceso("login");
+    toast.exito("Cerraste sesión correctamente.");
+  };
+
+  // Los clientes usan la app móvil; el resto de roles, el panel por vistas.
+  if (usaAppMovil(usuarioActual)) return <ClienteApp key={usuarioActual.id} usuario={usuarioActual} onCerrarSesion={salir} />;
+
   // Protección de vistas: nunca se renderiza una vista que el rol no tiene permitida.
   const vistaSegura = vista && puedeVerVista(usuarioActual, vista) ? vista : vistaInicial(usuarioActual);
   if (!vistaSegura) return null;
@@ -42,12 +52,6 @@ export function YpriApp() {
   const navegar = (destino: VistaId) => {
     if (puedeVerVista(usuarioActual, destino)) setVista(destino);
     window.scrollTo({ top: 0 });
-  };
-
-  const salir = () => {
-    cerrarSesion();
-    setPantallaAcceso("login");
-    toast.exito("Cerraste sesión correctamente.");
   };
 
   return (
