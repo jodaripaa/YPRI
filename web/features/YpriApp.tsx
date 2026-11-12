@@ -1,13 +1,15 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { AppShell } from "@/components/layout/AppShell";
 import { useToast } from "@/components/ui";
-import { puedeVerVista, vistaInicial, vistasPermitidas, type VistaId } from "@/lib/domain/navigation";
+import { puedeVerVista, usaAppMovil, vistaInicial, vistasPermitidas, type VistaId } from "@/lib/domain/navigation";
 import { useAppStore } from "@/store/AppStore";
 import { useSesion } from "@/store/hooks";
 import { LoginView } from "./auth/LoginView";
 import { RegisterView } from "./auth/RegisterView";
+import { ClienteApp } from "./cliente/ClienteApp";
 import { REGISTRO_VISTAS } from "./viewRegistry";
 
 export function YpriApp() {
@@ -25,7 +27,13 @@ export function YpriApp() {
     setVista(vistaInicial(usuarioActual));
   }
 
-  if (!hidratado) return <div className="min-h-screen bg-slate-100" aria-busy="true" />;
+  if (!hidratado) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-primary" aria-busy="true" aria-label="Cargando YPRI">
+        <Image src="/images/ypri-icon.png" alt="" width={72} height={72} priority className="h-[72px] w-[72px] animate-pulso-suave rounded-2xl" />
+      </div>
+    );
+  }
 
   if (!usuarioActual) {
     return pantallaAcceso === "login" ? (
@@ -35,6 +43,15 @@ export function YpriApp() {
     );
   }
 
+  const salir = () => {
+    cerrarSesion();
+    setPantallaAcceso("login");
+    toast.exito("Cerraste sesión correctamente.");
+  };
+
+  // Los clientes usan la app móvil; el resto de roles, el panel por vistas.
+  if (usaAppMovil(usuarioActual)) return <ClienteApp key={usuarioActual.id} usuario={usuarioActual} onCerrarSesion={salir} />;
+
   // Protección de vistas: nunca se renderiza una vista que el rol no tiene permitida.
   const vistaSegura = vista && puedeVerVista(usuarioActual, vista) ? vista : vistaInicial(usuarioActual);
   if (!vistaSegura) return null;
@@ -42,12 +59,6 @@ export function YpriApp() {
   const navegar = (destino: VistaId) => {
     if (puedeVerVista(usuarioActual, destino)) setVista(destino);
     window.scrollTo({ top: 0 });
-  };
-
-  const salir = () => {
-    cerrarSesion();
-    setPantallaAcceso("login");
-    toast.exito("Cerraste sesión correctamente.");
   };
 
   return (

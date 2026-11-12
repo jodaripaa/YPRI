@@ -56,25 +56,25 @@ export function RequestServiceModal({ servicio, onCerrar, onSolicitado }: Props)
             {(props) => <Input {...props} type="date" min={hoy} value={fecha} onChange={(e) => setFecha(e.target.value)} />}
           </Field>
           <div>
-            <span className="mb-1.5 block text-sm font-medium text-slate-700">Horas estimadas</span>
-            <div className="flex h-10 items-center rounded-lg border border-slate-300">
+            <span className="mb-1.5 block text-sm font-medium text-foreground/80">Horas estimadas</span>
+            <div className="flex h-10 items-center rounded-lg border border-border">
               <button
                 type="button"
                 onClick={() => ajustarHoras(-1)}
                 disabled={horas <= HORAS_MINIMAS}
-                className="flex h-full w-10 items-center justify-center text-slate-600 hover:bg-slate-50 disabled:text-slate-300"
+                className="flex h-full w-10 items-center justify-center text-foreground/70 hover:bg-muted/50 disabled:text-border"
                 aria-label="Restar una hora"
               >
                 <Minus className="h-4 w-4" />
               </button>
-              <span className="flex-1 text-center text-sm font-medium text-slate-900" aria-live="polite">
+              <span className="flex-1 text-center text-sm font-medium text-foreground" aria-live="polite">
                 {pluralizar(horas, "hora", "horas")}
               </span>
               <button
                 type="button"
                 onClick={() => ajustarHoras(1)}
                 disabled={horas >= HORAS_MAXIMAS}
-                className="flex h-full w-10 items-center justify-center text-slate-600 hover:bg-slate-50 disabled:text-slate-300"
+                className="flex h-full w-10 items-center justify-center text-foreground/70 hover:bg-muted/50 disabled:text-border"
                 aria-label="Sumar una hora"
               >
                 <Plus className="h-4 w-4" />
@@ -105,14 +105,14 @@ export function RequestServiceModal({ servicio, onCerrar, onSolicitado }: Props)
           )}
         </Field>
 
-        <div className="rounded-lg bg-slate-50 px-4 py-2">
+        <div className="rounded-lg bg-muted/50 px-4 py-2">
           <DatoFila etiqueta={`Servicio (${pluralizar(horas, "hora", "horas")})`} valor={formatearMoneda(liquidacion.subtotalNeto)} />
           <DatoFila etiqueta={`IVA (${Math.round(IVA_PORCENTAJE * 100)} %)`} valor={formatearMoneda(liquidacion.montoIva)} />
-          <div className="mt-1 border-t border-slate-200 pt-1">
+          <div className="mt-1 border-t border-border pt-1">
             <DatoFila etiqueta="Total estimado" valor={formatearMoneda(liquidacion.totalPagar)} destacado />
           </div>
         </div>
-        <p className="text-xs text-slate-500">El pago se realiza al profesional cuando el servicio queda completado.</p>
+        <p className="text-xs text-muted-foreground">El pago se realiza al profesional cuando el servicio queda completado.</p>
         <FormError mensaje={error} />
       </div>
     </Modal>

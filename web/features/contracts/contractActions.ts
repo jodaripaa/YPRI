@@ -10,7 +10,7 @@ interface ConfiguracionAccion {
 }
 
 export const CONFIGURACION_ACCIONES: Record<AccionContrato, ConfiguracionAccion> = {
-  aceptar: { etiqueta: "Aceptar", variante: "primary", exito: "Aceptaste la solicitud. Ahora aparece en tus servicios en curso." },
+  aceptar: { etiqueta: "Aceptar", variante: "accent", exito: "Aceptaste la solicitud. Ahora aparece en tus servicios en curso." },
   rechazar: {
     etiqueta: "Rechazar",
     variante: "danger",
@@ -24,5 +24,5 @@ export const CONFIGURACION_ACCIONES: Record<AccionContrato, ConfiguracionAccion>
     confirmacion: "La solicitud quedará cancelada y no se podrá reactivar.",
     exito: "La solicitud fue cancelada.",
   },
-  calificar: { etiqueta: "Calificar", variante: "primary", exito: "Gracias por tu calificación." },
+  calificar: { etiqueta: "Calificar", variante: "accent", exito: "Gracias por tu calificación." },
 };

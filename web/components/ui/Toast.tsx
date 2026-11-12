@@ -52,18 +52,21 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   return (
     <ToastContext.Provider value={api.current}>
       {children}
-      <div aria-live="polite" className="pointer-events-none fixed inset-x-0 bottom-4 z-[60] flex flex-col items-center gap-2 px-4 sm:items-end sm:pr-6">
+      {/* Por encima de la barra de navegación inferior en móvil. */}
+      <div aria-live="polite" className="pointer-events-none fixed inset-x-0 bottom-24 z-[60] flex flex-col items-center gap-2 px-4 lg:bottom-6 lg:items-end lg:pr-6">
         {toasts.map((toast) => {
           const Icono = toast.tono === "exito" ? CheckCircle2 : AlertCircle;
           return (
             <div
               key={toast.id}
               role={toast.tono === "error" ? "alert" : "status"}
-              className="pointer-events-auto flex w-full max-w-sm items-start gap-3 rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 shadow-lg"
+              className="pointer-events-auto flex w-full max-w-sm animate-fade-up items-start gap-3 rounded-2xl border border-border bg-card px-4 py-3 text-sm shadow-elevada lg:animate-slide-in-right"
             >
-              <Icono className={cx("mt-0.5 h-4 w-4 shrink-0", toast.tono === "exito" ? "text-emerald-600" : "text-red-600")} />
-              <p className="flex-1">{toast.mensaje}</p>
-              <button type="button" onClick={() => descartar(toast.id)} className="text-slate-400 hover:text-slate-600" aria-label="Cerrar aviso">
+              <span className={cx("flex h-6 w-6 shrink-0 items-center justify-center rounded-full", toast.tono === "exito" ? "bg-accent/20" : "bg-red-100 dark:bg-red-500/15")}>
+                <Icono className={cx("h-4 w-4", toast.tono === "exito" ? "text-accent-strong" : "text-red-600 dark:text-red-400")} aria-hidden />
+              </span>
+              <p className="flex-1 pt-0.5">{toast.mensaje}</p>
+              <button type="button" onClick={() => descartar(toast.id)} className="text-muted-foreground hover:text-foreground" aria-label="Cerrar aviso">
                 <X className="h-4 w-4" />
               </button>
             </div>

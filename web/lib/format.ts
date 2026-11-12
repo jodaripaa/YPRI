@@ -10,6 +10,18 @@ const formatoFecha = new Intl.DateTimeFormat("es-CO", {
   year: "numeric",
 });
 
+const formatoCompacto = new Intl.NumberFormat("es-CO", {
+  style: "currency",
+  currency: "COP",
+  notation: "compact",
+  maximumFractionDigits: 1,
+});
+
+/** Moneda abreviada para ejes de gráficas (por ejemplo "$ 2,5 M"). */
+export function formatearMonedaCompacta(valor: number): string {
+  return formatoCompacto.format(valor);
+}
+
 export function formatearMoneda(valor: number): string {
   return formatoMoneda.format(valor);
 }

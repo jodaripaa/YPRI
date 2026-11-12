@@ -1,7 +1,8 @@
-import { CalendarDays, Clock, MapPin, Star } from "lucide-react";
-import { Button, Card, EstadoContratoBadge } from "@/components/ui";
+import type { CSSProperties } from "react";
+import { CalendarDays, Clock, MapPin, MessageSquareText, Star } from "lucide-react";
+import { Avatar, Button, EstadoContratoBadge } from "@/components/ui";
 import type { AccionContrato } from "@/lib/domain/contracts";
-import { formatearFecha, formatearMoneda, pluralizar } from "@/lib/format";
+import { formatearFecha, formatearMoneda, iniciales, pluralizar } from "@/lib/format";
 import type { Contrato, Usuario } from "@/lib/types";
 import { CONFIGURACION_ACCIONES } from "./contractActions";
 
@@ -10,51 +11,62 @@ interface Props {
   usuario: Usuario;
   acciones: AccionContrato[];
   onAccion: (contrato: Contrato, accion: AccionContrato) => void;
+  style?: CSSProperties;
 }
 
-/** Describe la contraparte según quién mira el contrato. */
-function contraparte(contrato: Contrato, usuario: Usuario): string {
-  if (usuario.rol === "cliente") return `Con ${contrato.prestador_nombre}`;
-  if (usuario.rol === "prestador") return `Para ${contrato.cliente_nombre}`;
-  return `${contrato.cliente_nombre} con ${contrato.prestador_nombre}`;
+/** Persona que se muestra en la tarjeta según quién la mira. */
+function contraparte(contrato: Contrato, usuario: Usuario): { nombre: string; detalle: string } {
+  if (usuario.rol === "cliente") return { nombre: contrato.prestador_nombre, detalle: "Profesional" };
+  if (usuario.rol === "prestador") return { nombre: contrato.cliente_nombre, detalle: "Cliente" };
+  return { nombre: contrato.cliente_nombre, detalle: `con ${contrato.prestador_nombre}` };
 }
 
-export function ContractCard({ contrato, usuario, acciones, onAccion }: Props) {
+export function ContractCard({ contrato, usuario, acciones, onAccion, style }: Props) {
+  const persona = contraparte(contrato, usuario);
   return (
-    <Card className="p-5">
-      <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
-        <div>
-          <div className="flex items-center gap-2">
-            <h3 className="text-base font-semibold text-slate-900">{contrato.servicio_nombre}</h3>
-            <span className="font-mono text-xs text-slate-400">{contrato.id}</span>
-          </div>
-          <p className="text-sm text-slate-600">{contraparte(contrato, usuario)}</p>
-        </div>
+    <article style={style} className="hover-elevar flex animate-fade-up flex-col rounded-2xl border border-border bg-card p-4 shadow-suave sm:p-5">
+      <div className="mb-3 flex items-center justify-between gap-2">
+        <span className="font-mono text-xs text-muted-foreground">{contrato.id}</span>
         <EstadoContratoBadge estado={contrato.estado} />
       </div>
 
-      <dl className="mt-4 grid grid-cols-1 gap-2 text-sm text-slate-600 sm:grid-cols-3">
+      <div className="mb-4 flex items-center gap-3">
+        <Avatar texto={iniciales(persona.nombre)} className="h-12 w-12 rounded-xl text-base" />
+        <div className="min-w-0">
+          <h3 className="truncate text-base font-semibold">{contrato.servicio_nombre}</h3>
+          <p className="truncate text-sm text-muted-foreground">
+            {persona.nombre} · {persona.detalle}
+          </p>
+        </div>
+      </div>
+
+      <dl className="grid grid-cols-1 gap-2 text-sm text-muted-foreground sm:grid-cols-3">
         <Dato icono={CalendarDays} etiqueta="Fecha" valor={formatearFecha(contrato.fecha)} />
         <Dato icono={Clock} etiqueta="Duración" valor={pluralizar(contrato.horas, "hora", "horas")} />
         <Dato icono={MapPin} etiqueta="Dirección" valor={contrato.direccion} />
       </dl>
 
-      {contrato.nota && <p className="mt-3 rounded-lg bg-slate-50 px-3 py-2 text-sm text-slate-600">{contrato.nota}</p>}
-
-      {contrato.calificacion !== undefined && (
-        <div className="mt-3 flex items-start gap-2 text-sm">
-          <span className="inline-flex items-center gap-1 font-medium text-slate-900">
-            <Star className="h-4 w-4 fill-amber-400 text-amber-400" aria-hidden />
-            {contrato.calificacion} de 5
-          </span>
-          {contrato.comentario && <span className="text-slate-600">· {contrato.comentario}</span>}
-        </div>
+      {contrato.nota && (
+        <p className="mt-3 flex items-start gap-2 rounded-xl bg-muted px-3 py-2 text-sm text-foreground/80">
+          <MessageSquareText className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" aria-hidden />
+          {contrato.nota}
+        </p>
       )}
 
-      <div className="mt-4 flex flex-col gap-3 border-t border-slate-100 pt-4 sm:flex-row sm:items-center sm:justify-between">
-        <p className="text-sm text-slate-500">
-          Total <span className="text-base font-semibold text-slate-900">{formatearMoneda(contrato.total)}</span>
-          <span className="text-xs"> IVA incluido</span>
+      {contrato.calificacion !== undefined && (
+        <p className="mt-3 flex items-start gap-1.5 rounded-xl bg-amber-50 dark:bg-amber-400/10 px-3 py-2 text-sm">
+          <Star className="mt-0.5 h-4 w-4 shrink-0 fill-amber-400 text-amber-400" aria-hidden />
+          <span>
+            <span className="font-medium">{contrato.calificacion} de 5</span>
+            {contrato.comentario && <span className="text-foreground/70"> · {contrato.comentario}</span>}
+          </span>
+        </p>
+      )}
+
+      <div className="mt-4 flex flex-col gap-3 border-t border-border pt-4 sm:flex-row sm:items-center sm:justify-between">
+        <p className="text-sm">
+          <span className="text-lg font-bold text-enfasis">{formatearMoneda(contrato.total)}</span>
+          <span className="text-xs text-muted-foreground"> IVA incluido</span>
         </p>
         {acciones.length > 0 && (
           <div className="flex flex-wrap gap-2">
@@ -69,14 +81,16 @@ export function ContractCard({ contrato, usuario, acciones, onAccion }: Props) {
           </div>
         )}
       </div>
-    </Card>
+    </article>
   );
 }
 
 function Dato({ icono: Icono, etiqueta, valor }: { icono: typeof Clock; etiqueta: string; valor: string }) {
   return (
     <div className="flex min-w-0 items-center gap-2">
-      <Icono className="h-4 w-4 shrink-0 text-slate-400" aria-hidden />
+      <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-muted">
+        <Icono className="h-3.5 w-3.5" aria-hidden />
+      </span>
       <dt className="sr-only">{etiqueta}</dt>
       <dd className="truncate">{valor}</dd>
     </div>

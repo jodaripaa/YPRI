@@ -38,7 +38,7 @@ export function RateDialog({
       <div className="space-y-4">
         <div className="flex flex-col items-center gap-1">
           <SelectorEstrellas valor={puntuacion} onCambiar={setPuntuacion} />
-          <p className="text-sm font-medium text-slate-700">{DESCRIPCION_NOTA[puntuacion]}</p>
+          <p className="text-sm font-medium text-foreground/80">{DESCRIPCION_NOTA[puntuacion]}</p>
         </div>
         <Field etiqueta="Comentario" ayuda="Opcional. Ayuda a otros clientes a elegir.">
           {(props) => <Textarea {...props} rows={3} value={comentario} onChange={(e) => setComentario(e.target.value)} />}
@@ -79,7 +79,7 @@ export function ConfirmDialog({
         </>
       }
     >
-      <p className="text-sm text-slate-600">{mensaje}</p>
+      <p className="text-sm text-foreground/70">{mensaje}</p>
     </Modal>
   );
 }

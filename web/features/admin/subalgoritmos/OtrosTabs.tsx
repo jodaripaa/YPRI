@@ -88,7 +88,7 @@ export function LambdasTab() {
             </option>
           ))}
         </Select>
-        <code className="overflow-x-auto rounded bg-slate-100 px-2 py-1 font-mono text-xs text-slate-700">{CRITERIOS_LAMBDA[criterio].codigo}</code>
+        <code className="overflow-x-auto rounded bg-muted px-2 py-1 font-mono text-xs text-foreground/80">{CRITERIOS_LAMBDA[criterio].codigo}</code>
       </div>
       <Table>
         <thead>
@@ -138,7 +138,7 @@ export function ArgumentosTab() {
           lineas={["def agregar_servicio(servicios):", '    servicios.append("Climatización")', "", `inventario = [${lista.map((x) => `"${x}"`).join(", ")}]`]}
         />
         <Card className="mt-4 flex flex-col gap-3 p-3 sm:flex-row sm:items-center sm:justify-between">
-          <p className="text-sm text-slate-600">{pluralizar(lista.length, "elemento", "elementos")} en la lista</p>
+          <p className="text-sm text-foreground/70">{pluralizar(lista.length, "elemento", "elementos")} en la lista</p>
           <div className="flex gap-2">
             <Button tamano="sm" variante="secondary" onClick={() => setLista((l) => [...l, `Servicio ${l.length + 1}`])}>
               Ejecutar append()

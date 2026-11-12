@@ -2,8 +2,67 @@
 @tailwind components;
 @tailwind utilities;
 
-body {
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Ubuntu, Cantarell, sans-serif;
+/* Paleta YPRI del prototipo de v0 (convertida de OKLCH a canales RGB). */
+:root {
+  --background: 246 249 251;
+  --foreground: 8 12 15;
+  --card: 255 255 255;
+  --primary: 0 49 81;
+  --primary-foreground: 246 249 251;
+  /* Fondo suave del primario para selecciones y avatares. */
+  --primary-soft: 229 237 243;
+  --accent: 61 202 141;
+  --accent-foreground: 0 24 42;
+  /* Variante oscura del acento para texto sobre fondos claros (contraste AA). */
+  --accent-strong: 4 120 87;
+  --muted: 236 239 241;
+  --muted-foreground: 100 106 112;
+  --border: 219 222 225;
+  --destructive: 220 38 38;
+  --enfasis: 0 49 81;
+  /* Gráficas: un tono para magnitudes y tres categóricos validados (reparto del pago). */
+  --grafica: 0 49 81;
+  --serie-1: 27 175 122;
+  --serie-2: 42 120 214;
+  --serie-3: 235 104 52;
+  color-scheme: light;
+}
+
+/* Tema oscuro (paleta oscura del prototipo de v0). */
+.dark {
+  --background: 6 14 21;
+  --foreground: 239 242 245;
+  --card: 14 25 32;
+  --primary: 4 60 90;
+  --primary-foreground: 246 249 251;
+  --primary-soft: 19 41 56;
+  --accent: 61 202 141;
+  --accent-foreground: 0 19 33;
+  --accent-strong: 61 202 141;
+  --muted: 25 35 42;
+  --muted-foreground: 152 160 165;
+  --border: 38 50 58;
+  --destructive: 237 83 80;
+  --enfasis: 146 206 231;
+  --grafica: 146 206 231;
+  --serie-1: 25 158 112;
+  --serie-2: 57 135 229;
+  --serie-3: 217 89 38;
+  color-scheme: dark;
+}
+
+@layer base {
+  html {
+    -webkit-tap-highlight-color: transparent;
+  }
+  body {
+    @apply bg-background font-sans text-foreground antialiased;
+    font-feature-settings: "cv11", "ss01";
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+  ::selection {
+    @apply bg-accent/30;
+  }
 }
 
 ::-webkit-scrollbar {
@@ -14,9 +73,55 @@ body {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
+  background: rgb(var(--border));
   border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
+  background: rgb(var(--muted-foreground) / 0.5);
+}
+
+@layer utilities {
+  /* Carruseles horizontales sin barra de desplazamiento visible. */
+  .hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Respuesta táctil al presionar tarjetas y botones. */
+  .touch-feedback {
+    transition: transform 0.12s ease, opacity 0.12s ease, background-color 0.15s ease, border-color 0.15s ease, box-shadow 0.2s ease;
+  }
+  .touch-feedback:active {
+    transform: scale(0.98);
+    opacity: 0.9;
+  }
+
+  /* Tarjeta que se eleva un poco al pasar el cursor (solo con mouse). */
+  @media (hover: hover) {
+    .hover-elevar {
+      transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    }
+    .hover-elevar:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px -10px rgb(0 49 81 / 0.25);
+    }
+  }
+
+  .pb-safe {
+    padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
+  }
+}
+
+/* Quien prefiere menos movimiento ve los cambios sin animaciones. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

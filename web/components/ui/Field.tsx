@@ -6,11 +6,13 @@ import {
   type SelectHTMLAttributes,
   type TextareaHTMLAttributes,
 } from "react";
+import { AlertCircle } from "lucide-react";
 import { cx } from "./cx";
 
 const CONTROL =
-  "w-full rounded-lg border border-slate-300 bg-white px-3 text-sm text-slate-900 placeholder:text-slate-400 " +
-  "focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600/20 disabled:bg-slate-50 disabled:text-slate-500";
+  "w-full rounded-xl border border-border bg-card px-3.5 text-sm text-foreground placeholder:text-muted-foreground/70 " +
+  "transition-shadow focus:border-accent focus:outline-none focus:ring-4 focus:ring-accent/20 " +
+  "disabled:bg-muted disabled:text-muted-foreground aria-[invalid=true]:border-red-400";
 
 interface FieldProps {
   etiqueta: string;
@@ -26,12 +28,12 @@ export function Field({ etiqueta, ayuda, error, className, children }: FieldProp
   const idDescripcion = error || ayuda ? `${id}-descripcion` : undefined;
   return (
     <div className={className}>
-      <label htmlFor={id} className="mb-1.5 block text-sm font-medium text-slate-700">
+      <label htmlFor={id} className="mb-1.5 block text-sm font-medium text-foreground">
         {etiqueta}
       </label>
       {children({ id, "aria-describedby": idDescripcion, "aria-invalid": error ? true : undefined })}
       {(error || ayuda) && (
-        <p id={idDescripcion} className={cx("mt-1.5 text-xs", error ? "text-red-600" : "text-slate-500")}>
+        <p id={idDescripcion} className={cx("mt-1.5 text-xs", error ? "text-red-600 dark:text-red-400" : "text-muted-foreground")}>
           {error || ayuda}
         </p>
       )}
@@ -39,25 +41,23 @@ export function Field({ etiqueta, ayuda, error, className, children }: FieldProp
   );
 }
 
-export const Input = forwardRef<HTMLInputElement, InputHTMLAttributes<HTMLInputElement>>(function Input(
-  { className, ...props },
-  ref,
-) {
-  return <input ref={ref} className={cx(CONTROL, "h-10", className)} {...props} />;
+export const Input = forwardRef<HTMLInputElement, InputHTMLAttributes<HTMLInputElement>>(function Input({ className, ...props }, ref) {
+  return <input ref={ref} className={cx(CONTROL, "h-11", className)} {...props} />;
 });
 
 export function Select({ className, ...props }: SelectHTMLAttributes<HTMLSelectElement>) {
-  return <select className={cx(CONTROL, "h-10 pr-8", className)} {...props} />;
+  return <select className={cx(CONTROL, "h-11 pr-9", className)} {...props} />;
 }
 
 export function Textarea({ className, ...props }: TextareaHTMLAttributes<HTMLTextAreaElement>) {
-  return <textarea className={cx(CONTROL, "py-2", className)} {...props} />;
+  return <textarea className={cx(CONTROL, "py-2.5", className)} {...props} />;
 }
 
 export function FormError({ mensaje }: { mensaje: string | null }) {
   if (!mensaje) return null;
   return (
-    <p role="alert" className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+    <p role="alert" className="flex animate-fade-in items-start gap-2 rounded-xl border border-red-200 dark:border-red-500/30 bg-red-50 dark:bg-red-500/10 px-3.5 py-2.5 text-sm text-red-700 dark:text-red-300">
+      <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden />
       {mensaje}
     </p>
   );

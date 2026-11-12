@@ -1,10 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { RefreshCw } from "lucide-react";
-import { Button, Card, CardHeader, Field, FormError, Input, Modal, PageHeader, StatCard, Tabs, useToast } from "@/components/ui";
+import { Banknote, Calculator, CalendarDays, Hash, MapPin, RefreshCw, Trophy } from "lucide-react";
+import { BarrasHorizontales, Button, Card, CardHeader, Columnas, escalonado, Field, FormError, Input, Modal, PageHeader, StatCard, Tabs, useToast } from "@/components/ui";
 import { CATEGORIA_LABEL, CATEGORIAS_SERVICIO, CIUDAD_LABEL, CIUDADES_COBERTURA, DIA_LABEL, DIAS_SEMANA_MATRIZ } from "@/lib/constants";
-import { formatearMoneda } from "@/lib/format";
+import { formatearMoneda, formatearMonedaCompacta } from "@/lib/format";
 import { analizarMatriz, crearMatrizIdentidad, crearMatrizNula } from "@/lib/matrices";
 import type { TipoMatriz } from "@/lib/types";
 import { useAppStore } from "@/store/AppStore";
@@ -59,7 +59,7 @@ export function BillingView() {
       />
       <Tabs etiqueta="Vistas de facturación" opciones={PESTANAS} activa={pestana} onCambiar={setPestana} />
 
-      <div className="mt-6">
+      <div key={pestana} className="mt-6 animate-fade-in">
         {pestana === "semanal" && <MatrizSemanal onEditar={(fila, columna) => setCelda({ tipo: "semanal", fila, columna })} />}
         {pestana === "ciudades" && <MatrizCiudades onEditar={(fila, columna) => setCelda({ tipo: "ciudades", fila, columna })} />}
         {pestana === "simulacion" && <Simulacion />}
@@ -77,12 +77,34 @@ function MatrizSemanal({ onEditar }: { onEditar: (fila: number, columna: number)
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <StatCard etiqueta="Total facturado" valor={formatearMoneda(analisis.totalGeneral)} detalle="Semana actual" />
-        <StatCard etiqueta="Promedio por celda" valor={formatearMoneda(analisis.promedio)} detalle="Categoría por día" />
-        <StatCard etiqueta="Categoría líder" valor={CATEGORIAS[analisis.filaLider]} detalle={formatearMoneda(analisis.totalesFila[analisis.filaLider])} />
-        <StatCard etiqueta="Día con más ingresos" valor={DIAS[analisis.columnaLider]} detalle={formatearMoneda(analisis.totalesColumna[analisis.columnaLider])} />
+        <StatCard icono={Banknote} style={escalonado(0)} destacado etiqueta="Total facturado" valor={formatearMoneda(analisis.totalGeneral)} detalle="Semana actual" />
+        <StatCard icono={Calculator} style={escalonado(1)} etiqueta="Promedio por celda" valor={formatearMoneda(analisis.promedio)} detalle="Categoría por día" />
+        <StatCard icono={Trophy} style={escalonado(2)} tono="accent" etiqueta="Categoría líder" valor={CATEGORIAS[analisis.filaLider]} detalle={formatearMoneda(analisis.totalesFila[analisis.filaLider])} />
+        <StatCard icono={CalendarDays} style={escalonado(3)} etiqueta="Día con más ingresos" valor={DIAS[analisis.columnaLider]} detalle={formatearMoneda(analisis.totalesColumna[analisis.columnaLider])} />
       </div>
-      <Card>
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <Card className="animate-fade-up p-5" style={escalonado(4)}>
+          <h3 className="text-base font-semibold">Ingresos por día</h3>
+          <p className="mb-5 text-sm text-muted-foreground">Total de las cinco categorías. El día más alto aparece resaltado.</p>
+          <Columnas
+            titulo="Ingresos por día de la semana"
+            datos={DIAS.map((dia, i) => ({ etiqueta: dia, valor: analisis.totalesColumna[i] }))}
+            formato={formatearMoneda}
+            formatoEje={formatearMonedaCompacta}
+          />
+        </Card>
+        <Card className="animate-fade-up p-5" style={escalonado(5)}>
+          <h3 className="text-base font-semibold">Ingresos por categoría</h3>
+          <p className="mb-5 text-sm text-muted-foreground">Total de la semana, de mayor a menor.</p>
+          <BarrasHorizontales
+            titulo="Ingresos de la semana por categoría"
+            datos={CATEGORIAS.map((categoria, i) => ({ etiqueta: categoria, valor: analisis.totalesFila[i] }))}
+            formato={formatearMoneda}
+            destacarMayor
+          />
+        </Card>
+      </div>
+      <Card className="animate-fade-up overflow-hidden" style={escalonado(6)}>
         <CardHeader titulo="Ingresos por categoría y día" descripcion="Matriz de 5 categorías por 6 días." />
         <MatrixTable
           matriz={data.matrizSemanal}
@@ -103,11 +125,21 @@ function MatrizCiudades({ onEditar }: { onEditar: (fila: number, columna: number
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <StatCard etiqueta="Total nacional" valor={formatearMoneda(analisis.totalGeneral)} detalle="Cinco ciudades" />
-        <StatCard etiqueta="Ciudad con más demanda" valor={CIUDADES[analisis.columnaLider]} detalle={formatearMoneda(analisis.totalesColumna[analisis.columnaLider])} />
-        <StatCard etiqueta="Categoría más solicitada" valor={CATEGORIAS[analisis.filaLider]} detalle={formatearMoneda(analisis.totalesFila[analisis.filaLider])} />
+        <StatCard icono={Banknote} style={escalonado(0)} destacado etiqueta="Total nacional" valor={formatearMoneda(analisis.totalGeneral)} detalle="Cinco ciudades" />
+        <StatCard icono={MapPin} style={escalonado(1)} etiqueta="Ciudad con más demanda" valor={CIUDADES[analisis.columnaLider]} detalle={formatearMoneda(analisis.totalesColumna[analisis.columnaLider])} />
+        <StatCard icono={Trophy} style={escalonado(2)} tono="accent" etiqueta="Categoría más solicitada" valor={CATEGORIAS[analisis.filaLider]} detalle={formatearMoneda(analisis.totalesFila[analisis.filaLider])} />
       </div>
-      <Card>
+      <Card className="animate-fade-up p-5" style={escalonado(3)}>
+        <h3 className="text-base font-semibold">Demanda por ciudad</h3>
+        <p className="mb-5 text-sm text-muted-foreground">Total de las cinco categorías en cada ciudad.</p>
+        <BarrasHorizontales
+          titulo="Demanda por ciudad"
+          datos={CIUDADES.map((ciudad, i) => ({ etiqueta: ciudad, valor: analisis.totalesColumna[i] }))}
+          formato={formatearMoneda}
+          destacarMayor
+        />
+      </Card>
+      <Card className="animate-fade-up overflow-hidden" style={escalonado(4)}>
         <CardHeader titulo="Demanda por categoría y ciudad" descripcion="Matriz cuadrada de 5 × 5. La diagonal principal aparece resaltada." />
         <MatrixTable
           matriz={data.matrizCiudades}
@@ -137,12 +169,12 @@ function Simulacion() {
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <StatCard etiqueta="Total" valor={formatearMoneda(analisis.totalGeneral)} />
-        <StatCard etiqueta="Registros" valor={celdas} detalle="Celdas procesadas" />
-        <StatCard etiqueta="Promedio" valor={formatearMoneda(analisis.promedio)} />
-        <StatCard etiqueta="Mayor venta" valor={PRODUCTOS_SIMULACION[analisis.filaLider]} detalle={formatearMoneda(analisis.totalesFila[analisis.filaLider])} />
+        <StatCard icono={Banknote} style={escalonado(0)} destacado etiqueta="Total" valor={formatearMoneda(analisis.totalGeneral)} />
+        <StatCard icono={Hash} style={escalonado(0)} etiqueta="Registros" valor={celdas} detalle="Celdas procesadas" />
+        <StatCard icono={Calculator} style={escalonado(1)} etiqueta="Promedio" valor={formatearMoneda(analisis.promedio)} />
+        <StatCard icono={Trophy} style={escalonado(2)} tono="accent" etiqueta="Mayor venta" valor={PRODUCTOS_SIMULACION[analisis.filaLider]} detalle={formatearMoneda(analisis.totalesFila[analisis.filaLider])} />
       </div>
-      <Card>
+      <Card className="animate-fade-up overflow-hidden" style={escalonado(4)}>
         <CardHeader titulo="Ventas por producto en tres días" descripcion="Ejercicio práctico de la Guía 9 (matriz de 3 × 3)." />
         <MatrixTable
           matriz={MATRIZ_SIMULACION}
@@ -164,13 +196,13 @@ function Estructuras() {
   ];
   return (
     <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-      {ejemplos.map((ejemplo) => (
-        <Card key={ejemplo.titulo} className="p-5">
-          <h3 className="text-sm font-semibold text-slate-900">{ejemplo.titulo}</h3>
-          <p className="mt-1 text-sm text-slate-500">{ejemplo.descripcion}</p>
-          <div className="mt-4 inline-grid gap-1 rounded-lg bg-slate-50 p-3 font-mono text-sm" style={{ gridTemplateColumns: `repeat(${ejemplo.matriz[0].length}, 2rem)` }}>
+      {ejemplos.map((ejemplo, i) => (
+        <Card key={ejemplo.titulo} className="hover-elevar animate-fade-up p-5" style={escalonado(i)}>
+          <h3 className="text-sm font-semibold text-foreground">{ejemplo.titulo}</h3>
+          <p className="mt-1 text-sm text-muted-foreground">{ejemplo.descripcion}</p>
+          <div className="mt-4 inline-grid gap-1 rounded-xl bg-primary p-3 text-primary-foreground font-mono text-sm" style={{ gridTemplateColumns: `repeat(${ejemplo.matriz[0].length}, 2rem)` }}>
             {ejemplo.matriz.flat().map((valor, i) => (
-              <span key={i} className="text-center text-slate-700">
+              <span key={i} className={valor ? "text-center font-semibold text-accent" : "text-center text-primary-foreground/60"}>
                 {valor}
               </span>
             ))}

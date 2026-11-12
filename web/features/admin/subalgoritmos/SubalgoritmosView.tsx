@@ -27,7 +27,7 @@ export function SubalgoritmosView() {
         descripcion="Guía 10: funciones con retorno, procedimientos, lambdas, paso de argumentos y modularización aplicados a YPRI."
       />
       <Tabs etiqueta="Temas" opciones={PESTANAS} activa={activa} onCambiar={setActiva} />
-      <div className="mt-6">
+      <div key={activa} className="mt-6 animate-fade-in">
         <Contenido />
       </div>
     </>
