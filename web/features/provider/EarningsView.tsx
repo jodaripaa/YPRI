@@ -1,7 +1,7 @@
 "use client";
 
 import { Clock, Percent, Wallet } from "lucide-react";
-import { Card, CardHeader, EmptyState, escalonado, PageHeader, StatCard, Table, Td, Th } from "@/components/ui";
+import { BarraSegmentada, Card, CardHeader, EmptyState, escalonado, PageHeader, StatCard, Table, Td, Th } from "@/components/ui";
 import { COMISION_PLATAFORMA, RETENCION_FUENTE } from "@/lib/constants";
 import { contratosVisiblesPara } from "@/lib/domain/contracts";
 import { calcularComisionPlataforma, sumarTotales } from "@/lib/finance";
@@ -41,7 +41,25 @@ export function EarningsView({ usuario }: { usuario: Usuario }) {
         <StatCard icono={Clock} tono="accent" style={escalonado(2)} etiqueta="Por cobrar" valor={formatearMoneda(porCobrar)} detalle={pluralizar(enCurso.length, "servicio en curso", "servicios en curso")} />
       </div>
 
-      <Card className="mt-6 animate-fade-up overflow-hidden" style={escalonado(3)}>
+      {completados.length > 0 && (
+        <Card className="mt-6 animate-fade-up p-5" style={escalonado(3)}>
+          <h3 className="text-base font-semibold">Cómo se reparte lo que pagan tus clientes</h3>
+          <p className="mb-5 text-sm text-muted-foreground">
+            De {formatearMoneda(totalBruto)} cobrados, recibes {formatearMoneda(totalNeto)}.
+          </p>
+          <BarraSegmentada
+            titulo="Reparto del total cobrado"
+            formato={formatearMoneda}
+            partes={[
+              { etiqueta: "Tu pago neto", valor: totalNeto },
+              { etiqueta: `Comisión YPRI (${porcentaje(COMISION_PLATAFORMA)})`, valor: sumarTotales(completados, (c) => c.distribucion.comisionYpri) },
+              { etiqueta: `Retención en la fuente (${porcentaje(RETENCION_FUENTE)})`, valor: sumarTotales(completados, (c) => c.distribucion.retencionFuente) },
+            ]}
+          />
+        </Card>
+      )}
+
+      <Card className="mt-6 animate-fade-up overflow-hidden" style={escalonado(4)}>
         <CardHeader titulo="Detalle por servicio" descripcion="Valores calculados sobre el total pagado por el cliente (IVA incluido)." />
         {completados.length ? (
           <Table>

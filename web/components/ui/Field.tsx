@@ -33,7 +33,7 @@ export function Field({ etiqueta, ayuda, error, className, children }: FieldProp
       </label>
       {children({ id, "aria-describedby": idDescripcion, "aria-invalid": error ? true : undefined })}
       {(error || ayuda) && (
-        <p id={idDescripcion} className={cx("mt-1.5 text-xs", error ? "text-red-600" : "text-muted-foreground")}>
+        <p id={idDescripcion} className={cx("mt-1.5 text-xs", error ? "text-red-600 dark:text-red-400" : "text-muted-foreground")}>
           {error || ayuda}
         </p>
       )}
@@ -56,7 +56,7 @@ export function Textarea({ className, ...props }: TextareaHTMLAttributes<HTMLTex
 export function FormError({ mensaje }: { mensaje: string | null }) {
   if (!mensaje) return null;
   return (
-    <p role="alert" className="flex animate-fade-in items-start gap-2 rounded-xl border border-red-200 bg-red-50 px-3.5 py-2.5 text-sm text-red-700">
+    <p role="alert" className="flex animate-fade-in items-start gap-2 rounded-xl border border-red-200 dark:border-red-500/30 bg-red-50 dark:bg-red-500/10 px-3.5 py-2.5 text-sm text-red-700 dark:text-red-300">
       <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden />
       {mensaje}
     </p>

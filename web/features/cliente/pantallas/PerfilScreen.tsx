@@ -6,6 +6,7 @@ import { resumenCliente } from "@/lib/domain/cliente";
 import { formatearMoneda, iniciales } from "@/lib/format";
 import type { Usuario } from "@/lib/types";
 import { Button } from "@/components/ui";
+import { SelectorTema } from "@/components/layout/Tema";
 import { useAppStore } from "@/store/AppStore";
 import { MarcoMovil } from "../componentes";
 
@@ -21,7 +22,8 @@ export function PerfilScreen({ usuario, onCerrarSesion, onVerReservas }: Props) 
 
   return (
     <MarcoMovil>
-      <div className="bg-primary px-4 pb-16 pt-8 text-center sm:rounded-b-3xl">
+      <div className="relative overflow-hidden bg-primary px-4 pb-16 pt-8 text-center sm:rounded-b-3xl lg:mx-4 lg:mt-8 lg:rounded-3xl lg:pb-20 lg:pt-12">
+        <div aria-hidden className="absolute -right-20 -top-20 hidden h-72 w-72 rounded-full bg-accent/20 blur-3xl lg:block" />
         <span
           aria-hidden
           className="mx-auto flex h-20 w-20 animate-pop items-center justify-center rounded-full border-4 border-primary-foreground/20 bg-accent text-2xl font-bold text-accent-foreground"
@@ -34,13 +36,13 @@ export function PerfilScreen({ usuario, onCerrarSesion, onVerReservas }: Props) 
         </p>
       </div>
 
-      <div className="relative z-10 mx-4 -mt-10 grid animate-fade-up grid-cols-3 divide-x divide-border rounded-2xl border border-border bg-card py-4 text-center shadow-sm">
+      <div className="relative z-10 mx-4 -mt-10 grid animate-fade-up grid-cols-3 lg:mx-auto lg:max-w-2xl divide-x divide-border rounded-2xl border border-border bg-card py-4 text-center shadow-sm">
         <Cifra valor={String(resumen.solicitudes)} etiqueta="Reservas" />
         <Cifra valor={String(resumen.completados)} etiqueta="Completadas" />
         <Cifra valor={formatearMoneda(resumen.totalInvertido)} etiqueta="Invertido" />
       </div>
 
-      <div className="mx-auto max-w-xl space-y-6 px-4 py-6">
+      <div className="mx-auto max-w-xl space-y-6 px-4 py-6 lg:grid lg:max-w-4xl lg:grid-cols-2 lg:gap-6 lg:space-y-0 lg:pt-10">
         <section>
           <h2 className="mb-2 px-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Mis datos</h2>
           <div className="divide-y divide-border overflow-hidden rounded-2xl border border-border bg-card">
@@ -48,6 +50,11 @@ export function PerfilScreen({ usuario, onCerrarSesion, onVerReservas }: Props) 
             <Fila icono={Phone} etiqueta="Teléfono" valor={usuario.telefono} />
             <Fila icono={MapPin} etiqueta="Ciudad" valor={CIUDAD_LABEL[usuario.ciudad]} />
           </div>
+        </section>
+
+        <section>
+          <h2 className="mb-2 px-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Apariencia</h2>
+          <SelectorTema conEtiquetas className="w-full" />
         </section>
 
         <section>
@@ -70,7 +77,7 @@ export function PerfilScreen({ usuario, onCerrarSesion, onVerReservas }: Props) 
           </button>
         </section>
 
-        <Button variante="danger" icono={LogOut} bloque onClick={onCerrarSesion}>
+        <Button variante="danger" icono={LogOut} bloque className="lg:col-span-2 lg:w-auto lg:justify-self-center lg:px-10" onClick={onCerrarSesion}>
           Cerrar sesión
         </Button>
       </div>
@@ -81,7 +88,7 @@ export function PerfilScreen({ usuario, onCerrarSesion, onVerReservas }: Props) 
 function Cifra({ valor, etiqueta }: { valor: string; etiqueta: string }) {
   return (
     <div className="min-w-0 px-2">
-      <p className="truncate text-base font-bold text-primary sm:text-lg">{valor}</p>
+      <p className="truncate text-base font-bold text-enfasis sm:text-lg">{valor}</p>
       <p className="text-xs text-muted-foreground">{etiqueta}</p>
     </div>
   );

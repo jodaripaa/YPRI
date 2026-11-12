@@ -62,8 +62,8 @@ export function ToastProvider({ children }: { children: ReactNode }) {
               role={toast.tono === "error" ? "alert" : "status"}
               className="pointer-events-auto flex w-full max-w-sm animate-fade-up items-start gap-3 rounded-2xl border border-border bg-card px-4 py-3 text-sm shadow-elevada lg:animate-slide-in-right"
             >
-              <span className={cx("flex h-6 w-6 shrink-0 items-center justify-center rounded-full", toast.tono === "exito" ? "bg-accent/20" : "bg-red-100")}>
-                <Icono className={cx("h-4 w-4", toast.tono === "exito" ? "text-accent-strong" : "text-red-600")} aria-hidden />
+              <span className={cx("flex h-6 w-6 shrink-0 items-center justify-center rounded-full", toast.tono === "exito" ? "bg-accent/20" : "bg-red-100 dark:bg-red-500/15")}>
+                <Icono className={cx("h-4 w-4", toast.tono === "exito" ? "text-accent-strong" : "text-red-600 dark:text-red-400")} aria-hidden />
               </span>
               <p className="flex-1 pt-0.5">{toast.mensaje}</p>
               <button type="button" onClick={() => descartar(toast.id)} className="text-muted-foreground hover:text-foreground" aria-label="Cerrar aviso">

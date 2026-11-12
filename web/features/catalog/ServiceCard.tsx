@@ -10,7 +10,7 @@ export function ServiceCard({ servicio, onSolicitar }: { servicio: Servicio; onS
       <div className="flex items-start gap-3">
         <Avatar texto={iniciales(servicio.prestador_nombre)} />
         <div className="min-w-0 flex-1">
-          <p className="text-xs font-medium uppercase tracking-wide text-primary">{CATEGORIA_LABEL[servicio.categoria]}</p>
+          <p className="text-xs font-medium uppercase tracking-wide text-enfasis">{CATEGORIA_LABEL[servicio.categoria]}</p>
           <h3 className="truncate text-base font-semibold text-foreground">{servicio.prestador_nombre}</h3>
           <Calificacion valor={servicio.calificacion} resenas={servicio.num_resenas} />
         </div>

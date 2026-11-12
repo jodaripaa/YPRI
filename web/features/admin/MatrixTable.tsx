@@ -44,14 +44,14 @@ export function MatrixTable({ matriz, filas, columnas, etiquetaFila, etiquetaTot
               </th>
               {fila.map((valor, j) => {
                 const diagonal = resaltarDiagonal && i === j;
-                const clases = cx(celdaBase, diagonal ? "bg-primary-soft font-medium text-primary" : "text-foreground/80");
+                const clases = cx(celdaBase, diagonal ? "bg-primary-soft font-medium text-enfasis" : "text-foreground/80");
                 return (
                   <td key={columnas[j]} className={clases}>
                     {editable ? (
                       <button
                         type="button"
                         onClick={() => onEditarCelda?.(i, j)}
-                        className="rounded-md px-1.5 py-0.5 hover:bg-accent/15 hover:text-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent"
+                        className="rounded-md px-1.5 py-0.5 hover:bg-accent/15 hover:text-enfasis focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent"
                         aria-label={`Editar ${filas[i]}, ${columnas[j]}: ${formatearMoneda(valor)}`}
                       >
                         {formatearMoneda(valor)}
@@ -76,7 +76,7 @@ export function MatrixTable({ matriz, filas, columnas, etiquetaFila, etiquetaTot
                 {formatearMoneda(total)}
               </td>
             ))}
-            <td className="px-4 py-2.5 text-right font-semibold tabular-nums text-primary">{formatearMoneda(totalGeneral)}</td>
+            <td className="px-4 py-2.5 text-right font-semibold tabular-nums text-enfasis">{formatearMoneda(totalGeneral)}</td>
           </tr>
         </tfoot>
       </table>

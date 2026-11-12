@@ -23,7 +23,7 @@ export function PageHeader({ titulo, descripcion, acciones }: { titulo: string; 
 type TonoStat = "primary" | "accent" | "neutral";
 
 const TONO_STAT: Record<TonoStat, { caja: string; icono: string }> = {
-  primary: { caja: "bg-primary-soft", icono: "text-primary" },
+  primary: { caja: "bg-primary-soft", icono: "text-enfasis" },
   accent: { caja: "bg-accent/15", icono: "text-accent-strong" },
   neutral: { caja: "bg-muted", icono: "text-muted-foreground" },
 };
@@ -202,7 +202,7 @@ export function Avatar({ texto, className }: { texto: string; className?: string
       aria-hidden
       className={cx(
         "inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-sm font-semibold",
-        !colorPropio && "bg-primary-soft text-primary",
+        !colorPropio && "bg-primary-soft text-enfasis",
         className,
       )}
     >
@@ -215,7 +215,7 @@ export function DatoFila({ etiqueta, valor, destacado }: { etiqueta: string; val
   return (
     <div className={cx("flex items-center justify-between gap-4 py-1.5 text-sm", destacado && "text-base font-bold")}>
       <span className={destacado ? "" : "text-muted-foreground"}>{etiqueta}</span>
-      <span className={destacado ? "text-primary" : "text-foreground"}>{valor}</span>
+      <span className={destacado ? "text-enfasis" : "text-foreground"}>{valor}</span>
     </div>
   );
 }

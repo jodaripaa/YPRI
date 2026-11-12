@@ -14,5 +14,5 @@ export function Logo({ claro, className, prioridad }: { claro?: boolean; classNa
       </span>
     );
   }
-  return <Image src="/images/ypri-logo.png" alt="YPRI" width={94} height={32} priority={prioridad} className={cx("h-8 w-auto", className)} />;
+  return <Image src="/images/ypri-logo.png" alt="YPRI" width={94} height={32} priority={prioridad} className={cx("h-8 w-auto dark:brightness-0 dark:invert", className)} />;
 }

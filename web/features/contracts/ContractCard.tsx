@@ -54,7 +54,7 @@ export function ContractCard({ contrato, usuario, acciones, onAccion, style }: P
       )}
 
       {contrato.calificacion !== undefined && (
-        <p className="mt-3 flex items-start gap-1.5 rounded-xl bg-amber-50 px-3 py-2 text-sm">
+        <p className="mt-3 flex items-start gap-1.5 rounded-xl bg-amber-50 dark:bg-amber-400/10 px-3 py-2 text-sm">
           <Star className="mt-0.5 h-4 w-4 shrink-0 fill-amber-400 text-amber-400" aria-hidden />
           <span>
             <span className="font-medium">{contrato.calificacion} de 5</span>
@@ -65,7 +65,7 @@ export function ContractCard({ contrato, usuario, acciones, onAccion, style }: P
 
       <div className="mt-4 flex flex-col gap-3 border-t border-border pt-4 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-sm">
-          <span className="text-lg font-bold text-primary">{formatearMoneda(contrato.total)}</span>
+          <span className="text-lg font-bold text-enfasis">{formatearMoneda(contrato.total)}</span>
           <span className="text-xs text-muted-foreground"> IVA incluido</span>
         </p>
         {acciones.length > 0 && (

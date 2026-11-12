@@ -44,7 +44,7 @@ export function BottomNav<T extends string>({
                 )}
               >
                 <Icono
-                  className={cx("h-[22px] w-[22px] transition-all duration-300", seleccionada ? "scale-110 text-primary" : "text-muted-foreground")}
+                  className={cx("h-[22px] w-[22px] transition-all duration-300", seleccionada ? "scale-110 text-enfasis" : "text-muted-foreground")}
                   aria-hidden
                 />
                 {insignia !== undefined && insignia > 0 && (
@@ -57,7 +57,7 @@ export function BottomNav<T extends string>({
                   </span>
                 )}
               </span>
-              <span className={cx("max-w-full truncate text-[11px] font-medium transition-colors", seleccionada ? "text-primary" : "text-muted-foreground")}>
+              <span className={cx("max-w-full truncate text-[11px] font-medium transition-colors", seleccionada ? "text-enfasis" : "text-muted-foreground")}>
                 {etiqueta}
               </span>
             </button>

@@ -1,11 +1,12 @@
 "use client";
 
 import { Activity, Banknote, Star, TrendingUp, Users } from "lucide-react";
-import { Avatar, Card, CardHeader, escalonado, EstadoContratoBadge, PageHeader, StatCard, Table, Td, Th } from "@/components/ui";
-import { CATEGORIA_LABEL, CIUDAD_LABEL } from "@/lib/constants";
+import { Avatar, BarrasHorizontales, Card, CardHeader, escalonado, EstadoContratoBadge, PageHeader, StatCard, Table, Td, Th } from "@/components/ui";
+import { CATEGORIA_LABEL, CATEGORIAS_SERVICIO, CIUDAD_LABEL, ESTADOS_CONTRATO } from "@/lib/constants";
+import { analizarMatriz } from "@/lib/matrices";
 import { ESTADOS_ACTIVOS } from "@/lib/domain/contracts";
 import { calcularComisionPlataforma, sumarTotales } from "@/lib/finance";
-import { formatearCalificacion, formatearFecha, formatearMoneda, iniciales } from "@/lib/format";
+import { formatearCalificacion, formatearFecha, formatearMoneda, iniciales, pluralizar } from "@/lib/format";
 import { useAppStore } from "@/store/AppStore";
 
 const ULTIMOS_CONTRATOS = 5;
@@ -18,6 +19,7 @@ export function AdminOverview() {
   const comisiones = sumarTotales(completados, (c) => calcularComisionPlataforma(c.total).comisionYpri);
   const profesionales = data.usuarios.filter((u) => u.rol === "prestador" && u.activo).length;
   const clientes = data.usuarios.filter((u) => u.rol === "cliente" && u.activo).length;
+  const semanal = analizarMatriz(data.matrizSemanal);
   const mejorCalificados = [...data.servicios]
     .filter((s) => s.num_resenas > 0)
     .sort((a, b) => b.calificacion - a.calificacion || b.num_resenas - a.num_resenas)
@@ -34,8 +36,31 @@ export function AdminOverview() {
         <StatCard icono={Users} tono="neutral" style={escalonado(3)} etiqueta="Usuarios activos" valor={clientes + profesionales} detalle={`${clientes} clientes · ${profesionales} profesionales`} />
       </div>
 
+      <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <Card className="animate-fade-up p-5" style={escalonado(4)}>
+          <h3 className="text-base font-semibold">Ingresos de la semana por categoría</h3>
+          <p className="mb-5 text-sm text-muted-foreground">Según la matriz de facturación semanal.</p>
+          <BarrasHorizontales
+            titulo="Ingresos de la semana por categoría"
+            datos={CATEGORIAS_SERVICIO.map((c, i) => ({ etiqueta: CATEGORIA_LABEL[c], valor: semanal.totalesFila[i] ?? 0 }))}
+            formato={formatearMoneda}
+            destacarMayor
+          />
+        </Card>
+        <Card className="animate-fade-up p-5" style={escalonado(5)}>
+          <h3 className="text-base font-semibold">Contratos por estado</h3>
+          <p className="mb-5 text-sm text-muted-foreground">Todos los contratos registrados en la plataforma.</p>
+          <BarrasHorizontales
+            titulo="Contratos por estado"
+            datos={ESTADOS_CONTRATO.map((estado) => ({ etiqueta: estado, valor: data.contratos.filter((c) => c.estado === estado).length }))}
+            formato={(n) => pluralizar(n, "contrato", "contratos")}
+            ordenar={false}
+          />
+        </Card>
+      </div>
+
       <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-5">
-        <Card className="animate-fade-up overflow-hidden lg:col-span-3" style={escalonado(4)}>
+        <Card className="animate-fade-up overflow-hidden lg:col-span-3" style={escalonado(6)}>
           <CardHeader titulo="Contratos recientes" />
           <Table>
             <thead>
@@ -66,7 +91,7 @@ export function AdminOverview() {
           </Table>
         </Card>
 
-        <Card className="animate-fade-up overflow-hidden lg:col-span-2" style={escalonado(5)}>
+        <Card className="animate-fade-up overflow-hidden lg:col-span-2" style={escalonado(7)}>
           <CardHeader titulo="Mejor calificados" />
           <ul className="divide-y divide-border/70">
             {mejorCalificados.map((s, i) => (
@@ -79,7 +104,7 @@ export function AdminOverview() {
                     {CATEGORIA_LABEL[s.categoria]} · {CIUDAD_LABEL[s.ciudad]}
                   </p>
                 </div>
-                <p className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2 py-0.5 text-sm tabular-nums">
+                <p className="inline-flex items-center gap-1 rounded-full bg-amber-50 dark:bg-amber-400/10 px-2 py-0.5 text-sm tabular-nums">
                   <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" aria-hidden />
                   <span className="font-semibold text-foreground">{formatearCalificacion(s.calificacion)}</span>
                 </p>

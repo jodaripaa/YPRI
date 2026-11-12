@@ -44,7 +44,10 @@ export function ProfesionalScreen({ codigo, onVolver, onReservar, onAbrirServici
 
   return (
     <MarcoMovil conNavegacion={false}>
-      <div className="relative h-44 bg-gradient-to-br from-primary to-primary/80 sm:rounded-b-3xl">
+      {/* En escritorio: ficha del profesional fija a la izquierda y pestañas a la derecha. */}
+      <div className="lg:flex lg:items-start lg:gap-8 lg:px-4 lg:pt-8">
+      <aside className="lg:sticky lg:top-24 lg:w-[380px] lg:shrink-0 lg:animate-fade-up lg:overflow-hidden lg:rounded-3xl lg:border lg:border-border lg:bg-card lg:pb-6 lg:shadow-suave">
+      <div className="relative h-44 bg-gradient-to-br from-primary to-primary/80 sm:rounded-b-3xl lg:h-36 lg:rounded-none">
         <button
           type="button"
           onClick={onVolver}
@@ -53,7 +56,7 @@ export function ProfesionalScreen({ codigo, onVolver, onReservar, onAbrirServici
         >
           <ArrowLeft className="h-5 w-5" />
         </button>
-        <span className="absolute right-4 top-4 rounded-full bg-card/90 px-3 py-1 text-xs font-semibold text-primary">{CATEGORIA_LABEL[servicio.categoria]}</span>
+        <span className="absolute right-4 top-4 rounded-full bg-card/90 px-3 py-1 text-xs font-semibold text-enfasis">{CATEGORIA_LABEL[servicio.categoria]}</span>
         <div className="absolute -bottom-14 left-1/2 -translate-x-1/2 rounded-full border-4 border-background bg-card">
           <AvatarProfesional servicio={servicio} tamano="xl" />
         </div>
@@ -100,9 +103,24 @@ export function ProfesionalScreen({ codigo, onVolver, onReservar, onAbrirServici
             Este profesional no está recibiendo reservas por ahora.
           </p>
         )}
+        {servicio.disponible && (
+          <div className="mt-5 hidden border-t border-border pt-5 text-left lg:block">
+            <p className="text-xs text-muted-foreground">Tarifa por hora</p>
+            <p className="mb-4 text-2xl font-bold text-enfasis">
+              {formatearMoneda(servicio.tarifa_hora)}
+              <span className="text-sm font-normal text-muted-foreground"> + IVA</span>
+            </p>
+            <Button bloque tamano="lg" onClick={() => onReservar(servicio.codigo)}>
+              Reservar ahora
+            </Button>
+          </div>
+        )}
       </div>
+      </aside>
 
-      <div role="tablist" aria-label="Información del profesional" className="flex border-b border-border">
+      <div className="lg:min-w-0 lg:flex-1 lg:animate-fade-up">
+
+      <div role="tablist" aria-label="Información del profesional" className="flex border-b border-border lg:rounded-2xl lg:border lg:bg-card lg:p-1 lg:shadow-suave">
         {PESTANAS.map((p) => (
           <button
             key={p.id}
@@ -111,8 +129,8 @@ export function ProfesionalScreen({ codigo, onVolver, onReservar, onAbrirServici
             aria-selected={pestana === p.id}
             onClick={() => setPestana(p.id)}
             className={cx(
-              "flex-1 border-b-2 py-3 text-sm font-medium transition-colors",
-              pestana === p.id ? "border-accent text-primary" : "border-transparent text-muted-foreground hover:text-foreground",
+              "flex-1 border-b-2 py-3 text-sm font-medium transition-colors lg:rounded-xl lg:border-b-0 lg:py-2.5",
+              pestana === p.id ? "border-accent text-enfasis lg:bg-primary-soft" : "border-transparent text-muted-foreground hover:text-foreground",
             )}
           >
             {p.etiqueta}
@@ -121,7 +139,7 @@ export function ProfesionalScreen({ codigo, onVolver, onReservar, onAbrirServici
         ))}
       </div>
 
-      <div className="px-4 py-4">
+      <div key={pestana} className="animate-fade-in px-4 py-4 lg:px-0 lg:py-6">
         {pestana === "servicio" && (
           <div className="flex flex-col gap-3">
             <div className="rounded-2xl border border-border bg-card p-4">
@@ -130,7 +148,7 @@ export function ProfesionalScreen({ codigo, onVolver, onReservar, onAbrirServici
               <div className="mt-4 flex items-end justify-between border-t border-border pt-4">
                 <div>
                   <p className="text-xs text-muted-foreground">Tarifa por hora</p>
-                  <p className="text-xl font-bold text-primary">{formatearMoneda(servicio.tarifa_hora)}</p>
+                  <p className="text-xl font-bold text-enfasis">{formatearMoneda(servicio.tarifa_hora)}</p>
                 </div>
                 <p className="text-xs text-muted-foreground">+ IVA {Math.round(IVA_PORCENTAJE * 100)} %</p>
               </div>
@@ -199,12 +217,15 @@ export function ProfesionalScreen({ codigo, onVolver, onReservar, onAbrirServici
         )}
       </div>
 
+      </div>
+      </div>
+
       {servicio.disponible && (
-        <div className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-card/95 backdrop-blur-md">
+        <div className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-card/95 backdrop-blur-md lg:hidden">
           <div className="pb-safe mx-auto flex max-w-[1180px] items-center gap-4 px-4 pt-3 sm:px-8">
             <div className="min-w-0 flex-1">
               <p className="text-xs text-muted-foreground">Desde</p>
-              <p className="text-lg font-bold text-primary">
+              <p className="text-lg font-bold text-enfasis">
                 {formatearMoneda(servicio.tarifa_hora)}
                 <span className="text-xs font-normal text-muted-foreground"> /hora</span>
               </p>

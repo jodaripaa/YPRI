@@ -144,7 +144,7 @@ function TarjetaReserva({
       </div>
 
       <button type="button" onClick={onVerProfesional} className="touch-feedback mb-3 flex items-center gap-3 text-left">
-        <span aria-hidden className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary/10 font-semibold text-primary">
+        <span aria-hidden className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary/10 font-semibold text-enfasis">
           {iniciales(contrato.prestador_nombre)}
         </span>
         <span className="min-w-0">
@@ -171,7 +171,7 @@ function TarjetaReserva({
 
       <div className="mt-4 flex items-center justify-between gap-3 border-t border-border pt-3">
         <p className="text-sm">
-          <span className="text-base font-bold text-primary">{formatearMoneda(contrato.total)}</span>
+          <span className="text-base font-bold text-enfasis">{formatearMoneda(contrato.total)}</span>
           <span className="text-xs text-muted-foreground"> IVA incl.</span>
         </p>
         <div className="flex gap-2">

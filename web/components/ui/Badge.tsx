@@ -6,10 +6,10 @@ export type Tono = "neutral" | "blue" | "green" | "amber" | "red";
 
 const TONOS: Record<Tono, string> = {
   neutral: "bg-muted text-muted-foreground",
-  blue: "bg-sky-100 text-sky-800",
-  green: "bg-emerald-100 text-emerald-800",
-  amber: "bg-amber-100 text-amber-800",
-  red: "bg-red-100 text-red-700",
+  blue: "bg-sky-100 text-sky-800 dark:bg-sky-400/15 dark:text-sky-300",
+  green: "bg-emerald-100 text-emerald-800 dark:bg-emerald-400/15 dark:text-emerald-300",
+  amber: "bg-amber-100 text-amber-800 dark:bg-amber-400/15 dark:text-amber-300",
+  red: "bg-red-100 dark:bg-red-500/15 text-red-700 dark:text-red-300",
 };
 
 const PUNTOS: Record<Tono, string> = {

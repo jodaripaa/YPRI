@@ -97,7 +97,7 @@ function ServicioPropio({ servicio, style }: { servicio: Servicio; style?: CSSPr
 function Cifra({ etiqueta, valor }: { etiqueta: string; valor: string }) {
   return (
     <div className="rounded-xl bg-muted px-2 py-2.5">
-      <dd className="truncate text-sm font-bold text-primary">{valor}</dd>
+      <dd className="truncate text-sm font-bold text-enfasis">{valor}</dd>
       <dt className="text-[11px] text-muted-foreground">{etiqueta}</dt>
     </div>
   );

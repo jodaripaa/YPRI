@@ -10,8 +10,8 @@ const VARIANTES: Record<Variante, string> = {
   accent: "bg-accent text-accent-foreground shadow-sm hover:bg-accent/90",
   secondary: "border border-border bg-card text-foreground hover:bg-muted",
   ghost: "text-muted-foreground hover:bg-muted hover:text-foreground",
-  danger: "border border-red-200 bg-card text-red-600 hover:bg-red-50",
-  success: "bg-accent-strong text-white shadow-sm hover:bg-accent-strong/90",
+  danger: "border border-red-200 dark:border-red-500/30 bg-card text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10",
+  success: "bg-accent-strong text-white shadow-sm hover:bg-accent-strong/90 dark:text-accent-foreground",
 };
 
 const TAMANOS: Record<Tamano, string> = {

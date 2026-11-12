@@ -100,7 +100,7 @@ export function CatalogView({ usuario, onSolicitudCreada }: { usuario: Usuario; 
               type="checkbox"
               checked={filtros.soloDisponibles}
               onChange={(e) => actualizar("soloDisponibles", e.target.checked)}
-              className="h-4 w-4 rounded border-border text-primary focus:ring-accent"
+              className="h-4 w-4 rounded border-border text-enfasis focus:ring-accent"
             />
             Solo disponibles
           </label>

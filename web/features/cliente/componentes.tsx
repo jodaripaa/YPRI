@@ -18,14 +18,14 @@ import { ICONO_CATEGORIA, PROFESION_CATEGORIA } from "./categorias";
 export function MarcoMovil({ children, conNavegacion = true }: { children: ReactNode; conNavegacion?: boolean }) {
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <div className={cx("relative mx-auto w-full max-w-[1180px] animate-fade-in sm:px-6 lg:px-8", conNavegacion ? "pb-24" : "pb-28")}>{children}</div>
+      <div className={cx("relative mx-auto w-full max-w-[1180px] animate-fade-in sm:px-6 lg:px-8", conNavegacion ? "pb-24 lg:pb-16" : "pb-28 lg:pb-16")}>{children}</div>
     </div>
   );
 }
 
 export function EncabezadoInicio({ usuario, onPerfil }: { usuario: Usuario; onPerfil: () => void }) {
   return (
-    <header className="flex items-center justify-between gap-3 bg-card px-4 py-3 sm:rounded-b-2xl">
+    <header className="flex items-center justify-between gap-3 bg-card px-4 py-3 sm:rounded-b-2xl lg:hidden">
       <Logo prioridad />
       <div className="flex min-w-0 items-center gap-2">
         <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-accent/15">
@@ -50,7 +50,7 @@ export function EncabezadoInicio({ usuario, onPerfil }: { usuario: Usuario; onPe
 
 export function BarraSuperior({ titulo, subtitulo, onVolver, accion }: { titulo: string; subtitulo?: string; onVolver?: () => void; accion?: ReactNode }) {
   return (
-    <header className="sticky top-0 z-30 flex items-center gap-3 border-b border-border bg-card/95 px-4 py-3 backdrop-blur-md">
+    <header className="sticky top-0 z-30 flex items-center gap-3 border-b border-border bg-card/95 px-4 py-3 backdrop-blur-md lg:static lg:border-0 lg:bg-transparent lg:pb-2 lg:pt-8 lg:backdrop-blur-none">
       {onVolver && (
         <button
           type="button"
@@ -62,8 +62,8 @@ export function BarraSuperior({ titulo, subtitulo, onVolver, accion }: { titulo:
         </button>
       )}
       <div className="min-w-0 flex-1">
-        <h1 className="truncate text-lg font-semibold">{titulo}</h1>
-        {subtitulo && <p className="truncate text-xs text-muted-foreground">{subtitulo}</p>}
+        <h1 className="truncate text-lg font-semibold lg:text-3xl lg:font-bold lg:tracking-tight">{titulo}</h1>
+        {subtitulo && <p className="truncate text-xs text-muted-foreground lg:mt-1 lg:text-sm">{subtitulo}</p>}
       </div>
       {accion}
     </header>
@@ -78,20 +78,24 @@ export function BarraBusqueda({
   onEnviar,
   placeholder = "Buscar electricistas, plomeros...",
   autoFocus,
+  className,
+  claseCampo,
 }: {
   valor: string;
   onCambiar: (valor: string) => void;
   onEnviar?: (valor: string) => void;
   placeholder?: string;
   autoFocus?: boolean;
+  className?: string;
+  claseCampo?: string;
 }) {
   const enviar = (evento: FormEvent) => {
     evento.preventDefault();
     onEnviar?.(valor);
   };
   return (
-    <form role="search" onSubmit={enviar} className="px-4 py-2">
-      <label className="flex items-center gap-3 rounded-2xl bg-muted px-4 py-3 transition-all duration-200 focus-within:bg-card focus-within:shadow-suave focus-within:ring-2 focus-within:ring-accent">
+    <form role="search" onSubmit={enviar} className={cx("px-4 py-2", className)}>
+      <label className={cx("flex items-center gap-3 rounded-2xl bg-muted px-4 py-3 transition-all duration-200 focus-within:bg-card focus-within:shadow-suave focus-within:ring-2 focus-within:ring-accent", claseCampo)}>
         <Search className="h-5 w-5 shrink-0 text-muted-foreground" aria-hidden />
         <span className="sr-only">Buscar servicios</span>
         <input
@@ -136,9 +140,9 @@ export function CarruselCategorias({
                 activa ? "bg-primary shadow-lg" : "bg-muted group-hover:bg-primary-soft",
               )}
             >
-              <Icono className={cx("h-6 w-6 transition-colors", activa ? "text-primary-foreground" : "text-foreground group-hover:text-primary")} aria-hidden />
+              <Icono className={cx("h-6 w-6 transition-colors", activa ? "text-primary-foreground" : "text-foreground group-hover:text-enfasis")} aria-hidden />
             </span>
-            <span className={cx("text-center text-xs font-medium", activa ? "text-primary" : "text-muted-foreground")}>{CATEGORIA_LABEL[categoria]}</span>
+            <span className={cx("text-center text-xs font-medium", activa ? "text-enfasis" : "text-muted-foreground")}>{CATEGORIA_LABEL[categoria]}</span>
           </button>
         );
       })}
@@ -180,7 +184,7 @@ export function EncabezadoSeccion({ titulo, accion, onAccion }: { titulo: string
 export function AvatarProfesional({ servicio, tamano = "md" }: { servicio: Servicio; tamano?: "md" | "lg" | "xl" }) {
   const clases = { md: "h-16 w-16 rounded-xl text-lg", lg: "h-20 w-20 rounded-2xl text-xl", xl: "h-28 w-28 rounded-full text-3xl" }[tamano];
   return (
-    <span aria-hidden className={cx("relative flex shrink-0 items-center justify-center bg-primary-soft font-semibold text-primary", clases)}>
+    <span aria-hidden className={cx("relative flex shrink-0 items-center justify-center bg-primary-soft font-semibold text-enfasis", clases)}>
       {iniciales(servicio.prestador_nombre)}
       {servicio.disponible && (
         <span className={cx("absolute rounded-full border-2 border-card bg-accent", tamano === "xl" ? "bottom-2 right-2 h-5 w-5" : "bottom-1 right-1 h-3 w-3")} />
@@ -214,7 +218,7 @@ export function TarjetaDestacada({ servicio, onAbrir, style }: { servicio: Servi
       <span className="relative flex h-28 w-full items-center justify-center overflow-hidden bg-gradient-to-br from-primary to-primary/80">
         <span aria-hidden className="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-accent/20 blur-xl" />
         <Icono className="h-12 w-12 text-accent transition-transform duration-300 group-hover:scale-110" aria-hidden />
-        <span className="absolute left-3 top-3 rounded-full bg-card/90 px-2 py-0.5 text-[10px] font-semibold text-primary">
+        <span className="absolute left-3 top-3 rounded-full bg-card/90 px-2 py-0.5 text-[10px] font-semibold text-enfasis">
           {CATEGORIA_LABEL[servicio.categoria]}
         </span>
         {servicio.disponible && (
@@ -231,7 +235,7 @@ export function TarjetaDestacada({ servicio, onAbrir, style }: { servicio: Servi
         </span>
         <span className="mt-auto flex items-center justify-between gap-2">
           <Estrellas valor={servicio.calificacion} resenas={servicio.num_resenas} compacto />
-          <span className="text-xs font-semibold text-primary">{formatearMoneda(servicio.tarifa_hora)}/h</span>
+          <span className="text-xs font-semibold text-enfasis">{formatearMoneda(servicio.tarifa_hora)}/h</span>
         </span>
       </span>
     </button>
@@ -267,7 +271,7 @@ export function TarjetaServicio({ servicio, onAbrir, style }: { servicio: Servic
         </span>
       </span>
       <span className="flex shrink-0 flex-col items-end justify-between">
-        <span className="text-base font-bold text-primary">{formatearMoneda(servicio.tarifa_hora)}</span>
+        <span className="text-base font-bold text-enfasis">{formatearMoneda(servicio.tarifa_hora)}</span>
         <span className="text-[10px] text-muted-foreground">por hora</span>
         {!servicio.disponible && <span className="mt-1 rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground">No disponible</span>}
       </span>

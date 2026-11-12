@@ -1,8 +1,13 @@
 import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
+import { Inter } from "next/font/google";
+import { SCRIPT_TEMA } from "@/components/layout/temaScript";
 import { ToastProvider } from "@/components/ui";
 import { AppStoreProvider } from "@/store/AppStore";
 import "./globals.css";
+
+// Tipografía del prototipo de v0, servida por Next.js desde el propio sitio.
+const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
 
 export const metadata: Metadata = {
   title: "YPRI | Servicios a domicilio",
@@ -12,13 +17,20 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  themeColor: "#0F172A",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#003151" },
+    { media: "(prefers-color-scheme: dark)", color: "#060e15" },
+  ],
 };
 
 export default function RootLayout({ children }: Readonly<{ children: ReactNode }>) {
   return (
-    <html lang="es">
-      <body className="min-h-screen bg-slate-100 text-slate-900 antialiased">
+    // La clase "dark" la pone el script antes de hidratar; por eso se ignora la diferencia.
+    <html lang="es" className={inter.variable} suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: SCRIPT_TEMA }} />
+      </head>
+      <body className="min-h-screen">
         <AppStoreProvider>
           <ToastProvider>{children}</ToastProvider>
         </AppStoreProvider>

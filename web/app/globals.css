@@ -19,6 +19,36 @@
   --muted-foreground: 100 106 112;
   --border: 219 222 225;
   --destructive: 220 38 38;
+  --enfasis: 0 49 81;
+  /* Gráficas: un tono para magnitudes y tres categóricos validados (reparto del pago). */
+  --grafica: 0 49 81;
+  --serie-1: 27 175 122;
+  --serie-2: 42 120 214;
+  --serie-3: 235 104 52;
+  color-scheme: light;
+}
+
+/* Tema oscuro (paleta oscura del prototipo de v0). */
+.dark {
+  --background: 6 14 21;
+  --foreground: 239 242 245;
+  --card: 14 25 32;
+  --primary: 4 60 90;
+  --primary-foreground: 246 249 251;
+  --primary-soft: 19 41 56;
+  --accent: 61 202 141;
+  --accent-foreground: 0 19 33;
+  --accent-strong: 61 202 141;
+  --muted: 25 35 42;
+  --muted-foreground: 152 160 165;
+  --border: 38 50 58;
+  --destructive: 237 83 80;
+  --enfasis: 146 206 231;
+  --grafica: 146 206 231;
+  --serie-1: 25 158 112;
+  --serie-2: 57 135 229;
+  --serie-3: 217 89 38;
+  color-scheme: dark;
 }
 
 @layer base {
@@ -26,8 +56,9 @@
     -webkit-tap-highlight-color: transparent;
   }
   body {
-    @apply bg-background text-foreground antialiased;
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Ubuntu, Cantarell, sans-serif;
+    @apply bg-background font-sans text-foreground antialiased;
+    font-feature-settings: "cv11", "ss01";
+    transition: background-color 0.3s ease, color 0.3s ease;
   }
   ::selection {
     @apply bg-accent/30;

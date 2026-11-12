@@ -25,6 +25,7 @@ import type { Usuario } from "@/lib/types";
 import { useAppStore } from "@/store/AppStore";
 import { BottomNav } from "./BottomNav";
 import { Logo } from "./Logo";
+import { SelectorTema } from "./Tema";
 
 const ICONOS: Record<VistaId, LucideIcon> = {
   explorar: Search,
@@ -107,6 +108,9 @@ export function AppShell({ usuario, vistas, vistaActiva, onNavegar, onCerrarSesi
             );
           })}
         </nav>
+        <div className="px-3 pb-1">
+          <SelectorTema sobreOscuro className="w-full" />
+        </div>
         <div className="m-3 rounded-2xl bg-white/5 p-3">
           <div className="flex items-center gap-3">
             <Avatar texto={iniciales(usuario.nombre)} className="bg-accent text-accent-foreground" />
@@ -200,11 +204,15 @@ function MenuUsuario({ usuario, onCerrarSesion }: { usuario: Usuario; onCerrarSe
               {ROL_LABEL[usuario.rol]} · {CIUDAD_LABEL[usuario.ciudad]}
             </p>
           </div>
+          <div className="px-3 pb-2">
+            <p className="mb-1.5 text-xs font-medium text-muted-foreground">Tema</p>
+            <SelectorTema className="w-full" />
+          </div>
           <button
             type="button"
             role="menuitem"
             onClick={onCerrarSesion}
-            className="flex w-full items-center gap-2 rounded-xl px-3 py-2.5 text-sm text-red-600 hover:bg-red-50"
+            className="flex w-full items-center gap-2 rounded-xl px-3 py-2.5 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10"
           >
             <LogOut className="h-4 w-4" aria-hidden />
             Cerrar sesión

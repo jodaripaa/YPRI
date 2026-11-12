@@ -70,7 +70,7 @@ export function LoginView({ onIrARegistro }: { onIrARegistro: () => void }) {
               <li key={cuenta.correo} className="animate-fade-up" style={escalonado(i + 3, 70)}>
                 <div className="hover-elevar flex items-center gap-3 rounded-2xl border border-border bg-card p-3">
                   <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary-soft">
-                    <Icono className="h-5 w-5 text-primary" aria-hidden />
+                    <Icono className="h-5 w-5 text-enfasis" aria-hidden />
                   </span>
                   <div className="min-w-0 flex-1">
                     <p className="text-sm font-semibold">{ROL_LABEL[cuenta.rol]}</p>

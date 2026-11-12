@@ -85,29 +85,32 @@ export function ReservarScreen({ codigo, onVolver, onConfirmada }: Props) {
     <MarcoMovil conNavegacion={false}>
       <BarraSuperior titulo={PASOS[indice].titulo} subtitulo={`Paso ${indice + 1} de ${PASOS.length}`} onVolver={anterior} />
 
-      <div className="flex gap-2 px-4 pt-3" aria-hidden>
+      {/* En escritorio: formulario a la izquierda y resumen fijo a la derecha. */}
+      <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start lg:gap-8 lg:px-4 lg:pt-4">
+      <div>
+      <div className="flex gap-2 px-4 pt-3 lg:px-0" aria-hidden>
         {PASOS.map((p, i) => (
           <span key={p.id} className={cx("h-1 flex-1 rounded-full transition-colors duration-500", i <= indice ? "bg-accent" : "bg-border")} />
         ))}
       </div>
 
-      <div className="mx-4 mt-4 flex items-center gap-3 rounded-2xl border border-border bg-card p-3">
+      <div className="mx-4 mt-4 flex items-center gap-3 rounded-2xl border border-border bg-card p-3 lg:hidden">
         <AvatarProfesional servicio={servicio} />
         <div className="min-w-0 flex-1">
           <p className="truncate text-sm font-semibold">{servicio.prestador_nombre}</p>
           <p className="text-xs text-muted-foreground">{CATEGORIA_LABEL[servicio.categoria]}</p>
-          <p className="text-sm font-semibold text-primary">{formatearMoneda(servicio.tarifa_hora)}/hora</p>
+          <p className="text-sm font-semibold text-enfasis">{formatearMoneda(servicio.tarifa_hora)}/hora</p>
         </div>
       </div>
 
-      <div key={paso} className="mx-auto max-w-xl animate-fade-up space-y-5 px-4 py-5">
+      <div key={paso} className="mx-auto max-w-xl animate-fade-up space-y-5 px-4 py-5 lg:mx-0 lg:max-w-none lg:rounded-2xl lg:border lg:border-border lg:bg-card lg:p-6 lg:shadow-suave lg:mt-5">
         {paso === "fecha" && (
           <>
             <Field etiqueta="¿Qué día lo necesitas?">
               {(props) => <Input {...props} type="date" min={hoy} value={fecha} onChange={(e) => setFecha(e.target.value)} className="h-12 rounded-xl" />}
             </Field>
             <div>
-              <p className="mb-1.5 text-sm font-medium text-slate-700">Horas estimadas</p>
+              <p className="mb-1.5 text-sm font-medium text-foreground">Horas estimadas</p>
               <div className="flex h-14 items-center rounded-xl border border-border bg-card">
                 <button
                   type="button"
@@ -179,12 +182,41 @@ export function ReservarScreen({ codigo, onVolver, onConfirmada }: Props) {
 
         <FormError mensaje={error} />
       </div>
+      </div>
 
-      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-card/95 backdrop-blur-md">
+      <aside className="hidden animate-fade-up lg:sticky lg:top-24 lg:block lg:rounded-2xl lg:border lg:border-border lg:bg-card lg:p-5 lg:shadow-suave">
+        <div className="flex items-center gap-3">
+          <AvatarProfesional servicio={servicio} />
+          <div className="min-w-0">
+            <p className="truncate font-semibold">{servicio.prestador_nombre}</p>
+            <p className="text-sm text-muted-foreground">{CATEGORIA_LABEL[servicio.categoria]}</p>
+          </div>
+        </div>
+        <div className="mt-5 border-t border-border pt-4 text-sm">
+          <Fila etiqueta={`Servicio (${pluralizar(horas, "hora", "horas")})`} valor={formatearMoneda(liquidacion.subtotalNeto)} />
+          <Fila etiqueta={`IVA (${Math.round(IVA_PORCENTAJE * 100)} %)`} valor={formatearMoneda(liquidacion.montoIva)} />
+          <div className="mt-2 border-t border-border pt-2">
+            <Fila etiqueta="Total estimado" valor={formatearMoneda(liquidacion.totalPagar)} destacado />
+          </div>
+        </div>
+        {paso === "confirmar" ? (
+          <Button variante="accent" bloque tamano="lg" className="mt-5" onClick={confirmar}>
+            Confirmar reserva
+          </Button>
+        ) : (
+          <Button bloque tamano="lg" className="mt-5" onClick={siguiente}>
+            Continuar
+          </Button>
+        )}
+        <p className="mt-3 text-center text-xs text-muted-foreground">Pagas al profesional cuando el servicio quede completado.</p>
+      </aside>
+      </div>
+
+      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-card/95 backdrop-blur-md lg:hidden">
         <div className="pb-safe mx-auto flex max-w-xl items-center gap-4 px-4 pt-3">
           <div className="min-w-0 flex-1">
             <p className="text-xs text-muted-foreground">Total estimado</p>
-            <p className="text-lg font-bold text-primary">{formatearMoneda(liquidacion.totalPagar)}</p>
+            <p className="text-lg font-bold text-enfasis">{formatearMoneda(liquidacion.totalPagar)}</p>
           </div>
           {paso === "confirmar" ? (
             <Button variante="accent" className="px-6" onClick={confirmar}>
@@ -219,7 +251,7 @@ function Fila({ etiqueta, valor, destacado }: { etiqueta: string; valor: string;
   return (
     <div className={cx("flex items-center justify-between gap-4 py-1", destacado && "text-base font-bold")}>
       <span className={destacado ? "" : "text-muted-foreground"}>{etiqueta}</span>
-      <span className={destacado ? "text-primary" : ""}>{valor}</span>
+      <span className={destacado ? "text-enfasis" : ""}>{valor}</span>
     </div>
   );
 }

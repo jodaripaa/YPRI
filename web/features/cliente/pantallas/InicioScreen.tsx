@@ -36,19 +36,33 @@ export function InicioScreen({ usuario, onBuscar, onAbrirServicio, onVerReservas
     <MarcoMovil>
       <EncabezadoInicio usuario={usuario} onPerfil={onPerfil} />
 
-      <div className="px-4 pb-1 pt-4">
-        <p className="text-sm text-muted-foreground">Hola, {nombre}</p>
-        <h1 className="text-2xl font-bold tracking-tight">¿Qué necesitas hoy?</h1>
-      </div>
+      {/* En escritorio, saludo, búsqueda y próxima reserva forman un encabezado azul. */}
+      <div className="relative lg:mx-4 lg:mt-8 lg:grid lg:grid-cols-[1.25fr_1fr] lg:items-center lg:gap-10 lg:overflow-hidden lg:rounded-3xl lg:bg-primary lg:p-10 lg:shadow-elevada">
+        <div aria-hidden className="absolute -right-24 -top-24 hidden h-80 w-80 rounded-full bg-accent/20 blur-3xl lg:block" />
+        <div aria-hidden className="absolute -bottom-32 left-1/3 hidden h-72 w-72 rounded-full bg-white/5 blur-2xl lg:block" />
+        <div className="relative">
+          <div className="px-4 pb-1 pt-4 lg:p-0">
+            <p className="text-sm text-muted-foreground lg:text-primary-foreground/70">Hola, {nombre}</p>
+            <h1 className="text-2xl font-bold tracking-tight lg:mt-1 lg:text-4xl lg:text-primary-foreground">¿Qué necesitas hoy?</h1>
+            <p className="mt-2 hidden max-w-md text-primary-foreground/75 lg:block">
+              Profesionales verificados en {CIUDAD_LABEL[usuario.ciudad]}, con precios claros y calificaciones reales.
+            </p>
+          </div>
+          <BarraBusqueda
+            valor={texto}
+            onCambiar={setTexto}
+            onEnviar={(valor) => onBuscar(valor.trim())}
+            className="lg:px-0 lg:pb-0 lg:pt-6"
+            claseCampo="lg:bg-card lg:py-4 lg:shadow-elevada"
+          />
+        </div>
 
-      <BarraBusqueda valor={texto} onCambiar={setTexto} onEnviar={(valor) => onBuscar(valor.trim())} />
-
-      <div className="px-4 py-2">
+      <div className="relative px-4 py-2 lg:p-0">
         {proxima ? (
           <button
             type="button"
             onClick={onVerReservas}
-            className="touch-feedback hover-elevar flex w-full animate-fade-up items-center gap-4 rounded-2xl bg-primary p-4 text-left shadow-elevada"
+            className="touch-feedback hover-elevar flex w-full animate-fade-up items-center gap-4 rounded-2xl bg-primary p-4 text-left shadow-elevada lg:bg-white/10 lg:p-5 lg:shadow-none lg:ring-1 lg:ring-white/15 lg:backdrop-blur-sm"
           >
             <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-accent">
               <CalendarDays className="h-5 w-5 text-accent-foreground" aria-hidden />
@@ -68,7 +82,7 @@ export function InicioScreen({ usuario, onBuscar, onAbrirServicio, onVerReservas
           <button
             type="button"
             onClick={() => onBuscar("")}
-            className="touch-feedback hover-elevar flex w-full animate-fade-up items-center justify-between gap-4 rounded-2xl bg-primary p-4 text-left shadow-elevada"
+            className="touch-feedback hover-elevar flex w-full animate-fade-up items-center justify-between gap-4 rounded-2xl bg-primary p-4 text-left shadow-elevada lg:bg-white/10 lg:p-5 lg:shadow-none lg:ring-1 lg:ring-white/15 lg:backdrop-blur-sm"
           >
             <span>
               <span className="mb-1 block text-lg font-bold text-primary-foreground">Agenda tu próximo servicio</span>
@@ -80,8 +94,9 @@ export function InicioScreen({ usuario, onBuscar, onAbrirServicio, onVerReservas
           </button>
         )}
       </div>
+      </div>
 
-      <section className="py-4">
+      <section className="py-4 lg:pt-10">
         <EncabezadoSeccion titulo="Categorías" accion="Ver todas" onAccion={() => onBuscar("")} />
         <CarruselCategorias onSeleccionar={(categoria) => onBuscar("", categoria)} />
       </section>
@@ -124,7 +139,7 @@ function Cifra({ valor, etiqueta, acento }: { valor: string; etiqueta: string; a
   return (
     <div className="flex flex-col-reverse">
       <dt className="text-xs text-muted-foreground">{etiqueta}</dt>
-      <dd className={acento ? "text-2xl font-bold text-accent-strong" : "text-2xl font-bold text-primary"}>{valor}</dd>
+      <dd className={acento ? "text-2xl font-bold text-accent-strong" : "text-2xl font-bold text-enfasis"}>{valor}</dd>
     </div>
   );
 }

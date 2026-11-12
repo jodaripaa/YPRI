@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { BadgeCheck, KeyRound, Receipt, Snowflake, Sparkles, Star, Wrench, Zap } from "lucide-react";
 import { Logo } from "@/components/layout/Logo";
+import { SelectorTema } from "@/components/layout/Tema";
 import { escalonado } from "@/components/ui";
 
 const CATEGORIAS = [Zap, Wrench, Sparkles, Snowflake, KeyRound];
@@ -55,7 +56,10 @@ export function AuthLayout({ titulo, descripcion, children }: { titulo: string; 
       <div className="flex min-h-screen flex-col">
         <header className="relative overflow-hidden rounded-b-[2rem] bg-primary px-6 pb-16 pt-8 text-primary-foreground lg:hidden">
           <div aria-hidden className="absolute -right-16 -top-16 h-48 w-48 rounded-full bg-accent/20 blur-2xl" />
-          <Logo claro prioridad />
+          <div className="relative flex items-center justify-between gap-3">
+            <Logo claro prioridad />
+            <SelectorTema sobreOscuro />
+          </div>
           <h1 className="relative mt-8 animate-fade-up text-2xl font-bold tracking-tight">{titulo}</h1>
           <p className="relative mt-1 animate-fade-up text-sm text-primary-foreground/75" style={escalonado(1, 80)}>
             {descripcion}
@@ -63,6 +67,9 @@ export function AuthLayout({ titulo, descripcion, children }: { titulo: string; 
         </header>
         <main className="flex flex-1 items-start justify-center px-4 pb-10 lg:items-center lg:px-12 lg:py-12">
           <div className="-mt-10 w-full max-w-md animate-fade-up lg:mt-0" style={escalonado(2, 80)}>
+            <div className="mb-6 hidden justify-end lg:flex">
+              <SelectorTema />
+            </div>
             <div className="mb-8 hidden lg:block">
               <h1 className="text-3xl font-bold tracking-tight">{titulo}</h1>
               <p className="mt-2 text-muted-foreground">{descripcion}</p>
