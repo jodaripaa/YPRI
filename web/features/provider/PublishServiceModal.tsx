@@ -13,6 +13,7 @@ import {
   type CiudadCobertura,
 } from "@/lib/constants";
 import { formatearMoneda } from "@/lib/format";
+import { BARRIOS, RADIO_COBERTURA_KM, RADIOS_COBERTURA_KM } from "@/lib/zonas";
 import type { Usuario } from "@/lib/types";
 import { useServicios } from "@/store/hooks";
 
@@ -21,6 +22,8 @@ export function PublishServiceModal({ usuario, onCerrar }: { usuario: Usuario; o
   const toast = useToast();
   const [categoria, setCategoria] = useState<CategoriaServicio>("Electricidad");
   const [ciudad, setCiudad] = useState<CiudadCobertura>(usuario.ciudad);
+  const [zona, setZona] = useState(BARRIOS[usuario.ciudad][0].nombre);
+  const [radio, setRadio] = useState<number>(RADIO_COBERTURA_KM);
   const [tarifa, setTarifa] = useState("35000");
   const [experiencia, setExperiencia] = useState("1");
   const [descripcion, setDescripcion] = useState("");
@@ -28,6 +31,8 @@ export function PublishServiceModal({ usuario, onCerrar }: { usuario: Usuario; o
 
   const guardar = () => {
     const resultado = publicar({
+      zona,
+      radioKm: radio,
       categoria,
       ciudad,
       tarifaHora: Number(tarifa),
@@ -69,10 +74,37 @@ export function PublishServiceModal({ usuario, onCerrar }: { usuario: Usuario; o
           </Field>
           <Field etiqueta="Ciudad">
             {(props) => (
-              <Select {...props} value={ciudad} onChange={(e) => setCiudad(e.target.value as CiudadCobertura)}>
+              <Select {...props} value={ciudad} onChange={(e) => {
+                  const nueva = e.target.value as CiudadCobertura;
+                  setCiudad(nueva);
+                  setZona(BARRIOS[nueva][0].nombre);
+                }}
+              >
                 {CIUDADES_COBERTURA.map((c) => (
                   <option key={c} value={c}>
                     {CIUDAD_LABEL[c]}
+                  </option>
+                ))}
+              </Select>
+            )}
+          </Field>
+          <Field etiqueta="Barrio desde donde sales" ayuda="Se usa para calcular la distancia a cada cliente.">
+            {(props) => (
+              <Select {...props} value={zona} onChange={(e) => setZona(e.target.value)}>
+                {BARRIOS[ciudad].map((b) => (
+                  <option key={b.nombre} value={b.nombre}>
+                    {b.nombre}
+                  </option>
+                ))}
+              </Select>
+            )}
+          </Field>
+          <Field etiqueta="Radio de atención" ayuda="Hasta qué distancia aceptas trabajos.">
+            {(props) => (
+              <Select {...props} value={radio} onChange={(e) => setRadio(Number(e.target.value))}>
+                {RADIOS_COBERTURA_KM.map((km) => (
+                  <option key={km} value={km}>
+                    {km} km a la redonda
                   </option>
                 ))}
               </Select>

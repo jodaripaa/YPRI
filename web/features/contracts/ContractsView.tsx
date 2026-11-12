@@ -8,7 +8,7 @@ import { accionesDisponibles, contratosVisiblesPara, type AccionContrato } from 
 import type { Contrato, Usuario } from "@/lib/types";
 import { useAppStore } from "@/store/AppStore";
 import { useContratos } from "@/store/hooks";
-import { ContractCard } from "./ContractCard";
+import { ContractCard, distanciaContrato } from "./ContractCard";
 import { ConfirmDialog, RateDialog } from "./ContractDialogs";
 import { CONFIGURACION_ACCIONES } from "./contractActions";
 
@@ -78,6 +78,7 @@ export function ContractsView({ usuario, titulo, descripcion, pestanas, accionVa
               contrato={contrato}
               usuario={usuario}
               acciones={accionesDisponibles(contrato, usuario)}
+              distanciaKm={distanciaContrato(contrato, data.servicios.find((s) => s.codigo === contrato.servicio_codigo))}
               onAccion={alSolicitarAccion}
             />
           ))

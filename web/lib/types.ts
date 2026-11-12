@@ -1,4 +1,5 @@
 import type { CategoriaServicio, CiudadCobertura, EstadoContrato, RolUsuario } from "./constants";
+import type { Coordenadas } from "./geo";
 
 export interface Usuario {
   id: string;
@@ -26,6 +27,11 @@ export interface Servicio {
   /** Cantidad de reseñas que componen la calificación promedio. */
   num_resenas: number;
   anios_experiencia: number;
+  /** Barrio desde donde sale el profesional (punto base de su zona de trabajo). */
+  zona: string;
+  ubicacion: Coordenadas;
+  /** Distancia máxima, en km, a la que el profesional acepta trabajos. */
+  radio_km: number;
 }
 
 export interface Contrato {
@@ -46,6 +52,8 @@ export interface Contrato {
   fecha: string;
   direccion: string;
   nota?: string;
+  /** Punto exacto donde se presta el servicio (si el cliente lo compartió). */
+  ubicacion?: Coordenadas;
   calificacion?: number;
   comentario?: string;
 }

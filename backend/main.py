@@ -61,6 +61,7 @@ from modules.subalgoritmos import (
     calcular_metricas_prestador,
 )
 
+from modules.geolocalizacion import menu_geolocalizacion_interactivo
 
 def menu_cliente():
     """Menu interactivo del ciclo while para usuarios con rol 'cliente'."""
@@ -78,10 +79,11 @@ def menu_cliente():
         print("  5. Calificar un servicio completado")
         print("  6. Explorar Matrices Analiticas de YPRI (Guia 9)")
         print("  7. Explorador de Subalgoritmos y Cotizador Avanzado (Guia 10)")
+        print("  8. Profesionales cerca de mi (Geolocalizacion)")
         print("  0. Cerrar sesion")
         separador()
 
-        opcion = input("  Seleccione una opcion (0-7): ").strip()
+        opcion = input("  Seleccione una opcion (0-8): ").strip()
 
         if opcion == "1":
             menu_catalogo_avanzado()
@@ -97,11 +99,13 @@ def menu_cliente():
             menu_matrices_interactivo()
         elif opcion == "7":
             menu_subalgoritmos_interactivo()
+        elif opcion == "8":
+            menu_geolocalizacion_interactivo()
         elif opcion == "0":
             cerrar_sesion()
             break
         else:
-            print("\n[!] Opcion invalida. Ingrese un numero entre 0 y 7.")
+            print("\n[!] Opcion invalida. Ingrese un numero entre 0 y 8.")
 
         input("\n  Presione Enter para continuar...")
         print()

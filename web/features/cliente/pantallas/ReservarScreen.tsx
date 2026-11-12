@@ -1,15 +1,19 @@
 "use client";
 
 import { useState } from "react";
-import { CalendarDays, CheckCircle2, Clock, MapPin, Minus, Plus, SearchX } from "lucide-react";
+import { AlertTriangle, CalendarDays, CheckCircle2, Clock, MapPin, Minus, Navigation, Plus, SearchX } from "lucide-react";
 import { Button, cx, EmptyState, Field, FormError, Input, Textarea, useToast } from "@/components/ui";
 import { CATEGORIA_LABEL, CIUDAD_LABEL, HORAS_MAXIMAS, HORAS_MINIMAS, IVA_PORCENTAJE } from "@/lib/constants";
+import { calcularCercania } from "@/lib/domain/cercania";
 import { calcularLiquidacionContrato } from "@/lib/finance";
+import { formatearDistancia, formatearTiempo } from "@/lib/geo";
 import { fechaIsoHoy, formatearFecha, formatearMoneda, pluralizar } from "@/lib/format";
 import type { Contrato } from "@/lib/types";
 import { useAppStore } from "@/store/AppStore";
 import { useContratos } from "@/store/hooks";
 import { AvatarProfesional, BarraSuperior, MarcoMovil } from "../componentes";
+import { BotonUbicacion } from "../SelectorUbicacion";
+import { useUbicacion } from "../ubicacion";
 
 type Paso = "fecha" | "direccion" | "confirmar";
 
@@ -30,6 +34,7 @@ export function ReservarScreen({ codigo, onVolver, onConfirmada }: Props) {
   const { solicitar } = useContratos();
   const toast = useToast();
   const hoy = fechaIsoHoy();
+  const { ubicacion } = useUbicacion();
   const servicio = data.servicios.find((s) => s.codigo === codigo);
 
   const [paso, setPaso] = useState<Paso>("fecha");
@@ -49,6 +54,7 @@ export function ReservarScreen({ codigo, onVolver, onConfirmada }: Props) {
   }
 
   const indice = PASOS.findIndex((p) => p.id === paso);
+  const cercania = calcularCercania(servicio, ubicacion.coordenadas);
   const liquidacion = calcularLiquidacionContrato(servicio.tarifa_hora, horas);
   const ajustarHoras = (delta: number) => setHoras((h) => Math.min(HORAS_MAXIMAS, Math.max(HORAS_MINIMAS, h + delta)));
 
@@ -75,7 +81,7 @@ export function ReservarScreen({ codigo, onVolver, onConfirmada }: Props) {
   };
 
   const confirmar = () => {
-    const resultado = solicitar({ servicioCodigo: servicio.codigo, horas, fecha, direccion, nota });
+    const resultado = solicitar({ servicioCodigo: servicio.codigo, horas, fecha, direccion, nota, ubicacion: ubicacion.coordenadas });
     if (!resultado.ok) return setError(resultado.error);
     toast.exito(`Reserva ${resultado.value.contrato.id} enviada a ${servicio.prestador_nombre}.`);
     onConfirmada(resultado.value.contrato);
@@ -141,7 +147,23 @@ export function ReservarScreen({ codigo, onVolver, onConfirmada }: Props) {
 
         {paso === "direccion" && (
           <>
-            <Field etiqueta="Dirección del servicio" ayuda={`Este profesional atiende en ${CIUDAD_LABEL[servicio.ciudad]}.`}>
+            <div>
+              <p className="mb-1.5 text-sm font-medium">Ubicación en el mapa</p>
+              <div className="flex items-center justify-between gap-3 rounded-xl border border-border bg-card p-2 pr-3">
+                <BotonUbicacion className="py-1 pl-1 pr-2" />
+                <span className="shrink-0 text-right text-xs text-muted-foreground">
+                  a {formatearDistancia(cercania.distanciaKm)}
+                  <span className="block font-medium text-accent-strong">llega en {formatearTiempo(cercania.minutos)}</span>
+                </span>
+              </div>
+              {!cercania.enCobertura && (
+                <p className="mt-2 flex items-start gap-2 rounded-xl bg-amber-50 px-3 py-2 text-xs text-amber-900 dark:bg-amber-400/10 dark:text-amber-200">
+                  <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" aria-hidden />
+                  Estás fuera de su radio de {servicio.radio_km} km. Puedes enviar la solicitud, pero el profesional podría rechazarla.
+                </p>
+              )}
+            </div>
+            <Field etiqueta="Dirección del servicio" ayuda={`Atiende desde ${servicio.zona} (${CIUDAD_LABEL[servicio.ciudad]}). Indica calle, número y apartamento.`}>
               {(props) => (
                 <Input
                   {...props}
@@ -166,7 +188,8 @@ export function ReservarScreen({ codigo, onVolver, onConfirmada }: Props) {
             <div className="space-y-3 rounded-2xl border border-border bg-card p-4 text-sm">
               <Resumen icono={CalendarDays} etiqueta="Fecha" valor={formatearFecha(fecha)} />
               <Resumen icono={Clock} etiqueta="Duración" valor={pluralizar(horas, "hora", "horas")} />
-              <Resumen icono={MapPin} etiqueta="Dirección" valor={direccion.trim()} />
+              <Resumen icono={MapPin} etiqueta="Dirección" valor={`${direccion.trim()} · ${ubicacion.etiqueta}`} />
+              <Resumen icono={Navigation} etiqueta="Llegada estimada" valor={`${formatearTiempo(cercania.minutos)} (a ${formatearDistancia(cercania.distanciaKm)})`} />
               {nota.trim() && <p className="rounded-xl bg-muted px-3 py-2 text-muted-foreground">{nota.trim()}</p>}
             </div>
             <div className="rounded-2xl bg-muted p-4 text-sm">

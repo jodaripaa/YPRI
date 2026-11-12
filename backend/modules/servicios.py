@@ -38,6 +38,7 @@ from core.validaciones import (
     generar_id,
 )
 from data.database import servicios, get_sesion_actual
+from modules.geolocalizacion import CENTRO_CIUDAD, RADIO_COBERTURA_KM
 
 
 # ========================================================================================
@@ -400,6 +401,11 @@ def publicar_servicio():
         "descripcion": descripcion.strip(),
         "tarifa_hora": tarifa,
         "ciudad": ciudad,
+        # Geolocalizacion: el servicio nuevo parte del centro de su ciudad.
+        "zona": "Centro",
+        "lat": CENTRO_CIUDAD.get(ciudad, CENTRO_CIUDAD["Cucuta"])[0],
+        "lng": CENTRO_CIUDAD.get(ciudad, CENTRO_CIUDAD["Cucuta"])[1],
+        "radio_km": RADIO_COBERTURA_KM,
         "disponible": (disp_resp == "s"),
         "calificacion": 5.0,
         "num_contratos": 0

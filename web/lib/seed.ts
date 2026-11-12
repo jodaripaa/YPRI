@@ -18,16 +18,16 @@ export const USUARIOS_INICIALES: Usuario[] = [
 ];
 
 export const SERVICIOS_INICIALES: Servicio[] = [
-  { codigo: "SERV-01", prestador_id: "USR-002", prestador_nombre: "Carlos Gomez", categoria: "Electricidad", descripcion: "Instalaciones eléctricas residenciales y comerciales, tableros y tomas.", tarifa_hora: 35000, ciudad: "Cucuta", disponible: true, calificacion: 4.8, num_contratos: 12, num_resenas: 10, anios_experiencia: 8 },
-  { codigo: "SERV-02", prestador_id: "USR-004", prestador_nombre: "Marta Rodriguez", categoria: "Plomeria", descripcion: "Reparación de tuberías, grifos, sanitarios y sistemas hidráulicos.", tarifa_hora: 30000, ciudad: "Cucuta", disponible: true, calificacion: 4.5, num_contratos: 8, num_resenas: 7, anios_experiencia: 5 },
-  { codigo: "SERV-03", prestador_id: "USR-005", prestador_nombre: "Andres Silva", categoria: "Climatizacion", descripcion: "Mantenimiento, instalación y reparación de aires acondicionados.", tarifa_hora: 45000, ciudad: "Cucuta", disponible: false, calificacion: 5.0, num_contratos: 5, num_resenas: 5, anios_experiencia: 10 },
-  { codigo: "SERV-04", prestador_id: "USR-006", prestador_nombre: "Jorge Mendoza", categoria: "Cerrajeria", descripcion: "Apertura de puertas, cambio de guardas y cerraduras de seguridad.", tarifa_hora: 38000, ciudad: "Cucuta", disponible: true, calificacion: 4.7, num_contratos: 15, num_resenas: 12, anios_experiencia: 12 },
-  { codigo: "SERV-05", prestador_id: "USR-007", prestador_nombre: "Sandra Rios", categoria: "Limpieza", descripcion: "Limpieza profunda de hogares y oficinas, incluye insumos.", tarifa_hora: 25000, ciudad: "Cucuta", disponible: true, calificacion: 4.3, num_contratos: 20, num_resenas: 16, anios_experiencia: 4 },
-  { codigo: "SERV-06", prestador_id: "USR-009", prestador_nombre: "Diana Torres", categoria: "Limpieza", descripcion: "Limpieza de apartamentos antes y después de mudanzas.", tarifa_hora: 28000, ciudad: "Bogota", disponible: true, calificacion: 4.6, num_contratos: 9, num_resenas: 8, anios_experiencia: 6 },
+  { codigo: "SERV-01", prestador_id: "USR-002", prestador_nombre: "Carlos Gomez", categoria: "Electricidad", descripcion: "Instalaciones eléctricas residenciales y comerciales, tableros y tomas.", tarifa_hora: 35000, ciudad: "Cucuta", disponible: true, calificacion: 4.8, num_contratos: 12, num_resenas: 10, anios_experiencia: 8, zona: "Caobos", ubicacion: { lat: 7.9052, lng: -72.4962 }, radio_km: 10 },
+  { codigo: "SERV-02", prestador_id: "USR-004", prestador_nombre: "Marta Rodriguez", categoria: "Plomeria", descripcion: "Reparación de tuberías, grifos, sanitarios y sistemas hidráulicos.", tarifa_hora: 30000, ciudad: "Cucuta", disponible: true, calificacion: 4.5, num_contratos: 8, num_resenas: 7, anios_experiencia: 5, zona: "La Libertad", ubicacion: { lat: 7.8801, lng: -72.5201 }, radio_km: 8 },
+  { codigo: "SERV-03", prestador_id: "USR-005", prestador_nombre: "Andres Silva", categoria: "Climatizacion", descripcion: "Mantenimiento, instalación y reparación de aires acondicionados.", tarifa_hora: 45000, ciudad: "Cucuta", disponible: false, calificacion: 5.0, num_contratos: 5, num_resenas: 5, anios_experiencia: 10, zona: "Prados del Este", ubicacion: { lat: 7.9101, lng: -72.4846 }, radio_km: 12 },
+  { codigo: "SERV-04", prestador_id: "USR-006", prestador_nombre: "Jorge Mendoza", categoria: "Cerrajeria", descripcion: "Apertura de puertas, cambio de guardas y cerraduras de seguridad.", tarifa_hora: 38000, ciudad: "Cucuta", disponible: true, calificacion: 4.7, num_contratos: 15, num_resenas: 12, anios_experiencia: 12, zona: "Centro", ubicacion: { lat: 7.8918, lng: -72.5079 }, radio_km: 10 },
+  { codigo: "SERV-05", prestador_id: "USR-007", prestador_nombre: "Sandra Rios", categoria: "Limpieza", descripcion: "Limpieza profunda de hogares y oficinas, incluye insumos.", tarifa_hora: 25000, ciudad: "Cucuta", disponible: true, calificacion: 4.3, num_contratos: 20, num_resenas: 16, anios_experiencia: 4, zona: "Atalaya", ubicacion: { lat: 7.8752, lng: -72.5368 }, radio_km: 8 },
+  { codigo: "SERV-06", prestador_id: "USR-009", prestador_nombre: "Diana Torres", categoria: "Limpieza", descripcion: "Limpieza de apartamentos antes y después de mudanzas.", tarifa_hora: 28000, ciudad: "Bogota", disponible: true, calificacion: 4.6, num_contratos: 9, num_resenas: 8, anios_experiencia: 6, zona: "Chapinero", ubicacion: { lat: 4.6505, lng: -74.0651 }, radio_km: 10 },
 ];
 
 function contratoSemilla(
-  datos: Pick<Contrato, "id" | "cliente_id" | "cliente_nombre" | "estado" | "fecha" | "direccion" | "horas" | "calificacion" | "comentario">,
+  datos: Pick<Contrato, "id" | "cliente_id" | "cliente_nombre" | "estado" | "fecha" | "direccion" | "horas" | "calificacion" | "comentario" | "ubicacion">,
   servicio: Servicio,
 ): Contrato {
   const liquidacion = calcularLiquidacionContrato(servicio.tarifa_hora, datos.horas);
@@ -48,15 +48,15 @@ const [electricidad, , , cerrajeria] = SERVICIOS_INICIALES;
 
 export const CONTRATOS_INICIALES: Contrato[] = [
   contratoSemilla(
-    { id: "CONTR-103", cliente_id: "USR-008", cliente_nombre: "Laura Martinez", estado: "En proceso", fecha: "2026-11-12", direccion: "Calle 10 # 4-21, barrio La Playa", horas: 3 },
+    { id: "CONTR-103", cliente_id: "USR-008", cliente_nombre: "Laura Martinez", estado: "En proceso", fecha: "2026-11-12", direccion: "Calle 10 # 4-21, barrio La Playa", horas: 3, ubicacion: { lat: 7.8935, lng: -72.4995 } },
     electricidad,
   ),
   contratoSemilla(
-    { id: "CONTR-102", cliente_id: "USR-001", cliente_nombre: "Juan Perez", estado: "Pendiente", fecha: "2026-11-14", direccion: "Avenida 0 # 12-45, apartamento 302", horas: 2 },
+    { id: "CONTR-102", cliente_id: "USR-001", cliente_nombre: "Juan Perez", estado: "Pendiente", fecha: "2026-11-14", direccion: "Avenida 0 # 12-45, apartamento 302", horas: 2, ubicacion: { lat: 7.8902, lng: -72.5068 } },
     cerrajeria,
   ),
   contratoSemilla(
-    { id: "CONTR-101", cliente_id: "USR-001", cliente_nombre: "Juan Perez", estado: "Completado", fecha: "2026-09-18", direccion: "Avenida 0 # 12-45, apartamento 302", horas: 5, calificacion: 5, comentario: "Excelente trabajo, muy puntual." },
+    { id: "CONTR-101", cliente_id: "USR-001", cliente_nombre: "Juan Perez", estado: "Completado", fecha: "2026-09-18", direccion: "Avenida 0 # 12-45, apartamento 302", ubicacion: { lat: 7.8902, lng: -72.5068 }, horas: 5, calificacion: 5, comentario: "Excelente trabajo, muy puntual." },
     electricidad,
   ),
 ];

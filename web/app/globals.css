@@ -125,3 +125,96 @@
     transition-duration: 0.01ms !important;
   }
 }
+
+/* ------------------------------------------------------------------ Mapas */
+/* Marcadores de Leaflet (HTML propio, fuera de Tailwind porque los crea Leaflet). */
+.ypri-mapa .leaflet-container {
+  font-family: inherit;
+  background: rgb(var(--muted));
+}
+.ypri-pin-caja {
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+}
+.ypri-pin {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 9999px;
+  border: 3px solid rgb(var(--card));
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: #fff;
+  box-shadow: 0 4px 14px rgb(0 0 0 / 0.28);
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+.ypri-pin--profesional {
+  background: #003151;
+}
+.dark .ypri-pin--profesional {
+  background: #1d5e88;
+}
+.ypri-pin--inactivo {
+  background: rgb(var(--muted-foreground));
+  opacity: 0.85;
+}
+.ypri-pin--movil {
+  width: 40px;
+  height: 40px;
+  background: rgb(var(--accent));
+  color: rgb(var(--accent-foreground));
+}
+.ypri-pin--cliente {
+  width: 20px;
+  height: 20px;
+  background: #2a78d6;
+}
+.ypri-pin__pulso {
+  position: absolute;
+  inset: -12px;
+  border-radius: 9999px;
+  background: rgb(42 120 214 / 0.25);
+  animation: ypri-pulso 2s ease-out infinite;
+}
+.ypri-pin--seleccionado {
+  transform: scale(1.18);
+  border-color: rgb(var(--accent));
+}
+@keyframes ypri-pulso {
+  0% {
+    transform: scale(0.5);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1.4);
+    opacity: 0;
+  }
+}
+.ypri-mapa .leaflet-tooltip {
+  border: 1px solid rgb(var(--border));
+  border-radius: 0.6rem;
+  background: rgb(var(--card));
+  color: rgb(var(--foreground));
+  font-weight: 600;
+  box-shadow: 0 6px 20px -8px rgb(0 0 0 / 0.35);
+}
+.ypri-mapa .leaflet-tooltip-top::before {
+  border-top-color: rgb(var(--card));
+}
+/* En modo oscuro se oscurecen las teselas de OpenStreetMap (los marcadores no cambian). */
+.dark .ypri-mapa .leaflet-tile-pane {
+  filter: invert(1) hue-rotate(180deg) brightness(0.85) contrast(0.9) saturate(0.6);
+}
+.dark .ypri-mapa .leaflet-control-attribution,
+.dark .ypri-mapa .leaflet-bar a {
+  background: rgb(var(--card) / 0.9);
+  color: rgb(var(--muted-foreground));
+}
+.dark .ypri-mapa .leaflet-control-attribution a {
+  color: rgb(var(--enfasis));
+}
