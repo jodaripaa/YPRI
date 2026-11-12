@@ -1,8 +1,11 @@
 "use client";
 
+import { useState } from "react";
 import { Activity, Banknote, Star, TrendingUp, Users } from "lucide-react";
-import { Avatar, BarrasHorizontales, Card, CardHeader, escalonado, EstadoContratoBadge, PageHeader, StatCard, Table, Td, Th } from "@/components/ui";
-import { CATEGORIA_LABEL, CATEGORIAS_SERVICIO, CIUDAD_LABEL, ESTADOS_CONTRATO } from "@/lib/constants";
+import { Mapa } from "@/components/mapa/Mapa";
+import { Avatar, BarrasHorizontales, Card, Select, CardHeader, escalonado, EstadoContratoBadge, PageHeader, StatCard, Table, Td, Th } from "@/components/ui";
+import { CATEGORIA_LABEL, CATEGORIAS_SERVICIO, CIUDAD_LABEL, CIUDADES_COBERTURA, ESTADOS_CONTRATO, type CiudadCobertura } from "@/lib/constants";
+import { CENTRO_CIUDAD } from "@/lib/zonas";
 import { analizarMatriz } from "@/lib/matrices";
 import { ESTADOS_ACTIVOS } from "@/lib/domain/contracts";
 import { calcularComisionPlataforma, sumarTotales } from "@/lib/finance";
@@ -59,6 +62,8 @@ export function AdminOverview() {
         </Card>
       </div>
 
+      <MapaCobertura />
+
       <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-5">
         <Card className="animate-fade-up overflow-hidden lg:col-span-3" style={escalonado(6)}>
           <CardHeader titulo="Contratos recientes" />
@@ -114,5 +119,48 @@ export function AdminOverview() {
         </Card>
       </div>
     </>
+  );
+}
+
+/** Dónde están los profesionales de cada ciudad y hasta dónde atienden. */
+function MapaCobertura() {
+  const { data } = useAppStore();
+  const [ciudad, setCiudad] = useState<CiudadCobertura>("Cucuta");
+  const servicios = data.servicios.filter((s) => s.ciudad === ciudad);
+  const conServicios = CIUDADES_COBERTURA.filter((c) => data.servicios.some((s) => s.ciudad === c));
+
+  return (
+    <Card className="mt-6 animate-fade-up p-5" style={escalonado(6)}>
+      <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <h3 className="text-base font-semibold">Mapa de cobertura</h3>
+          <p className="text-sm text-muted-foreground">
+            {pluralizar(servicios.length, "servicio", "servicios")} en {CIUDAD_LABEL[ciudad]}. Cada círculo es el radio de atención del profesional.
+          </p>
+        </div>
+        <Select aria-label="Ciudad del mapa" className="sm:w-48" value={ciudad} onChange={(e) => setCiudad(e.target.value as CiudadCobertura)}>
+          {CIUDADES_COBERTURA.map((c) => (
+            <option key={c} value={c}>
+              {CIUDAD_LABEL[c]}
+              {conServicios.includes(c) ? "" : " (sin servicios)"}
+            </option>
+          ))}
+        </Select>
+      </div>
+      <Mapa
+        etiqueta={`Mapa de cobertura de los profesionales en ${CIUDAD_LABEL[ciudad]}`}
+        centro={CENTRO_CIUDAD[ciudad]}
+        zoom={12}
+        alto={340}
+        circulos={servicios.map((s) => ({ id: s.codigo, centro: s.ubicacion, radioKm: s.radio_km }))}
+        marcadores={servicios.map((s) => ({
+          id: s.codigo,
+          coordenadas: s.ubicacion,
+          tipo: s.disponible ? "profesional" : "inactivo",
+          etiqueta: `${s.prestador_nombre} · ${CATEGORIA_LABEL[s.categoria]} · ${s.zona} (${s.radio_km} km)`,
+          texto: iniciales(s.prestador_nombre),
+        }))}
+      />
+    </Card>
   );
 }

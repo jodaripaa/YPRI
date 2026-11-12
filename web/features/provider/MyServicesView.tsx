@@ -72,7 +72,7 @@ function ServicioPropio({ servicio, style }: { servicio: Servicio; style?: CSSPr
           <h3 className="truncate text-lg font-semibold">{CATEGORIA_LABEL[servicio.categoria]}</h3>
           <p className="flex items-center gap-1 text-sm text-primary-foreground/75">
             <MapPin className="h-3.5 w-3.5" aria-hidden />
-            {CIUDAD_LABEL[servicio.ciudad]} · <span className="font-mono text-xs">{servicio.codigo}</span>
+            {servicio.zona}, {CIUDAD_LABEL[servicio.ciudad]} · radio {servicio.radio_km} km
           </p>
         </div>
         <Interruptor activo={servicio.disponible} onCambiar={alternar} />

@@ -10,6 +10,7 @@ import {
 import { siguienteId } from "../ids";
 import { fail, ok, type Result } from "../result";
 import type { AppData, Servicio, Usuario } from "../types";
+import { BARRIOS, barrioPorNombre, RADIO_COBERTURA_KM } from "../zonas";
 import { MENSAJE_SIN_PERMISO, tienePermiso } from "./permissions";
 
 export type OrdenCatalogo = "relevancia" | "precio_asc" | "precio_desc" | "calificacion";
@@ -53,6 +54,9 @@ export interface DatosServicio {
   tarifaHora: number;
   descripcion: string;
   aniosExperiencia: number;
+  /** Barrio base del profesional; si no se indica, se usa el primero de la ciudad (Centro). */
+  zona?: string;
+  radioKm?: number;
 }
 
 export function validarServicio(datos: DatosServicio): string | null {
@@ -64,6 +68,9 @@ export function validarServicio(datos: DatosServicio): string | null {
     return `Describe el servicio en al menos ${LONGITUD_MINIMA_DESCRIPCION} caracteres.`;
   if (!Number.isInteger(datos.aniosExperiencia) || datos.aniosExperiencia < 0 || datos.aniosExperiencia > 60)
     return "Indica tus años de experiencia (0 a 60).";
+  if (datos.zona !== undefined && !barrioPorNombre(datos.ciudad, datos.zona)) return "Selecciona un barrio de la ciudad elegida.";
+  if (datos.radioKm !== undefined && !(Number.isFinite(datos.radioKm) && datos.radioKm >= 1 && datos.radioKm <= 50))
+    return "El radio de atención debe estar entre 1 y 50 km.";
   return null;
 }
 
@@ -77,6 +84,7 @@ export function publicarServicio(data: AppData, actor: Usuario, datos: DatosServ
   );
   if (duplicado) return fail("Ya tienes un servicio publicado en esa categoría y ciudad.");
 
+  const zona = (datos.zona && barrioPorNombre(datos.ciudad, datos.zona)) || BARRIOS[datos.ciudad][0];
   const servicio: Servicio = {
     codigo: siguienteId("SERV", data.servicios.map((s) => s.codigo), 2),
     prestador_id: actor.id,
@@ -90,6 +98,9 @@ export function publicarServicio(data: AppData, actor: Usuario, datos: DatosServ
     num_contratos: 0,
     num_resenas: 0,
     anios_experiencia: datos.aniosExperiencia,
+    zona: zona.nombre,
+    ubicacion: zona.coordenadas,
+    radio_km: datos.radioKm ?? RADIO_COBERTURA_KM,
   };
   return ok({ data: { ...data, servicios: [servicio, ...data.servicios] }, servicio });
 }

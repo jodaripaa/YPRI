@@ -1,15 +1,19 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { ArrowRight, CalendarDays } from "lucide-react";
-import { CIUDAD_LABEL, type CategoriaServicio } from "@/lib/constants";
+import { ArrowRight, CalendarDays, MapPinOff } from "lucide-react";
+import { Mapa, type MarcadorMapa } from "@/components/mapa/Mapa";
+import { CATEGORIA_LABEL, CIUDAD_LABEL, type CategoriaServicio } from "@/lib/constants";
+import { calcularCercania, serviciosCercanos } from "@/lib/domain/cercania";
 import { estadisticasPlataforma, proximaReserva, serviciosDestacados } from "@/lib/domain/cliente";
-import { filtrarCatalogo } from "@/lib/domain/services";
-import { formatearCalificacion, formatearFecha } from "@/lib/format";
+import { formatearCalificacion, formatearFecha, iniciales, pluralizar } from "@/lib/format";
+import { formatearDistancia, formatearTiempo } from "@/lib/geo";
 import type { Usuario } from "@/lib/types";
-import { escalonado } from "@/components/ui";
+import { EmptyState, escalonado } from "@/components/ui";
 import { useAppStore } from "@/store/AppStore";
 import { BarraBusqueda, CarruselCategorias, EncabezadoInicio, EncabezadoSeccion, MarcoMovil, TarjetaDestacada, TarjetaServicio } from "../componentes";
+import { BotonUbicacion } from "../SelectorUbicacion";
+import { useUbicacion } from "../ubicacion";
 
 interface Props {
   usuario: Usuario;
@@ -23,11 +27,25 @@ export function InicioScreen({ usuario, onBuscar, onAbrirServicio, onVerReservas
   const { data } = useAppStore();
   const [texto, setTexto] = useState("");
 
-  const destacados = useMemo(() => serviciosDestacados(data.servicios, usuario.ciudad), [data.servicios, usuario.ciudad]);
-  const enTuCiudad = useMemo(
-    () => filtrarCatalogo(data.servicios, { texto: "", categoria: "todas", ciudad: usuario.ciudad, soloDisponibles: false, orden: "relevancia" }),
-    [data.servicios, usuario.ciudad],
-  );
+  const { ubicacion } = useUbicacion();
+  const ciudad = ubicacion.ciudad;
+  const destacados = useMemo(() => serviciosDestacados(data.servicios, ciudad), [data.servicios, ciudad]);
+  // Profesionales que atienden en la ubicación del cliente, del más cercano al más lejano.
+  const cercanos = useMemo(() => serviciosCercanos(data.servicios, ubicacion.coordenadas), [data.servicios, ubicacion.coordenadas]);
+  const [seleccionado, setSeleccionado] = useState<string | null>(null);
+
+  const marcadores: MarcadorMapa[] = [
+    { id: "yo", coordenadas: ubicacion.coordenadas, tipo: "cliente", etiqueta: `Tú: ${ubicacion.etiqueta}` },
+    ...cercanos.map(({ servicio, distanciaKm }) => ({
+      id: servicio.codigo,
+      coordenadas: servicio.ubicacion,
+      tipo: servicio.disponible ? ("profesional" as const) : ("inactivo" as const),
+      etiqueta: `${servicio.prestador_nombre} · ${CATEGORIA_LABEL[servicio.categoria]} · a ${formatearDistancia(distanciaKm)}`,
+      texto: iniciales(servicio.prestador_nombre),
+      seleccionado: seleccionado === servicio.codigo,
+      onClic: () => setSeleccionado(servicio.codigo),
+    })),
+  ];
   const proxima = proximaReserva(data.contratos, usuario);
   const stats = estadisticasPlataforma(data);
   const nombre = usuario.nombre.split(" ")[0];
@@ -45,7 +63,7 @@ export function InicioScreen({ usuario, onBuscar, onAbrirServicio, onVerReservas
             <p className="text-sm text-muted-foreground lg:text-primary-foreground/70">Hola, {nombre}</p>
             <h1 className="text-2xl font-bold tracking-tight lg:mt-1 lg:text-4xl lg:text-primary-foreground">¿Qué necesitas hoy?</h1>
             <p className="mt-2 hidden max-w-md text-primary-foreground/75 lg:block">
-              Profesionales verificados en {CIUDAD_LABEL[usuario.ciudad]}, con precios claros y calificaciones reales.
+              Profesionales verificados en {CIUDAD_LABEL[ciudad]}, con precios claros y calificaciones reales.
             </p>
           </div>
           <BarraBusqueda
@@ -86,7 +104,7 @@ export function InicioScreen({ usuario, onBuscar, onAbrirServicio, onVerReservas
           >
             <span>
               <span className="mb-1 block text-lg font-bold text-primary-foreground">Agenda tu próximo servicio</span>
-              <span className="block text-sm text-primary-foreground/80">Profesionales verificados en {CIUDAD_LABEL[usuario.ciudad]}</span>
+              <span className="block text-sm text-primary-foreground/80">Profesionales verificados en {CIUDAD_LABEL[ciudad]}</span>
             </span>
             <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary-foreground/20">
               <ArrowRight className="h-5 w-5 text-primary-foreground" aria-hidden />
@@ -101,25 +119,64 @@ export function InicioScreen({ usuario, onBuscar, onAbrirServicio, onVerReservas
         <CarruselCategorias onSeleccionar={(categoria) => onBuscar("", categoria)} />
       </section>
 
+      <section className="py-4">
+        <EncabezadoSeccion titulo="Cerca de ti" accion="Ver todo" onAccion={() => onBuscar("")} />
+        <p className="-mt-2 mb-3 px-4 text-sm text-muted-foreground" aria-live="polite">
+          {cercanos.length
+            ? `${pluralizar(cercanos.length, "profesional atiende", "profesionales atienden")} en ${ubicacion.etiqueta}. El más cercano llega en unos ${formatearTiempo(cercanos[0].minutos)}.`
+            : `Ningún profesional atiende todavía en ${ubicacion.etiqueta}.`}
+        </p>
+        <div className="grid grid-cols-1 gap-4 px-4 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]">
+          <div className="lg:sticky lg:top-24 lg:self-start">
+            <Mapa
+              etiqueta={`Mapa de profesionales cerca de ${ubicacion.etiqueta}`}
+              centro={ubicacion.coordenadas}
+              zoom={14}
+              marcadores={marcadores}
+              alto={300}
+            />
+          </div>
+          {cercanos.length ? (
+            <div className="flex flex-col gap-3">
+              {cercanos.map(({ servicio, distanciaKm, minutos }, i) => (
+                <div key={servicio.codigo} onMouseEnter={() => setSeleccionado(servicio.codigo)} onFocus={() => setSeleccionado(servicio.codigo)}>
+                  <TarjetaServicio
+                    style={escalonado(i + 1, 60)}
+                    servicio={servicio}
+                    cercania={{ distanciaKm, minutos }}
+                    onAbrir={(s) => onAbrirServicio(s.codigo)}
+                  />
+                </div>
+              ))}
+            </div>
+          ) : (
+            <EmptyState
+              icono={MapPinOff}
+              titulo="No hay profesionales en tu zona"
+              descripcion="Prueba con otro barrio o activa tu GPS si estás en una ciudad con cobertura."
+              accion={<BotonUbicacion className="border border-border bg-card py-1 pl-1 pr-3" />}
+            />
+          )}
+        </div>
+      </section>
+
       {destacados.length > 0 && (
         <section className="py-2">
           <EncabezadoSeccion titulo="Mejor calificados" accion="Ver todo" onAccion={() => onBuscar("")} />
           <div className="hide-scrollbar flex gap-3 overflow-x-auto px-4 pb-2 md:grid md:grid-cols-2 md:overflow-visible lg:grid-cols-4">
             {destacados.map((servicio, i) => (
-              <TarjetaDestacada key={servicio.codigo} style={escalonado(i, 70)} servicio={servicio} onAbrir={(s) => onAbrirServicio(s.codigo)} />
+              <TarjetaDestacada
+                key={servicio.codigo}
+                style={escalonado(i, 70)}
+                servicio={servicio}
+                cercania={calcularCercania(servicio, ubicacion.coordenadas)}
+                onAbrir={(s) => onAbrirServicio(s.codigo)}
+              />
             ))}
           </div>
         </section>
       )}
 
-      <section className="py-4">
-        <EncabezadoSeccion titulo={`En ${CIUDAD_LABEL[usuario.ciudad]}`} accion="Ver todo" onAccion={() => onBuscar("")} />
-        <div className="flex flex-col gap-3 px-4 md:grid md:grid-cols-2 xl:grid-cols-3">
-          {enTuCiudad.map((servicio, i) => (
-            <TarjetaServicio key={servicio.codigo} style={escalonado(i + 2, 60)} servicio={servicio} onAbrir={(s) => onAbrirServicio(s.codigo)} />
-          ))}
-        </div>
-      </section>
 
       <section className="px-4 py-4">
         <div className="rounded-2xl bg-muted p-4">

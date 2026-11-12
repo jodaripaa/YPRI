@@ -11,7 +11,16 @@ import { cx } from "@/components/ui";
 import { CATEGORIA_LABEL, CATEGORIAS_SERVICIO, CIUDAD_LABEL, type CategoriaServicio } from "@/lib/constants";
 import { formatearCalificacion, formatearMoneda, iniciales, pluralizar } from "@/lib/format";
 import type { Servicio, Usuario } from "@/lib/types";
+import { formatearDistancia, formatearTiempo } from "@/lib/geo";
 import { ICONO_CATEGORIA, PROFESION_CATEGORIA } from "./categorias";
+import { BotonUbicacion } from "./SelectorUbicacion";
+
+/** Distancia y tiempo de llegada respecto al cliente (si se conoce su ubicación). */
+export interface Cercania {
+  distanciaKm: number;
+  minutos: number;
+  enCobertura?: boolean;
+}
 
 /* ------------------------------------------------------------------ Marco */
 
@@ -27,15 +36,7 @@ export function EncabezadoInicio({ usuario, onPerfil }: { usuario: Usuario; onPe
   return (
     <header className="flex items-center justify-between gap-3 bg-card px-4 py-3 sm:rounded-b-2xl lg:hidden">
       <Logo prioridad />
-      <div className="flex min-w-0 items-center gap-2">
-        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-accent/15">
-          <MapPin className="h-4 w-4 text-accent-strong" aria-hidden />
-        </span>
-        <span className="min-w-0">
-          <span className="block text-[10px] text-muted-foreground">Tu ciudad</span>
-          <span className="block truncate text-xs font-semibold">{CIUDAD_LABEL[usuario.ciudad]}</span>
-        </span>
-      </div>
+      <BotonUbicacion className="py-1 pl-1 pr-2" />
       <button
         type="button"
         onClick={onPerfil}
@@ -206,7 +207,17 @@ export function Estrellas({ valor, resenas, compacto }: { valor: number; resenas
 }
 
 /** Tarjeta grande para el carrusel de destacados. */
-export function TarjetaDestacada({ servicio, onAbrir, style }: { servicio: Servicio; onAbrir: (servicio: Servicio) => void; style?: CSSProperties }) {
+export function TarjetaDestacada({
+  servicio,
+  onAbrir,
+  style,
+  cercania,
+}: {
+  servicio: Servicio;
+  onAbrir: (servicio: Servicio) => void;
+  style?: CSSProperties;
+  cercania?: Cercania;
+}) {
   const Icono = ICONO_CATEGORIA[servicio.categoria];
   return (
     <button
@@ -231,7 +242,7 @@ export function TarjetaDestacada({ servicio, onAbrir, style }: { servicio: Servi
           <BadgeCheck className="h-4 w-4 shrink-0 text-accent-strong" aria-label="Verificado" />
         </span>
         <span className="mb-2 text-xs text-muted-foreground">
-          {PROFESION_CATEGORIA[servicio.categoria]} · {CIUDAD_LABEL[servicio.ciudad]}
+          {PROFESION_CATEGORIA[servicio.categoria]} · {cercania ? `a ${formatearDistancia(cercania.distanciaKm)}` : CIUDAD_LABEL[servicio.ciudad]}
         </span>
         <span className="mt-auto flex items-center justify-between gap-2">
           <Estrellas valor={servicio.calificacion} resenas={servicio.num_resenas} compacto />
@@ -243,7 +254,17 @@ export function TarjetaDestacada({ servicio, onAbrir, style }: { servicio: Servi
 }
 
 /** Fila de lista para resultados de búsqueda y "En tu ciudad". */
-export function TarjetaServicio({ servicio, onAbrir, style }: { servicio: Servicio; onAbrir: (servicio: Servicio) => void; style?: CSSProperties }) {
+export function TarjetaServicio({
+  servicio,
+  onAbrir,
+  style,
+  cercania,
+}: {
+  servicio: Servicio;
+  onAbrir: (servicio: Servicio) => void;
+  style?: CSSProperties;
+  cercania?: Cercania;
+}) {
   return (
     <button
       type="button"
@@ -262,18 +283,28 @@ export function TarjetaServicio({ servicio, onAbrir, style }: { servicio: Servic
           <Estrellas valor={servicio.calificacion} resenas={servicio.num_resenas} compacto />
           <span className="flex items-center gap-1">
             <MapPin className="h-3.5 w-3.5" aria-hidden />
-            {CIUDAD_LABEL[servicio.ciudad]}
+            {cercania ? formatearDistancia(cercania.distanciaKm) : CIUDAD_LABEL[servicio.ciudad]}
           </span>
-          <span className="flex items-center gap-1">
-            <Clock className="h-3.5 w-3.5" aria-hidden />
-            {pluralizar(servicio.anios_experiencia, "año", "años")}
-          </span>
+          {cercania ? (
+            <span className="flex items-center gap-1 font-medium text-accent-strong">
+              <Clock className="h-3.5 w-3.5" aria-hidden />
+              llega en {formatearTiempo(cercania.minutos)}
+            </span>
+          ) : (
+            <span className="flex items-center gap-1">
+              <Clock className="h-3.5 w-3.5" aria-hidden />
+              {pluralizar(servicio.anios_experiencia, "año", "años")}
+            </span>
+          )}
         </span>
       </span>
       <span className="flex shrink-0 flex-col items-end justify-between">
         <span className="text-base font-bold text-enfasis">{formatearMoneda(servicio.tarifa_hora)}</span>
         <span className="text-[10px] text-muted-foreground">por hora</span>
         {!servicio.disponible && <span className="mt-1 rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground">No disponible</span>}
+        {servicio.disponible && cercania?.enCobertura === false && (
+          <span className="mt-1 rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-medium text-amber-800 dark:bg-amber-400/15 dark:text-amber-300">Fuera de su zona</span>
+        )}
       </span>
     </button>
   );

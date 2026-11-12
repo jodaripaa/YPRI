@@ -1,14 +1,20 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { SearchX } from "lucide-react";
-import { Button, EmptyState, escalonado, Select } from "@/components/ui";
+import { List, Map as MapIcon, SearchX } from "lucide-react";
+import { Mapa, type MarcadorMapa } from "@/components/mapa/Mapa";
+import { Button, cx, EmptyState, escalonado, Select } from "@/components/ui";
 import { CATEGORIA_LABEL, CATEGORIAS_SERVICIO, CIUDAD_LABEL, CIUDADES_COBERTURA, type CategoriaServicio, type CiudadCobertura } from "@/lib/constants";
+import { calcularCercania } from "@/lib/domain/cercania";
 import { filtrarCatalogo, type FiltrosCatalogo, type OrdenCatalogo } from "@/lib/domain/services";
-import { pluralizar } from "@/lib/format";
+import { formatearDistancia } from "@/lib/geo";
+import { iniciales, pluralizar } from "@/lib/format";
 import type { Usuario } from "@/lib/types";
 import { useAppStore } from "@/store/AppStore";
 import { BarraBusqueda, BarraSuperior, ChipFiltro, MarcoMovil, TarjetaServicio } from "../componentes";
+import { useUbicacion } from "../ubicacion";
+
+const DISTANCIAS_KM = [1, 2, 5, 10] as const;
 
 export interface BusquedaInicial {
   /** Cambia en cada búsqueda nueva para reiniciar los filtros. */
@@ -17,7 +23,10 @@ export interface BusquedaInicial {
   categoria: CategoriaServicio | "todas";
 }
 
-const ORDENES: { id: OrdenCatalogo; etiqueta: string }[] = [
+type OrdenBusqueda = OrdenCatalogo | "cercania";
+
+const ORDENES: { id: OrdenBusqueda; etiqueta: string }[] = [
+  { id: "cercania", etiqueta: "Más cercanos" },
   { id: "relevancia", etiqueta: "Recomendados" },
   { id: "calificacion", etiqueta: "Mejor calificados" },
   { id: "precio_asc", etiqueta: "Menor precio" },
@@ -26,16 +35,42 @@ const ORDENES: { id: OrdenCatalogo; etiqueta: string }[] = [
 
 export function BuscarScreen({ usuario, inicial, onAbrirServicio }: { usuario: Usuario; inicial: BusquedaInicial; onAbrirServicio: (codigo: string) => void }) {
   const { data } = useAppStore();
+  const { ubicacion } = useUbicacion();
   const [filtros, setFiltros] = useState<FiltrosCatalogo>({
     texto: inicial.texto,
     categoria: inicial.categoria,
-    ciudad: usuario.ciudad,
+    ciudad: ubicacion.ciudad ?? usuario.ciudad,
     soloDisponibles: false,
     orden: "relevancia",
   });
+  const [orden, setOrden] = useState<OrdenBusqueda>("cercania");
+  const [distanciaMax, setDistanciaMax] = useState<number | null>(null);
+  const [vista, setVista] = useState<"lista" | "mapa">("lista");
+  const [seleccionado, setSeleccionado] = useState<string | null>(null);
 
-  const resultados = useMemo(() => filtrarCatalogo(data.servicios, filtros), [data.servicios, filtros]);
+  // Filtra con las reglas del catálogo y añade a cada resultado su distancia al cliente.
+  const resultados = useMemo(() => {
+    const base = filtrarCatalogo(data.servicios, { ...filtros, orden: orden === "cercania" ? "relevancia" : orden });
+    const conDistancia = base
+      .map((servicio) => calcularCercania(servicio, ubicacion.coordenadas))
+      .filter((c) => distanciaMax === null || c.distanciaKm <= distanciaMax);
+    return orden === "cercania" ? conDistancia.sort((a, b) => a.distanciaKm - b.distanciaKm) : conDistancia;
+  }, [data.servicios, filtros, orden, distanciaMax, ubicacion.coordenadas]);
   const actualizar = <K extends keyof FiltrosCatalogo>(campo: K, valor: FiltrosCatalogo[K]) => setFiltros((f) => ({ ...f, [campo]: valor }));
+
+  const marcadores: MarcadorMapa[] = [
+    { id: "yo", coordenadas: ubicacion.coordenadas, tipo: "cliente", etiqueta: `Tú: ${ubicacion.etiqueta}` },
+    ...resultados.map(({ servicio, distanciaKm }) => ({
+      id: servicio.codigo,
+      coordenadas: servicio.ubicacion,
+      tipo: servicio.disponible ? ("profesional" as const) : ("inactivo" as const),
+      etiqueta: `${servicio.prestador_nombre} · ${CATEGORIA_LABEL[servicio.categoria]} · a ${formatearDistancia(distanciaKm)}`,
+      texto: iniciales(servicio.prestador_nombre),
+      seleccionado: seleccionado === servicio.codigo,
+      onClic: () => setSeleccionado(servicio.codigo),
+    })),
+  ];
+  const elegido = resultados.find((r) => r.servicio.codigo === seleccionado);
 
   return (
     <MarcoMovil>
@@ -70,10 +105,23 @@ export function BuscarScreen({ usuario, inicial, onAbrirServicio }: { usuario: U
             </option>
           ))}
         </Select>
-        <Select aria-label="Ordenar por" className="rounded-xl border-border sm:w-48 lg:w-full" value={filtros.orden} onChange={(e) => actualizar("orden", e.target.value as OrdenCatalogo)}>
+        <Select aria-label="Ordenar por" className="rounded-xl border-border sm:w-48 lg:w-full" value={orden} onChange={(e) => setOrden(e.target.value as OrdenBusqueda)}>
           {ORDENES.map((orden) => (
             <option key={orden.id} value={orden.id}>
               {orden.etiqueta}
+            </option>
+          ))}
+        </Select>
+        <Select
+          aria-label="Distancia máxima"
+          className="col-span-2 rounded-xl border-border sm:w-48 lg:w-full"
+          value={distanciaMax ?? ""}
+          onChange={(e) => setDistanciaMax(e.target.value ? Number(e.target.value) : null)}
+        >
+          <option value="">Cualquier distancia</option>
+          {DISTANCIAS_KM.map((km) => (
+            <option key={km} value={km}>
+              Hasta {km} km
             </option>
           ))}
         </Select>
@@ -91,14 +139,53 @@ export function BuscarScreen({ usuario, inicial, onAbrirServicio }: { usuario: U
       </aside>
 
       <div className="min-w-0 flex-1">
-      <p className="px-4 pb-2 pt-1 text-sm text-muted-foreground lg:px-0 lg:pt-0" aria-live="polite">
-        {pluralizar(resultados.length, "profesional", "profesionales")}
-      </p>
+      <div className="flex items-center justify-between gap-3 px-4 pb-2 pt-1 lg:px-0 lg:pt-0">
+        <p className="text-sm text-muted-foreground" aria-live="polite">
+          {pluralizar(resultados.length, "profesional", "profesionales")} · desde {ubicacion.etiqueta}
+        </p>
+        <div role="tablist" aria-label="Ver resultados como" className="flex shrink-0 gap-1 rounded-xl bg-muted p-1">
+          {(["lista", "mapa"] as const).map((v) => (
+            <button
+              key={v}
+              type="button"
+              role="tab"
+              aria-selected={vista === v}
+              onClick={() => setVista(v)}
+              className={cx(
+                "flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-all",
+                vista === v ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground",
+              )}
+            >
+              {v === "lista" ? <List className="h-3.5 w-3.5" aria-hidden /> : <MapIcon className="h-3.5 w-3.5" aria-hidden />}
+              {v === "lista" ? "Lista" : "Mapa"}
+            </button>
+          ))}
+        </div>
+      </div>
 
-      {resultados.length ? (
+      {resultados.length && vista === "mapa" ? (
+        <div className="space-y-3 px-4 lg:px-0">
+          <Mapa etiqueta="Mapa de resultados de búsqueda" centro={ubicacion.coordenadas} zoom={14} marcadores={marcadores} alto={420} />
+          {elegido ? (
+            <TarjetaServicio
+              servicio={elegido.servicio}
+              cercania={{ distanciaKm: elegido.distanciaKm, minutos: elegido.minutos, enCobertura: elegido.enCobertura }}
+              onAbrir={(s) => onAbrirServicio(s.codigo)}
+            />
+          ) : (
+            <p className="text-center text-sm text-muted-foreground">Toca un profesional en el mapa para ver su ficha.</p>
+          )}
+        </div>
+      ) : resultados.length ? (
         <div className="flex flex-col gap-3 px-4 md:grid md:grid-cols-2 lg:px-0">
-          {resultados.map((servicio, i) => (
-            <TarjetaServicio key={servicio.codigo} style={escalonado(i)} servicio={servicio} onAbrir={(s) => onAbrirServicio(s.codigo)} />
+          {resultados.map(({ servicio, distanciaKm, minutos, enCobertura }, i) => (
+            <TarjetaServicio
+              key={servicio.codigo}
+              style={escalonado(i)}
+              servicio={servicio}
+              cercania={{ distanciaKm, minutos, enCobertura }}
+              onAbrir={(s) => onAbrirServicio(s.codigo)}
+            />
           ))}
         </div>
       ) : (
@@ -108,7 +195,13 @@ export function BuscarScreen({ usuario, inicial, onAbrirServicio }: { usuario: U
           titulo="No encontramos profesionales"
           descripcion="Prueba con otra categoría o busca en todas las ciudades."
           accion={
-            <Button variante="secondary" onClick={() => setFiltros((f) => ({ ...f, texto: "", categoria: "todas", ciudad: "todas", soloDisponibles: false }))}>
+            <Button
+              variante="secondary"
+              onClick={() => {
+                setDistanciaMax(null);
+                setFiltros((f) => ({ ...f, texto: "", categoria: "todas", ciudad: "todas", soloDisponibles: false }));
+              }}
+            >
               Limpiar filtros
             </Button>
           }

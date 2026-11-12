@@ -8,6 +8,7 @@ import { fechaIsoHoy } from "../format";
 import { siguienteId } from "../ids";
 import { fail, ok, type Result } from "../result";
 import type { AppData, Contrato, Usuario } from "../types";
+import { sonCoordenadasValidas, type Coordenadas } from "../geo";
 import { esEnteroEnRango } from "../validation";
 import { MENSAJE_SIN_PERMISO, tienePermiso } from "./permissions";
 
@@ -71,6 +72,7 @@ export interface SolicitudContrato {
   fecha: string;
   direccion: string;
   nota?: string;
+  ubicacion?: Coordenadas;
 }
 
 export function crearContrato(
@@ -90,6 +92,7 @@ export function crearContrato(
   if (!/^\d{4}-\d{2}-\d{2}$/.test(solicitud.fecha) || solicitud.fecha < hoy)
     return fail("Selecciona una fecha a partir de hoy.");
   if (solicitud.direccion.trim().length < 5) return fail("Escribe la dirección donde se prestará el servicio.");
+  if (solicitud.ubicacion !== undefined && !sonCoordenadasValidas(solicitud.ubicacion)) return fail("La ubicación del servicio no es válida.");
 
   const liquidacion = calcularLiquidacionContrato(servicio.tarifa_hora, solicitud.horas);
   const contrato: Contrato = {
@@ -109,6 +112,7 @@ export function crearContrato(
     fecha: solicitud.fecha,
     direccion: solicitud.direccion.trim(),
     nota: solicitud.nota?.trim() || undefined,
+    ubicacion: solicitud.ubicacion,
   };
 
   return ok({ data: { ...data, contratos: [contrato, ...data.contratos] }, contrato });

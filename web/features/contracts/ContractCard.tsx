@@ -3,7 +3,8 @@ import { CalendarDays, Clock, MapPin, MessageSquareText, Star } from "lucide-rea
 import { Avatar, Button, EstadoContratoBadge } from "@/components/ui";
 import type { AccionContrato } from "@/lib/domain/contracts";
 import { formatearFecha, formatearMoneda, iniciales, pluralizar } from "@/lib/format";
-import type { Contrato, Usuario } from "@/lib/types";
+import { distanciaKm as medirDistancia, formatearDistancia } from "@/lib/geo";
+import type { Contrato, Servicio, Usuario } from "@/lib/types";
 import { CONFIGURACION_ACCIONES } from "./contractActions";
 
 interface Props {
@@ -12,6 +13,13 @@ interface Props {
   acciones: AccionContrato[];
   onAccion: (contrato: Contrato, accion: AccionContrato) => void;
   style?: CSSProperties;
+  /** Distancia desde la zona del profesional hasta el lugar del servicio. */
+  distanciaKm?: number;
+}
+
+/** Distancia desde la zona del servicio hasta el lugar del contrato, si ambos se conocen. */
+export function distanciaContrato(contrato: Contrato, servicio?: Servicio): number | undefined {
+  return contrato.ubicacion && servicio ? medirDistancia(servicio.ubicacion, contrato.ubicacion) : undefined;
 }
 
 /** Persona que se muestra en la tarjeta según quién la mira. */
@@ -21,7 +29,7 @@ function contraparte(contrato: Contrato, usuario: Usuario): { nombre: string; de
   return { nombre: contrato.cliente_nombre, detalle: `con ${contrato.prestador_nombre}` };
 }
 
-export function ContractCard({ contrato, usuario, acciones, onAccion, style }: Props) {
+export function ContractCard({ contrato, usuario, acciones, onAccion, style, distanciaKm }: Props) {
   const persona = contraparte(contrato, usuario);
   return (
     <article style={style} className="hover-elevar flex animate-fade-up flex-col rounded-2xl border border-border bg-card p-4 shadow-suave sm:p-5">
@@ -43,7 +51,7 @@ export function ContractCard({ contrato, usuario, acciones, onAccion, style }: P
       <dl className="grid grid-cols-1 gap-2 text-sm text-muted-foreground sm:grid-cols-3">
         <Dato icono={CalendarDays} etiqueta="Fecha" valor={formatearFecha(contrato.fecha)} />
         <Dato icono={Clock} etiqueta="Duración" valor={pluralizar(contrato.horas, "hora", "horas")} />
-        <Dato icono={MapPin} etiqueta="Dirección" valor={contrato.direccion} />
+        <Dato icono={MapPin} etiqueta="Dirección" valor={distanciaKm === undefined ? contrato.direccion : `${contrato.direccion} · a ${formatearDistancia(distanciaKm)}`} />
       </dl>
 
       {contrato.nota && (

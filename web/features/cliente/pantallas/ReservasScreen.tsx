@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState, type CSSProperties } from "react";
-import { CalendarDays, CalendarX, Clock, MapPin, Star } from "lucide-react";
+import { CalendarDays, CalendarX, Clock, MapPin, Navigation, Star } from "lucide-react";
 import { Button, cx, EmptyState, escalonado, EstadoContratoBadge, useToast } from "@/components/ui";
 import type { EstadoContrato } from "@/lib/constants";
 import { accionesDisponibles, contratosVisiblesPara, ESTADOS_ACTIVOS, type AccionContrato } from "@/lib/domain/contracts";
@@ -12,6 +12,7 @@ import { useContratos } from "@/store/hooks";
 import { ConfirmDialog, RateDialog } from "../../contracts/ContractDialogs";
 import { CONFIGURACION_ACCIONES } from "../../contracts/contractActions";
 import { BarraSuperior, MarcoMovil } from "../componentes";
+import { SeguimientoModal } from "../SeguimientoModal";
 
 type Pestana = "proximas" | "historial";
 
@@ -20,7 +21,7 @@ const ESTADOS_PESTANA: Record<Pestana, readonly EstadoContrato[]> = {
   historial: ["Completado", "Cancelado"],
 };
 
-type Dialogo = { tipo: "calificar"; contrato: Contrato } | { tipo: "cancelar"; contrato: Contrato } | null;
+type Dialogo = { tipo: "calificar" | "cancelar" | "seguir"; contrato: Contrato } | null;
 
 interface Props {
   usuario: Usuario;
@@ -38,6 +39,8 @@ export function ReservasScreen({ usuario, onExplorar, onAbrirServicio }: Props) 
   const propias = useMemo(() => contratosVisiblesPara(data.contratos, usuario), [data.contratos, usuario]);
   const porPestana = (p: Pestana) => propias.filter((c) => ESTADOS_PESTANA[p].includes(c.estado));
   const visibles = porPestana(pestana).sort((a, b) => (pestana === "proximas" ? a.fecha.localeCompare(b.fecha) : b.fecha.localeCompare(a.fecha)));
+
+  const servicioDe = (contrato: Contrato) => data.servicios.find((s) => s.codigo === contrato.servicio_codigo);
 
   const alAccionar = (contrato: Contrato, accion: AccionContrato) => {
     if (accion === "calificar") return setDialogo({ tipo: "calificar", contrato });
@@ -83,6 +86,7 @@ export function ReservasScreen({ usuario, onExplorar, onAbrirServicio }: Props) 
               acciones={accionesDisponibles(contrato, usuario)}
               onAccion={alAccionar}
               onVerProfesional={() => onAbrirServicio(contrato.servicio_codigo)}
+              onSeguir={ESTADOS_ACTIVOS.includes(contrato.estado) ? () => setDialogo({ tipo: "seguir", contrato }) : undefined}
             />
           ))}
         </div>
@@ -110,6 +114,10 @@ export function ReservasScreen({ usuario, onExplorar, onAbrirServicio }: Props) 
         />
       )}
 
+      {dialogo?.tipo === "seguir" && servicioDe(dialogo.contrato) && (
+        <SeguimientoModal contrato={dialogo.contrato} servicio={servicioDe(dialogo.contrato)!} onCerrar={() => setDialogo(null)} />
+      )}
+
       {dialogo?.tipo === "cancelar" && (
         <ConfirmDialog
           titulo={`Cancelar reserva ${dialogo.contrato.id}`}
@@ -128,6 +136,7 @@ function TarjetaReserva({
   acciones,
   onAccion,
   onVerProfesional,
+  onSeguir,
   style,
 }: {
   style?: CSSProperties;
@@ -135,6 +144,8 @@ function TarjetaReserva({
   acciones: AccionContrato[];
   onAccion: (contrato: Contrato, accion: AccionContrato) => void;
   onVerProfesional: () => void;
+  /** Abre el seguimiento en el mapa (solo reservas activas). */
+  onSeguir?: () => void;
 }) {
   return (
     <article style={style} className="hover-elevar flex animate-fade-up flex-col rounded-2xl border border-border bg-card p-4">
@@ -175,6 +186,11 @@ function TarjetaReserva({
           <span className="text-xs text-muted-foreground"> IVA incl.</span>
         </p>
         <div className="flex gap-2">
+          {onSeguir && (
+            <Button variante="primary" icono={Navigation} className="h-9 px-3 text-xs" onClick={onSeguir}>
+              Seguir
+            </Button>
+          )}
           {acciones.includes("cancelar") && (
             <Button variante="danger" className="h-9 px-3 text-xs" onClick={() => onAccion(contrato, "cancelar")}>
               Cancelar

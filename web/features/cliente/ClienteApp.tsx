@@ -4,11 +4,11 @@
 // mismas reglas de dominio que el resto de YPRI: solo cambia la presentación.
 
 import { useState, type ReactNode } from "react";
-import { CalendarDays, Home, MapPin, Search, User } from "lucide-react";
+import { CalendarDays, Home, Search, User } from "lucide-react";
 import { BottomNav, type ItemNavegacion } from "@/components/layout/BottomNav";
 import { Logo } from "@/components/layout/Logo";
 import { Avatar, cx } from "@/components/ui";
-import { CIUDAD_LABEL, type CategoriaServicio } from "@/lib/constants";
+import type { CategoriaServicio } from "@/lib/constants";
 import { ESTADOS_ACTIVOS, contratosVisiblesPara } from "@/lib/domain/contracts";
 import { iniciales } from "@/lib/format";
 import type { Contrato, Usuario } from "@/lib/types";
@@ -19,6 +19,8 @@ import { PerfilScreen } from "./pantallas/PerfilScreen";
 import { ProfesionalScreen } from "./pantallas/ProfesionalScreen";
 import { ReservaConfirmadaScreen, ReservarScreen } from "./pantallas/ReservarScreen";
 import { ReservasScreen } from "./pantallas/ReservasScreen";
+import { BotonUbicacion } from "./SelectorUbicacion";
+import { UbicacionProvider } from "./ubicacion";
 
 export type PestanaCliente = "inicio" | "buscar" | "reservas" | "perfil";
 
@@ -106,7 +108,7 @@ export function ClienteApp({ usuario, onCerrarSesion }: { usuario: Usuario; onCe
   }
 
   return (
-    <>
+    <UbicacionProvider usuario={usuario}>
       <BarraEscritorio
         usuario={usuario}
         items={items.filter((item) => item.id !== "perfil")}
@@ -115,7 +117,7 @@ export function ClienteApp({ usuario, onCerrarSesion }: { usuario: Usuario; onCe
         onCambiar={cambiarPestana}
       />
       {contenido}
-    </>
+    </UbicacionProvider>
   );
 }
 
@@ -164,10 +166,7 @@ function BarraEscritorio({
           })}
         </nav>
         <div className="ml-auto flex items-center gap-3">
-          <span className="flex items-center gap-1.5 rounded-full bg-muted px-3 py-1.5 text-xs font-medium text-muted-foreground">
-            <MapPin className="h-3.5 w-3.5 text-accent-strong" aria-hidden />
-            {CIUDAD_LABEL[usuario.ciudad]}
-          </span>
+          <BotonUbicacion className="bg-muted py-1 pl-1 pr-3" />
           <button
             type="button"
             onClick={() => onCambiar("perfil")}

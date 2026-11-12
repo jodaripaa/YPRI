@@ -1,12 +1,16 @@
 "use client";
 
 import { useState } from "react";
-import { ArrowLeft, BadgeCheck, Briefcase, Clock, MapPin, MessageSquareText, Phone, SearchX, ShieldCheck, Star } from "lucide-react";
+import { AlertTriangle, ArrowLeft, BadgeCheck, Briefcase, CheckCircle2, Clock, Navigation, MapPin, MessageSquareText, Phone, SearchX, ShieldCheck, Star } from "lucide-react";
 import { Button, cx, EmptyState } from "@/components/ui";
 import { CATEGORIA_LABEL, CIUDAD_LABEL, IVA_PORCENTAJE } from "@/lib/constants";
 import { distribucionCalificaciones, otrosServiciosDelProfesional, resenasDeServicio } from "@/lib/domain/cliente";
 import { formatearCalificacion, formatearFecha, formatearMoneda, iniciales, pluralizar } from "@/lib/format";
+import { Mapa } from "@/components/mapa/Mapa";
+import { calcularCercania } from "@/lib/domain/cercania";
+import { formatearDistancia, formatearTiempo } from "@/lib/geo";
 import { useAppStore } from "@/store/AppStore";
+import { useUbicacion } from "../ubicacion";
 import { PROFESION_CATEGORIA } from "../categorias";
 import { AvatarProfesional, MarcoMovil, TarjetaServicio } from "../componentes";
 
@@ -27,6 +31,7 @@ interface Props {
 
 export function ProfesionalScreen({ codigo, onVolver, onReservar, onAbrirServicio }: Props) {
   const { data } = useAppStore();
+  const { ubicacion } = useUbicacion();
   const [pestana, setPestana] = useState<Pestana>("servicio");
   const servicio = data.servicios.find((s) => s.codigo === codigo);
 
@@ -39,6 +44,7 @@ export function ProfesionalScreen({ codigo, onVolver, onReservar, onAbrirServici
   }
 
   const prestador = data.usuarios.find((u) => u.id === servicio.prestador_id);
+  const cercania = calcularCercania(servicio, ubicacion.coordenadas);
   const resenas = resenasDeServicio(data.contratos, servicio.codigo);
   const otros = otrosServiciosDelProfesional(data.servicios, servicio);
 
@@ -80,7 +86,10 @@ export function ProfesionalScreen({ codigo, onVolver, onReservar, onAbrirServici
           )}
           <span className="flex items-center gap-1">
             <MapPin className="h-4 w-4" aria-hidden />
-            {CIUDAD_LABEL[servicio.ciudad]}
+            {servicio.zona}, {CIUDAD_LABEL[servicio.ciudad]}
+          </span>
+          <span className="flex items-center gap-1 font-medium text-accent-strong">
+            <Navigation className="h-4 w-4" aria-hidden />a {formatearDistancia(cercania.distanciaKm)} · {formatearTiempo(cercania.minutos)}
           </span>
           <span className="flex items-center gap-1">
             <Clock className="h-4 w-4" aria-hidden />
@@ -156,6 +165,35 @@ export function ProfesionalScreen({ codigo, onVolver, onReservar, onAbrirServici
             <div className="grid grid-cols-2 gap-3">
               <Dato icono={Briefcase} valor={String(servicio.num_contratos)} etiqueta="Trabajos completados" />
               <Dato icono={ShieldCheck} valor="Verificado" etiqueta="Perfil revisado por YPRI" />
+            </div>
+            <div className="rounded-2xl border border-border bg-card p-4">
+              <h2 className="text-sm font-semibold">Zona de atención</h2>
+              <p className="mb-3 mt-1 text-sm text-muted-foreground">
+                Sale desde {servicio.zona} y atiende hasta {servicio.radio_km} km a la redonda.
+              </p>
+              <Mapa
+                etiqueta={`Zona de atención de ${servicio.prestador_nombre} y tu ubicación`}
+                centro={servicio.ubicacion}
+                zoom={14}
+                alto={220}
+                circulos={[{ id: "zona", centro: servicio.ubicacion, radioKm: servicio.radio_km }]}
+                ruta={[servicio.ubicacion, ubicacion.coordenadas]}
+                marcadores={[
+                  { id: "pro", coordenadas: servicio.ubicacion, tipo: servicio.disponible ? "profesional" : "inactivo", etiqueta: `${servicio.prestador_nombre} · ${servicio.zona}`, texto: iniciales(servicio.prestador_nombre) },
+                  { id: "yo", coordenadas: ubicacion.coordenadas, tipo: "cliente", etiqueta: `Tú: ${ubicacion.etiqueta}` },
+                ]}
+              />
+              {cercania.enCobertura ? (
+                <p className="mt-3 flex items-start gap-2 rounded-xl bg-accent/10 px-3 py-2 text-sm text-foreground">
+                  <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-accent-strong" aria-hidden />
+                  Atiende en {ubicacion.etiqueta}: estás a {formatearDistancia(cercania.distanciaKm)} y llegaría en unos {formatearTiempo(cercania.minutos)}.
+                </p>
+              ) : (
+                <p className="mt-3 flex items-start gap-2 rounded-xl bg-amber-50 px-3 py-2 text-sm text-amber-900 dark:bg-amber-400/10 dark:text-amber-200">
+                  <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden />
+                  {ubicacion.etiqueta} está a {formatearDistancia(cercania.distanciaKm)}, fuera de su radio de {servicio.radio_km} km. Puedes reservar, pero podría no aceptar.
+                </p>
+              )}
             </div>
           </div>
         )}
