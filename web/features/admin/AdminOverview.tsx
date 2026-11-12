@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Activity, Banknote, Star, TrendingUp, Users } from "lucide-react";
 import { Mapa } from "@/components/mapa/Mapa";
 import { Avatar, BarrasHorizontales, Card, Select, CardHeader, escalonado, EstadoContratoBadge, PageHeader, StatCard, Table, Td, Th } from "@/components/ui";
-import { CATEGORIA_LABEL, CATEGORIAS_SERVICIO, CIUDAD_LABEL, CIUDADES_COBERTURA, ESTADOS_CONTRATO, type CiudadCobertura } from "@/lib/constants";
+import { CATEGORIA_LABEL, CATEGORIAS_MATRIZ, CIUDAD_LABEL, CIUDADES_COBERTURA, ESTADOS_CONTRATO, type CiudadCobertura } from "@/lib/constants";
 import { CENTRO_CIUDAD } from "@/lib/zonas";
 import { analizarMatriz } from "@/lib/matrices";
 import { ESTADOS_ACTIVOS } from "@/lib/domain/contracts";
@@ -45,7 +45,7 @@ export function AdminOverview() {
           <p className="mb-5 text-sm text-muted-foreground">Según la matriz de facturación semanal.</p>
           <BarrasHorizontales
             titulo="Ingresos de la semana por categoría"
-            datos={CATEGORIAS_SERVICIO.map((c, i) => ({ etiqueta: CATEGORIA_LABEL[c], valor: semanal.totalesFila[i] ?? 0 }))}
+            datos={CATEGORIAS_MATRIZ.map((c, i) => ({ etiqueta: CATEGORIA_LABEL[c], valor: semanal.totalesFila[i] ?? 0 }))}
             formato={formatearMoneda}
             destacarMayor
           />

@@ -1,4 +1,4 @@
-import { CATEGORIAS_SERVICIO, DIAS_SEMANA_MATRIZ } from "../constants";
+import { CATEGORIAS_MATRIZ, DIAS_SEMANA_MATRIZ, type CategoriaServicio } from "../constants";
 import { fechaDesdeIso } from "../format";
 import { actualizarCelda } from "../matrices";
 import { fail, ok, type Result } from "../result";
@@ -32,11 +32,16 @@ export function sincronizarContratos(data: AppData, actor: Usuario): Result<Resu
   let matriz = data.matrizSemanal;
   let suma = 0;
   const sincronizados: string[] = [];
+  // Contratos de oficios sin fila en la matriz (Belleza): se marcan como revisados sin sumarse.
+  const sinFila: string[] = [];
 
   for (const contrato of pendientes) {
     const servicio = data.servicios.find((s) => s.codigo === contrato.servicio_codigo);
-    const fila = servicio ? CATEGORIAS_SERVICIO.indexOf(servicio.categoria) : -1;
-    if (fila === -1) continue;
+    const fila = servicio ? (CATEGORIAS_MATRIZ as readonly CategoriaServicio[]).indexOf(servicio.categoria) : -1;
+    if (fila === -1) {
+      if (servicio) sinFila.push(contrato.id);
+      continue;
+    }
     const columna = columnaDelDia(contrato.fecha);
     matriz = actualizarCelda(matriz, fila, columna, matriz[fila][columna] + contrato.total);
     suma += contrato.total;
@@ -47,7 +52,7 @@ export function sincronizarContratos(data: AppData, actor: Usuario): Result<Resu
     data: {
       ...data,
       matrizSemanal: matriz,
-      contratosSincronizados: [...data.contratosSincronizados, ...sincronizados],
+      contratosSincronizados: [...data.contratosSincronizados, ...sincronizados, ...sinFila],
     },
     cantidad: sincronizados.length,
     suma,

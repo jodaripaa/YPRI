@@ -1,5 +1,5 @@
 // Catálogo de palabras clave por oficio: permite buscar como habla la gente
-// ("se me quedaron las llaves adentro", "se fue la luz", "plomero") y encontrar
+// ("se me quedaron las llaves adentro", "se fue la luz", "barbero") y encontrar
 // la categoría correcta, con tolerancia a tildes y errores de escritura.
 // El mismo catálogo existe en backend/modules/palabras_clave.py.
 
@@ -36,6 +36,14 @@ export const PALABRAS_CLAVE: Record<CategoriaServicio, readonly string[]> = {
     "no abre la puerta", "chapa", "cerradura", "candado", "guarda", "cambio de guarda", "copia de llave", "duplicado",
     "caja fuerte", "no abre", "forzar", "pasador", "cerrojo", "seguridad",
   ],
+  Belleza: [
+    "barbero", "barbera", "barberia", "peluquero", "peluquera", "peluqueria", "estilista", "salon de belleza", "belleza",
+    "corte de pelo", "corte de cabello", "corte de barba", "cortarme el pelo", "cortar el pelo", "motilar", "motilada",
+    "motilado", "motilarme", "pelo", "cabello", "barba", "afeitar", "afeitada", "bigote", "tinte", "tintura", "mechas",
+    "cepillado", "alisado", "keratina", "peinado", "trenzas", "manicure", "manicurista", "pedicure", "las unas",
+    "arreglo de unas", "unas acrilicas", "pintar las unas", "maquillaje", "maquillarme", "maquilladora", "cejas",
+    "depilacion", "depilar", "pestanas", "spa", "masaje",
+  ],
 };
 
 /** Palabras que indican que el cliente necesita a alguien ya. */
@@ -53,6 +61,7 @@ export const NECESIDADES_FRECUENTES: readonly { texto: string; categoria: Catego
   { texto: "El aire no enfría", categoria: "Climatizacion", urgente: false },
   { texto: "Limpieza profunda", categoria: "Limpieza", urgente: false },
   { texto: "Destapar el baño", categoria: "Plomeria", urgente: false },
+  { texto: "Corte de cabello", categoria: "Belleza", urgente: false },
 ];
 
 /** Minúsculas, sin tildes ni signos, espacios simples. */

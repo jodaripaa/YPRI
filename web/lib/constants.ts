@@ -17,8 +17,16 @@ export const CATEGORIAS_SERVICIO = [
   "Limpieza",
   "Climatizacion",
   "Cerrajeria",
+  "Belleza",
 ] as const;
 export type CategoriaServicio = (typeof CATEGORIAS_SERVICIO)[number];
+
+/**
+ * Filas de las matrices de la Guía 9 (5 × 6 semanal y 5 × 5 cuadrada por ciudad).
+ * Son los cinco oficios originales; Belleza se ofrece en la app pero no tiene
+ * fila en esas matrices para conservar sus dimensiones.
+ */
+export const CATEGORIAS_MATRIZ = ["Electricidad", "Plomeria", "Limpieza", "Climatizacion", "Cerrajeria"] as const satisfies readonly CategoriaServicio[];
 
 export const CATEGORIA_LABEL: Record<CategoriaServicio, string> = {
   Electricidad: "Electricidad",
@@ -26,6 +34,7 @@ export const CATEGORIA_LABEL: Record<CategoriaServicio, string> = {
   Limpieza: "Limpieza",
   Climatizacion: "Climatización",
   Cerrajeria: "Cerrajería",
+  Belleza: "Belleza",
 };
 
 export const CIUDADES_COBERTURA = ["Cucuta", "Cali", "Bogota", "Medellin", "Bucaramanga"] as const;

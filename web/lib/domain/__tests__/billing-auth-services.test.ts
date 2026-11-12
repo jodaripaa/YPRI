@@ -62,7 +62,7 @@ describe("autenticación y usuarios", () => {
 
   it("registra usuarios sin permitir correos repetidos ni el rol administrador", () => {
     const r = registrarUsuario(data, registro);
-    expect(r.ok && r.value.usuario).toMatchObject({ id: "USR-010", correo: "ana.lopez@email.com", rol: "cliente" });
+    expect(r.ok && r.value.usuario).toMatchObject({ id: "USR-011", correo: "ana.lopez@email.com", rol: "cliente" });
     expect(registrarUsuario(data, { ...registro, correo: juan.correo }).ok).toBe(false);
     expect(registrarUsuario(data, { ...registro, confirmacion: "otra" }).ok).toBe(false);
     expect(registrarUsuario(data, { ...registro, rol: "admin" as unknown as "cliente" }).ok).toBe(false);
@@ -78,7 +78,7 @@ describe("servicios", () => {
   it("el profesional publica y solo cambia la disponibilidad de los suyos", () => {
     const datos = { categoria: "Plomeria" as const, ciudad: "Cali" as const, tarifaHora: 40000, descripcion: "Destape de cañerías y reparación de fugas", aniosExperiencia: 3 };
     const r = publicarServicio(data, carlos, datos);
-    expect(r.ok && r.value.servicio.codigo).toBe("SERV-07");
+    expect(r.ok && r.value.servicio.codigo).toBe("SERV-08");
     expect(publicarServicio(data, juan, datos).ok).toBe(false);
     expect(publicarServicio(data, carlos, { ...datos, tarifaHora: 500 }).ok).toBe(false);
     expect(cambiarDisponibilidad(data, carlos, "SERV-02").ok).toBe(false);
@@ -87,7 +87,7 @@ describe("servicios", () => {
 
   it("filtra y ordena el catálogo", () => {
     const r = filtrarCatalogo(data.servicios, { texto: "", categoria: "todas", ciudad: "Cucuta", soloDisponibles: true, orden: "precio_asc" });
-    expect(r.map((s) => s.codigo)).toEqual(["SERV-05", "SERV-02", "SERV-01", "SERV-04"]);
+    expect(r.map((s) => s.codigo)).toEqual(["SERV-05", "SERV-02", "SERV-07", "SERV-01", "SERV-04"]);
   });
 });
 
@@ -101,5 +101,18 @@ describe("utilidades", () => {
   it("genera identificadores sin colisiones", () => {
     expect(siguienteId("SERV", ["SERV-01", "SERV-09"], 2)).toBe("SERV-10");
     expect(siguienteId("USR", [])).toBe("USR-001");
+  });
+});
+
+describe("facturación con oficios fuera de la matriz", () => {
+  it("un servicio de belleza completado se marca como revisado sin sumarse a la matriz", () => {
+    const base = crearEstadoInicial();
+    const contrato = { ...base.contratos[2], id: "CONTR-B01", servicio_codigo: "SERV-07", servicio_nombre: "Belleza", total: 35700 };
+    const data = { ...base, contratos: [...base.contratos, contrato] };
+    const r = sincronizarContratos(data, admin);
+    if (!r.ok) throw new Error(r.error);
+    expect(r.value.data.contratosSincronizados).toContain("CONTR-B01");
+    expect(r.value.suma).toBe(base.contratos[2].total);
+    expect(r.value.data.matrizSemanal).toHaveLength(5);
   });
 });

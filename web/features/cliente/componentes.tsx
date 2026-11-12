@@ -126,7 +126,7 @@ export function CarruselCategorias({
   onSeleccionar: (categoria: CategoriaServicio) => void;
 }) {
   return (
-    <div className="hide-scrollbar flex gap-3 overflow-x-auto px-4 pb-2 sm:grid sm:grid-cols-5 sm:overflow-visible" role="group" aria-label="Categorías">
+    <div className="hide-scrollbar flex gap-3 overflow-x-auto px-4 pb-2 sm:grid sm:grid-cols-6 sm:overflow-visible" role="group" aria-label="Categorías">
       {CATEGORIAS_SERVICIO.map((categoria, i) => {
         const Icono = ICONO_CATEGORIA[categoria];
         const activa = seleccionada === categoria;

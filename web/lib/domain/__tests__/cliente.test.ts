@@ -46,11 +46,11 @@ describe("consultas de la app del cliente", () => {
   it("los destacados excluyen servicios no disponibles y priorizan la ciudad", () => {
     const enCucuta = serviciosDestacados(data.servicios, "Cucuta", 10);
     expect(enCucuta.some((s) => s.codigo === "SERV-03")).toBe(false);
-    expect(enCucuta[0].codigo).toBe("SERV-01");
+    expect(enCucuta[0].codigo).toBe("SERV-07");
     expect(enCucuta.at(-1)?.ciudad).toBe("Bogota");
 
     const enBogota = serviciosDestacados(data.servicios, "Bogota", 2);
-    expect(enBogota.map((s) => s.codigo)).toEqual(["SERV-06", "SERV-01"]);
+    expect(enBogota.map((s) => s.codigo)).toEqual(["SERV-06", "SERV-07"]);
   });
 
   it("lista los otros servicios del mismo profesional", () => {
@@ -72,9 +72,9 @@ describe("consultas de la app del cliente", () => {
 
   it("calcula las estadísticas reales de la plataforma", () => {
     const stats = estadisticasPlataforma(data);
-    expect(stats.profesionales).toBe(6);
-    expect(stats.serviciosCompletados).toBe(69);
-    expect(stats.calificacionPromedio).toBe(4.6);
+    expect(stats.profesionales).toBe(7);
+    expect(stats.serviciosCompletados).toBe(87);
+    expect(stats.calificacionPromedio).toBe(4.7);
     expect(estadisticasPlataforma({ ...data, servicios: [] }).calificacionPromedio).toBeNull();
   });
 });

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Banknote, Calculator, CalendarDays, Hash, MapPin, RefreshCw, Trophy } from "lucide-react";
 import { BarrasHorizontales, Button, Card, CardHeader, Columnas, escalonado, Field, FormError, Input, Modal, PageHeader, StatCard, Tabs, useToast } from "@/components/ui";
-import { CATEGORIA_LABEL, CATEGORIAS_SERVICIO, CIUDAD_LABEL, CIUDADES_COBERTURA, DIA_LABEL, DIAS_SEMANA_MATRIZ } from "@/lib/constants";
+import { CATEGORIA_LABEL, CATEGORIAS_MATRIZ, CIUDAD_LABEL, CIUDADES_COBERTURA, DIA_LABEL, DIAS_SEMANA_MATRIZ } from "@/lib/constants";
 import { formatearMoneda, formatearMonedaCompacta } from "@/lib/format";
 import { analizarMatriz, crearMatrizIdentidad, crearMatrizNula } from "@/lib/matrices";
 import type { TipoMatriz } from "@/lib/types";
@@ -20,7 +20,7 @@ const PESTANAS = [
   { id: "estructuras", etiqueta: "Matrices especiales" },
 ] as const;
 
-const CATEGORIAS = CATEGORIAS_SERVICIO.map((c) => CATEGORIA_LABEL[c]);
+const CATEGORIAS = CATEGORIAS_MATRIZ.map((c) => CATEGORIA_LABEL[c]);
 const DIAS = DIAS_SEMANA_MATRIZ.map((d) => DIA_LABEL[d]);
 const CIUDADES = CIUDADES_COBERTURA.map((c) => CIUDAD_LABEL[c]);
 

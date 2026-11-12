@@ -56,6 +56,14 @@ PALABRAS_CLAVE = {
         "no abre la puerta", "chapa", "cerradura", "candado", "guarda", "cambio de guarda", "copia de llave", "duplicado",
         "caja fuerte", "no abre", "forzar", "pasador", "cerrojo", "seguridad",
     ),
+    "Belleza": (
+        "barbero", "barbera", "barberia", "peluquero", "peluquera", "peluqueria", "estilista", "salon de belleza", "belleza",
+        "corte de pelo", "corte de cabello", "corte de barba", "cortarme el pelo", "cortar el pelo", "motilar", "motilada",
+        "motilado", "motilarme", "pelo", "cabello", "barba", "afeitar", "afeitada", "bigote", "tinte", "tintura", "mechas",
+        "cepillado", "alisado", "keratina", "peinado", "trenzas", "manicure", "manicurista", "pedicure", "las unas",
+        "arreglo de unas", "unas acrilicas", "pintar las unas", "maquillaje", "maquillarme", "maquilladora", "cejas",
+        "depilacion", "depilar", "pestanas", "spa", "masaje",
+    ),
 }
 
 PALABRAS_URGENCIA = (

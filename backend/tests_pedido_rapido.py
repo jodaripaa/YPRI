@@ -94,5 +94,29 @@ class TestPedidoInmediato(unittest.TestCase):
         self.assertIsNone(climatizacion["asignado"])
 
 
+class TestBelleza(unittest.TestCase):
+    def test_reconoce_belleza(self):
+        self.assertEqual(categoria_de("necesito un barbero"), "Belleza")
+        self.assertEqual(categoria_de("peluquera a domicilio"), "Belleza")
+        self.assertEqual(categoria_de("me quiero motilar"), "Belleza")
+        self.assertEqual(categoria_de("arreglo de uñas"), "Belleza")
+
+    def test_no_confunde(self):
+        self.assertEqual(categoria_de("hubo un corte de luz"), "Electricidad")
+        self.assertEqual(categoria_de("unas tuberías con fuga"), "Plomeria")
+
+    def test_matrices_siguen_con_cinco_filas(self):
+        from core.constantes import CATEGORIAS_MATRIZ, CATEGORIAS_SERVICIO
+        from data.database import matriz_ventas_ciudades, matriz_ventas_semanales
+        self.assertIn("Belleza", CATEGORIAS_SERVICIO)
+        self.assertNotIn("Belleza", CATEGORIAS_MATRIZ)
+        self.assertEqual(len(matriz_ventas_semanales), len(CATEGORIAS_MATRIZ))
+        self.assertEqual(len(matriz_ventas_ciudades), len(matriz_ventas_ciudades[0]))
+
+    def test_profesional_de_belleza_cercana(self):
+        cercana = candidatos_pedido_inmediato(servicios, [], *barrio("Quinta Oriental"), "Belleza")
+        self.assertEqual(cercana["asignado"]["servicio"]["codigo"], "SERV-07")
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

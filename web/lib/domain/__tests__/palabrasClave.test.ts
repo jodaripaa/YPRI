@@ -51,3 +51,25 @@ describe("catálogo de palabras clave", () => {
     expect(filtrarCatalogo(data.servicios, { ...base, texto: "Gomez" }).map((s) => s.codigo)).toEqual(["SERV-01"]);
   });
 });
+
+describe("oficio de belleza", () => {
+  it("reconoce barbero, peluquero y servicios de belleza", () => {
+    expect(categoriaDe("necesito un barbero")).toBe("Belleza");
+    expect(categoriaDe("peluquera a domicilio")).toBe("Belleza");
+    expect(categoriaDe("me quiero motilar")).toBe("Belleza");
+    expect(categoriaDe("corte de cabello para niño")).toBe("Belleza");
+    expect(categoriaDe("manicure y pedicure")).toBe("Belleza");
+    expect(categoriaDe("arreglo de uñas")).toBe("Belleza");
+  });
+
+  it("no confunde frases parecidas de otros oficios", () => {
+    expect(categoriaDe("hubo un corte de luz")).toBe("Electricidad");
+    expect(categoriaDe("unas tuberías con fuga")).toBe("Plomeria");
+  });
+
+  it("la búsqueda encuentra a la profesional de belleza", () => {
+    const data = crearEstadoInicial();
+    const base = { categoria: "todas" as const, ciudad: "todas" as const, soloDisponibles: false, orden: "relevancia" as const };
+    expect(filtrarCatalogo(data.servicios, { ...base, texto: "peluquero" }).map((s) => s.codigo)).toEqual(["SERV-07"]);
+  });
+});

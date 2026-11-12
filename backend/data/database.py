@@ -24,7 +24,7 @@ DOCUMENTACION DE TEMAS POR SEMANAS:
 """
 
 from core.constantes import (
-    CATEGORIAS_SERVICIO,
+    CATEGORIAS_MATRIZ,
     CIUDADES_COBERTURA,
     DIAS_SEMANA_MATRIZ,
 )
@@ -143,6 +143,22 @@ servicios = [
         "disponible": True,
         "calificacion": 4.3,
         "num_contratos": 20
+    },
+    {
+        "codigo": "SERV-07",
+        "prestador_id": "USR-010",
+        "prestador_nombre": "Valentina Ruiz",
+        "categoria": "Belleza",
+        "descripcion": "Corte de cabello y barba, cepillado, manicure y pedicure a domicilio",
+        "tarifa_hora": 30000.0,
+        "ciudad": "Cucuta",
+        "zona": "Quinta Oriental",
+        "lat": 7.8872,
+        "lng": -72.4948,
+        "radio_km": 8,
+        "disponible": True,
+        "calificacion": 4.9,
+        "num_contratos": 18
     }
 ]
 
@@ -182,7 +198,7 @@ calificaciones = [
 # ========================================================================================
 
 # MATRIZ 1: Ventas Semanales por Categoria y Dia (5 filas x 6 columnas)
-# Filas: CATEGORIAS_SERVICIO (Electricidad, Plomeria, Limpieza, Climatizacion, Cerrajeria)
+# Filas: CATEGORIAS_MATRIZ (Electricidad, Plomeria, Limpieza, Climatizacion, Cerrajeria)
 # Columnas: DIAS_SEMANA_MATRIZ (Lunes, Martes, Miercoles, Jueves, Viernes, Sabado)
 # Valores: Facturacion en pesos colombianos (COP)
 matriz_ventas_semanales = [
@@ -195,7 +211,7 @@ matriz_ventas_semanales = [
 ]
 
 # MATRIZ 2: Demanda y Ventas por Categoria y Ciudad (5 filas x 5 columnas -> MATRIZ CUADRADA)
-# Filas: CATEGORIAS_SERVICIO (5 categorias)
+# Filas: CATEGORIAS_MATRIZ (5 categorias)
 # Columnas: CIUDADES_COBERTURA (Cucuta, Cali, Bogota, Medellin, Bucaramanga)
 # Cumple el concepto 1.6 de la Guia 9: Igual numero de filas y columnas (5x5).
 matriz_ventas_ciudades = [

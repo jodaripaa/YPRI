@@ -32,7 +32,7 @@ DOCUMENTACION DE CUMPLIMIENTO DE LA GUIA DE APRENDIZAJE N.º 9:
 """
 
 from core.constantes import (
-    CATEGORIAS_SERVICIO,
+    CATEGORIAS_MATRIZ,
     CIUDADES_COBERTURA,
     DIAS_SEMANA_MATRIZ,
 )
@@ -520,7 +520,7 @@ def sincronizar_matriz_con_contratos_reales():
     y actualiza la celda correspondiente sumando los montos totales facturados.
     """
     # Mapeo de indices de categoria
-    cat_to_idx = {cat.lower(): idx for idx, cat in enumerate(CATEGORIAS_SERVICIO)}
+    cat_to_idx = {cat.lower(): idx for idx, cat in enumerate(CATEGORIAS_MATRIZ)}
     
     total_sumado = 0.0
     contratos_procesados = 0
@@ -572,14 +572,14 @@ def menu_matrices_interactivo():
         if opc == "1":
             mostrar_matriz_tabulada(
                 matriz_ventas_semanales,
-                CATEGORIAS_SERVICIO,
+                CATEGORIAS_MATRIZ,
                 DIAS_SEMANA_MATRIZ,
                 "MATRIZ DE VENTAS SEMANALES (CATEGORIAS X DIAS)"
             )
         elif opc == "2":
             mostrar_matriz_tabulada(
                 matriz_ventas_ciudades,
-                CATEGORIAS_SERVICIO,
+                CATEGORIAS_MATRIZ,
                 CIUDADES_COBERTURA,
                 "MATRIZ CUADRADA DE VENTAS (CATEGORIAS X CIUDADES - 5X5)"
             )
@@ -591,27 +591,27 @@ def menu_matrices_interactivo():
             if sub_opc == "1":
                 registrar_o_modificar_celda_consola(
                     matriz_ventas_semanales,
-                    CATEGORIAS_SERVICIO,
+                    CATEGORIAS_MATRIZ,
                     DIAS_SEMANA_MATRIZ,
                     "Ventas Semanales"
                 )
             elif sub_opc == "2":
                 registrar_o_modificar_celda_consola(
                     matriz_ventas_ciudades,
-                    CATEGORIAS_SERVICIO,
+                    CATEGORIAS_MATRIZ,
                     CIUDADES_COBERTURA,
                     "Ventas por Ciudad"
                 )
         elif opc == "4":
             consultar_fila_especifica(
                 matriz_ventas_semanales,
-                CATEGORIAS_SERVICIO,
+                CATEGORIAS_MATRIZ,
                 DIAS_SEMANA_MATRIZ
             )
         elif opc == "5":
             consultar_columna_especifica(
                 matriz_ventas_semanales,
-                CATEGORIAS_SERVICIO,
+                CATEGORIAS_MATRIZ,
                 DIAS_SEMANA_MATRIZ
             )
         elif opc == "6":
@@ -619,7 +619,7 @@ def menu_matrices_interactivo():
             print()
             info = analizar_rendimiento_matriz(
                 matriz_ventas_semanales,
-                CATEGORIAS_SERVICIO,
+                CATEGORIAS_MATRIZ,
                 DIAS_SEMANA_MATRIZ
             )
             print(f"  FACTURACION GENERAL : ${info['total_general']:>15,.0f} COP")

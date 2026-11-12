@@ -1,10 +1,10 @@
 import type { ReactNode } from "react";
-import { BadgeCheck, KeyRound, Receipt, Snowflake, Sparkles, Star, Wrench, Zap } from "lucide-react";
+import { BadgeCheck, KeyRound, Receipt, Scissors, Snowflake, Sparkles, Star, Wrench, Zap } from "lucide-react";
 import { Logo } from "@/components/layout/Logo";
 import { SelectorTema } from "@/components/layout/Tema";
 import { escalonado } from "@/components/ui";
 
-const CATEGORIAS = [Zap, Wrench, Sparkles, Snowflake, KeyRound];
+const CATEGORIAS = [Zap, Wrench, Sparkles, Snowflake, KeyRound, Scissors];
 
 const VENTAJAS = [
   { icono: BadgeCheck, titulo: "Profesionales verificados", texto: "Perfiles revisados por YPRI antes de recibir solicitudes." },
@@ -26,7 +26,7 @@ export function AuthLayout({ titulo, descripcion, children }: { titulo: string; 
             Profesionales de confianza, <span className="text-accent">a domicilio</span>.
           </h2>
           <p className="mt-4 animate-fade-up text-primary-foreground/75" style={escalonado(1, 80)}>
-            Electricidad, plomería, limpieza, climatización y cerrajería en las principales ciudades de Colombia.
+            Electricidad, plomería, limpieza, climatización, cerrajería y belleza en las principales ciudades de Colombia.
           </p>
           <div className="mt-8 flex gap-3">
             {CATEGORIAS.map((Icono, i) => (
