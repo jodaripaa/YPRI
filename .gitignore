@@ -54,3 +54,9 @@ yarn-error.log*
 # Microsoft Office temporary lock files
 ~$*
 *.tmp
+
+# TypeScript incremental build cache
+*.tsbuildinfo
+
+# Carpeta de trabajo local (documentos/guías, 1.6 GB, repo git propio) - no versionar
+/ypri/
