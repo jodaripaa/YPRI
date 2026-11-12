@@ -1,17 +1,18 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { List, Map as MapIcon, SearchX } from "lucide-react";
+import { List, Map as MapIcon, SearchX, Sparkles, Zap } from "lucide-react";
 import { Mapa, type MarcadorMapa } from "@/components/mapa/Mapa";
 import { Button, cx, EmptyState, escalonado, Select } from "@/components/ui";
 import { CATEGORIA_LABEL, CATEGORIAS_SERVICIO, CIUDAD_LABEL, CIUDADES_COBERTURA, type CategoriaServicio, type CiudadCobertura } from "@/lib/constants";
 import { calcularCercania } from "@/lib/domain/cercania";
 import { filtrarCatalogo, type FiltrosCatalogo, type OrdenCatalogo } from "@/lib/domain/services";
-import { formatearDistancia } from "@/lib/geo";
-import { iniciales, pluralizar } from "@/lib/format";
+import { pluralizar } from "@/lib/format";
+import { interpretarNecesidad, pareceUrgente } from "@/lib/palabrasClave";
 import type { Usuario } from "@/lib/types";
 import { useAppStore } from "@/store/AppStore";
 import { BarraBusqueda, BarraSuperior, ChipFiltro, MarcoMovil, TarjetaServicio } from "../componentes";
+import { cercaniaTarjeta, marcadorOperario } from "../marcadores";
 import { useUbicacion } from "../ubicacion";
 
 const DISTANCIAS_KM = [1, 2, 5, 10] as const;
@@ -33,7 +34,17 @@ const ORDENES: { id: OrdenBusqueda; etiqueta: string }[] = [
   { id: "precio_desc", etiqueta: "Mayor precio" },
 ];
 
-export function BuscarScreen({ usuario, inicial, onAbrirServicio }: { usuario: Usuario; inicial: BusquedaInicial; onAbrirServicio: (codigo: string) => void }) {
+export function BuscarScreen({
+  usuario,
+  inicial,
+  onAbrirServicio,
+  onPedirAhora,
+}: {
+  usuario: Usuario;
+  inicial: BusquedaInicial;
+  onAbrirServicio: (codigo: string) => void;
+  onPedirAhora: (categoria: CategoriaServicio | undefined, texto: string) => void;
+}) {
   const { data } = useAppStore();
   const { ubicacion } = useUbicacion();
   const [filtros, setFiltros] = useState<FiltrosCatalogo>({
@@ -52,25 +63,21 @@ export function BuscarScreen({ usuario, inicial, onAbrirServicio }: { usuario: U
   const resultados = useMemo(() => {
     const base = filtrarCatalogo(data.servicios, { ...filtros, orden: orden === "cercania" ? "relevancia" : orden });
     const conDistancia = base
-      .map((servicio) => calcularCercania(servicio, ubicacion.coordenadas))
+      .map((servicio) => calcularCercania(servicio, ubicacion.coordenadas, data.contratos))
       .filter((c) => distanciaMax === null || c.distanciaKm <= distanciaMax);
     return orden === "cercania" ? conDistancia.sort((a, b) => a.distanciaKm - b.distanciaKm) : conDistancia;
-  }, [data.servicios, filtros, orden, distanciaMax, ubicacion.coordenadas]);
+  }, [data.servicios, data.contratos, filtros, orden, distanciaMax, ubicacion.coordenadas]);
   const actualizar = <K extends keyof FiltrosCatalogo>(campo: K, valor: FiltrosCatalogo[K]) => setFiltros((f) => ({ ...f, [campo]: valor }));
 
   const marcadores: MarcadorMapa[] = [
     { id: "yo", coordenadas: ubicacion.coordenadas, tipo: "cliente", etiqueta: `Tú: ${ubicacion.etiqueta}` },
-    ...resultados.map(({ servicio, distanciaKm }) => ({
-      id: servicio.codigo,
-      coordenadas: servicio.ubicacion,
-      tipo: servicio.disponible ? ("profesional" as const) : ("inactivo" as const),
-      etiqueta: `${servicio.prestador_nombre} · ${CATEGORIA_LABEL[servicio.categoria]} · a ${formatearDistancia(distanciaKm)}`,
-      texto: iniciales(servicio.prestador_nombre),
-      seleccionado: seleccionado === servicio.codigo,
-      onClic: () => setSeleccionado(servicio.codigo),
-    })),
+    ...resultados.map((c) =>
+      marcadorOperario(c, { seleccionado: seleccionado === c.servicio.codigo, onClic: () => setSeleccionado(c.servicio.codigo) }),
+    ),
   ];
   const elegido = resultados.find((r) => r.servicio.codigo === seleccionado);
+  const detectada = interpretarNecesidad(filtros.texto);
+  const urgente = pareceUrgente(filtros.texto);
 
   return (
     <MarcoMovil>
@@ -139,6 +146,18 @@ export function BuscarScreen({ usuario, inicial, onAbrirServicio }: { usuario: U
       </aside>
 
       <div className="min-w-0 flex-1">
+      {detectada && (
+        <div className="mx-4 mb-3 flex flex-wrap items-center gap-x-3 gap-y-2 rounded-2xl bg-primary-soft px-4 py-3 text-sm lg:mx-0">
+          <Sparkles className="h-4 w-4 shrink-0 text-enfasis" aria-hidden />
+          <span className="min-w-0 flex-1">
+            Entendimos que necesitas <strong>{CATEGORIA_LABEL[detectada.categoria].toLowerCase()}</strong>
+            <span className="text-muted-foreground"> (por «{detectada.coincidencia}»)</span>
+          </span>
+          <Button variante={urgente ? "accent" : "primary"} tamano="sm" icono={Zap} onClick={() => onPedirAhora(detectada.categoria, filtros.texto)}>
+            Pedir ahora
+          </Button>
+        </div>
+      )}
       <div className="flex items-center justify-between gap-3 px-4 pb-2 pt-1 lg:px-0 lg:pt-0">
         <p className="text-sm text-muted-foreground" aria-live="polite">
           {pluralizar(resultados.length, "profesional", "profesionales")} · desde {ubicacion.etiqueta}
@@ -169,7 +188,7 @@ export function BuscarScreen({ usuario, inicial, onAbrirServicio }: { usuario: U
           {elegido ? (
             <TarjetaServicio
               servicio={elegido.servicio}
-              cercania={{ distanciaKm: elegido.distanciaKm, minutos: elegido.minutos, enCobertura: elegido.enCobertura }}
+              cercania={cercaniaTarjeta(elegido)}
               onAbrir={(s) => onAbrirServicio(s.codigo)}
             />
           ) : (
@@ -178,12 +197,12 @@ export function BuscarScreen({ usuario, inicial, onAbrirServicio }: { usuario: U
         </div>
       ) : resultados.length ? (
         <div className="flex flex-col gap-3 px-4 md:grid md:grid-cols-2 lg:px-0">
-          {resultados.map(({ servicio, distanciaKm, minutos, enCobertura }, i) => (
+          {resultados.map((c, i) => (
             <TarjetaServicio
-              key={servicio.codigo}
+              key={c.servicio.codigo}
               style={escalonado(i)}
-              servicio={servicio}
-              cercania={{ distanciaKm, minutos, enCobertura }}
+              servicio={c.servicio}
+              cercania={cercaniaTarjeta(c)}
               onAbrir={(s) => onAbrirServicio(s.codigo)}
             />
           ))}

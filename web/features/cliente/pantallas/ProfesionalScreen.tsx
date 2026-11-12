@@ -10,6 +10,7 @@ import { Mapa } from "@/components/mapa/Mapa";
 import { calcularCercania } from "@/lib/domain/cercania";
 import { formatearDistancia, formatearTiempo } from "@/lib/geo";
 import { useAppStore } from "@/store/AppStore";
+import { dondeEsta } from "../marcadores";
 import { useUbicacion } from "../ubicacion";
 import { PROFESION_CATEGORIA } from "../categorias";
 import { AvatarProfesional, MarcoMovil, TarjetaServicio } from "../componentes";
@@ -44,7 +45,8 @@ export function ProfesionalScreen({ codigo, onVolver, onReservar, onAbrirServici
   }
 
   const prestador = data.usuarios.find((u) => u.id === servicio.prestador_id);
-  const cercania = calcularCercania(servicio, ubicacion.coordenadas);
+  const cercania = calcularCercania(servicio, ubicacion.coordenadas, data.contratos);
+  const ocupado = cercania.posicion.enServicio;
   const resenas = resenasDeServicio(data.contratos, servicio.codigo);
   const otros = otrosServiciosDelProfesional(data.servicios, servicio);
 
@@ -171,15 +173,21 @@ export function ProfesionalScreen({ codigo, onVolver, onReservar, onAbrirServici
               <p className="mb-3 mt-1 text-sm text-muted-foreground">
                 Sale desde {servicio.zona} y atiende hasta {servicio.radio_km} km a la redonda.
               </p>
+              {ocupado && (
+                <p className="mb-3 flex items-start gap-2 rounded-xl bg-amber-50 px-3 py-2 text-sm text-amber-900 dark:bg-amber-400/10 dark:text-amber-200">
+                  <Clock className="mt-0.5 h-4 w-4 shrink-0" aria-hidden />
+                  Ahora está atendiendo un servicio cerca de {cercania.posicion.zonaReferencia}. La distancia y el tiempo se calculan desde allí.
+                </p>
+              )}
               <Mapa
                 etiqueta={`Zona de atención de ${servicio.prestador_nombre} y tu ubicación`}
                 centro={servicio.ubicacion}
                 zoom={14}
                 alto={220}
                 circulos={[{ id: "zona", centro: servicio.ubicacion, radioKm: servicio.radio_km }]}
-                ruta={[servicio.ubicacion, ubicacion.coordenadas]}
+                ruta={[cercania.posicion.coordenadas, ubicacion.coordenadas]}
                 marcadores={[
-                  { id: "pro", coordenadas: servicio.ubicacion, tipo: servicio.disponible ? "profesional" : "inactivo", etiqueta: `${servicio.prestador_nombre} · ${servicio.zona}`, texto: iniciales(servicio.prestador_nombre) },
+                  { id: "pro", coordenadas: cercania.posicion.coordenadas, tipo: !servicio.disponible ? "inactivo" : ocupado ? "ocupado" : "profesional", etiqueta: `${servicio.prestador_nombre} · ${dondeEsta(cercania)}`, texto: iniciales(servicio.prestador_nombre) },
                   { id: "yo", coordenadas: ubicacion.coordenadas, tipo: "cliente", etiqueta: `Tú: ${ubicacion.etiqueta}` },
                 ]}
               />

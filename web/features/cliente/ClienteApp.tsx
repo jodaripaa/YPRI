@@ -18,6 +18,7 @@ import { InicioScreen } from "./pantallas/InicioScreen";
 import { PerfilScreen } from "./pantallas/PerfilScreen";
 import { ProfesionalScreen } from "./pantallas/ProfesionalScreen";
 import { ReservaConfirmadaScreen, ReservarScreen } from "./pantallas/ReservarScreen";
+import { PedidoInmediatoScreen } from "./pantallas/PedidoInmediatoScreen";
 import { ReservasScreen } from "./pantallas/ReservasScreen";
 import { BotonUbicacion } from "./SelectorUbicacion";
 import { UbicacionProvider } from "./ubicacion";
@@ -28,7 +29,8 @@ export type PestanaCliente = "inicio" | "buscar" | "reservas" | "perfil";
 type Detalle =
   | { tipo: "profesional"; codigo: string }
   | { tipo: "reservar"; codigo: string }
-  | { tipo: "confirmada"; contrato: Contrato };
+  | { tipo: "confirmada"; contrato: Contrato }
+  | { tipo: "pedido"; categoria?: CategoriaServicio; texto: string };
 
 const PESTANAS: ItemNavegacion<PestanaCliente>[] = [
   { id: "inicio", etiqueta: "Inicio", icono: Home },
@@ -49,6 +51,7 @@ export function ClienteApp({ usuario, onCerrarSesion }: { usuario: Usuario; onCe
   };
 
   const cambiarPestana = (siguiente: PestanaCliente) => {
+    if (siguiente !== "reservas") setSeguirContrato(null);
     setPestana(siguiente);
     irA(null);
   };
@@ -59,6 +62,9 @@ export function ClienteApp({ usuario, onCerrarSesion }: { usuario: Usuario; onCe
   };
 
   const abrirProfesional = (codigo: string) => irA({ tipo: "profesional", codigo });
+  const pedirAhora = (categoria: CategoriaServicio | undefined, texto: string) => irA({ tipo: "pedido", categoria, texto });
+  // Pedido inmediato confirmado: se va a "Reservas" con el seguimiento abierto.
+  const [seguirContrato, setSeguirContrato] = useState<Contrato | null>(null);
 
   const reservasActivas = contratosVisiblesPara(data.contratos, usuario).filter((c) => ESTADOS_ACTIVOS.includes(c.estado)).length;
   const items = PESTANAS.map((item) =>
@@ -83,6 +89,19 @@ export function ClienteApp({ usuario, onCerrarSesion }: { usuario: Usuario; onCe
         onConfirmada={(contrato) => irA({ tipo: "confirmada", contrato })}
       />
     );
+  } else if (detalle?.tipo === "pedido") {
+    contenido = (
+      <PedidoInmediatoScreen
+        categoriaInicial={detalle.categoria}
+        texto={detalle.texto}
+        onVolver={() => irA(null)}
+        onProgramar={(texto, categoria) => buscar(texto, categoria)}
+        onConfirmado={(contrato) => {
+          setSeguirContrato(contrato);
+          cambiarPestana("reservas");
+        }}
+      />
+    );
   } else if (detalle?.tipo === "confirmada") {
     contenido = (
       <ReservaConfirmadaScreen contrato={detalle.contrato} onVerReservas={() => cambiarPestana("reservas")} onInicio={() => cambiarPestana("inicio")} />
@@ -97,10 +116,17 @@ export function ClienteApp({ usuario, onCerrarSesion }: { usuario: Usuario; onCe
             onAbrirServicio={abrirProfesional}
             onVerReservas={() => cambiarPestana("reservas")}
             onPerfil={() => cambiarPestana("perfil")}
+            onPedirAhora={pedirAhora}
           />
         )}
-        {pestana === "buscar" && <BuscarScreen key={busqueda.id} usuario={usuario} inicial={busqueda} onAbrirServicio={abrirProfesional} />}
-        {pestana === "reservas" && <ReservasScreen usuario={usuario} onExplorar={() => cambiarPestana("buscar")} onAbrirServicio={abrirProfesional} />}
+        {pestana === "buscar" && <BuscarScreen key={busqueda.id} usuario={usuario} inicial={busqueda} onAbrirServicio={abrirProfesional} onPedirAhora={pedirAhora} />}
+        {pestana === "reservas" && <ReservasScreen
+            key={seguirContrato?.id ?? "reservas"}
+            usuario={usuario}
+            onExplorar={() => cambiarPestana("buscar")}
+            onAbrirServicio={abrirProfesional}
+            seguirContrato={seguirContrato}
+          />}
         {pestana === "perfil" && <PerfilScreen usuario={usuario} onCerrarSesion={onCerrarSesion} onVerReservas={() => cambiarPestana("reservas")} />}
         <BottomNav<PestanaCliente> className="lg:hidden" activa={pestana} onCambiar={cambiarPestana} items={items} />
       </>

@@ -1,5 +1,5 @@
 import type { CSSProperties } from "react";
-import { CalendarDays, Clock, MapPin, MessageSquareText, Star } from "lucide-react";
+import { CalendarDays, Clock, MapPin, MessageSquareText, Star, Zap } from "lucide-react";
 import { Avatar, Button, EstadoContratoBadge } from "@/components/ui";
 import type { AccionContrato } from "@/lib/domain/contracts";
 import { formatearFecha, formatearMoneda, iniciales, pluralizar } from "@/lib/format";
@@ -34,7 +34,15 @@ export function ContractCard({ contrato, usuario, acciones, onAccion, style, dis
   return (
     <article style={style} className="hover-elevar flex animate-fade-up flex-col rounded-2xl border border-border bg-card p-4 shadow-suave sm:p-5">
       <div className="mb-3 flex items-center justify-between gap-2">
-        <span className="font-mono text-xs text-muted-foreground">{contrato.id}</span>
+        <span className="flex items-center gap-2">
+          <span className="font-mono text-xs text-muted-foreground">{contrato.id}</span>
+          {contrato.urgente && (
+            <span className="inline-flex items-center gap-1 rounded-full bg-red-100 px-2 py-0.5 text-[11px] font-semibold text-red-700 dark:bg-red-500/15 dark:text-red-300">
+              <Zap className="h-3 w-3" aria-hidden />
+              Inmediato
+            </span>
+          )}
+        </span>
         <EstadoContratoBadge estado={contrato.estado} />
       </div>
 

@@ -39,7 +39,10 @@ export function ContractsView({ usuario, titulo, descripcion, pestanas, accionVa
 
   const visibles = useMemo(() => contratosVisiblesPara(data.contratos, usuario), [data.contratos, usuario]);
   const pestana = pestanas.find((p) => p.id === pestanaId) ?? pestanas[0];
-  const contratos = visibles.filter((c) => pestana.estados.includes(c.estado));
+  // Los pedidos inmediatos van primero: el cliente necesita a alguien ya.
+  const contratos = visibles
+    .filter((c) => pestana.estados.includes(c.estado))
+    .sort((a, b) => Number(Boolean(b.urgente)) - Number(Boolean(a.urgente)));
 
   const ejecutar = (contrato: Contrato, accion: AccionContrato) => {
     if (accion === "calificar") return;

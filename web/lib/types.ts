@@ -54,6 +54,8 @@ export interface Contrato {
   nota?: string;
   /** Punto exacto donde se presta el servicio (si el cliente lo compartió). */
   ubicacion?: Coordenadas;
+  /** Pedido inmediato: el cliente necesita al profesional hoy, lo antes posible. */
+  urgente?: boolean;
   calificacion?: number;
   comentario?: string;
 }

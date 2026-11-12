@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { CheckCircle2, Navigation, Phone, RotateCcw } from "lucide-react";
 import { Mapa } from "@/components/mapa/Mapa";
 import { Button, cx, Modal } from "@/components/ui";
-import { simularSeguimiento } from "@/lib/domain/cercania";
+import { posicionActual, simularSeguimiento } from "@/lib/domain/cercania";
 import { distanciaKm, formatearDistancia, formatearTiempo, interpolar } from "@/lib/geo";
 import { iniciales } from "@/lib/format";
 import type { Contrato, Servicio } from "@/lib/types";
@@ -31,7 +31,13 @@ export function SeguimientoModal({ contrato, servicio, onCerrar }: { contrato: C
   const { data } = useAppStore();
   const { ubicacion } = useUbicacion();
   const destino = contrato.ubicacion ?? ubicacion.coordenadas;
-  const origen = servicio.ubicacion;
+  // Sale desde donde está ahora: otro servicio que esté atendiendo o su barrio base.
+  const origen = useMemo(
+    () => posicionActual(servicio, data.contratos.filter((c) => c.id !== contrato.id)).coordenadas,
+    // Se fija al abrir para que el recorrido no salte si cambian los datos.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [servicio.codigo, contrato.id],
+  );
   const [inicio, setInicio] = useState(() => Date.now());
   const [ahora, setAhora] = useState(() => Date.now());
 

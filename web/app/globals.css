@@ -159,6 +159,9 @@
 .dark .ypri-pin--profesional {
   background: #1d5e88;
 }
+.ypri-pin--ocupado {
+  background: #d97706;
+}
 .ypri-pin--inactivo {
   background: rgb(var(--muted-foreground));
   opacity: 0.85;
