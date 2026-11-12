@@ -69,8 +69,8 @@ export function InventarioTab() {
       </div>
 
       <div className="mt-4 flex items-center justify-between">
-        <p className="text-sm text-slate-500">
-          Total del inventario <span className="text-base font-semibold text-slate-900">{formatearMoneda(calcularTotalInventario(productos))}</span>
+        <p className="text-sm text-muted-foreground">
+          Total del inventario <span className="text-base font-semibold text-foreground">{formatearMoneda(calcularTotalInventario(productos))}</span>
         </p>
         <Button variante="secondary" tamano="sm" icono={ArrowUpDown} onClick={() => setProductos((p) => [...p].sort((a, b) => a.precio - b.precio))}>
           Ordenar por precio
@@ -94,7 +94,7 @@ export function InventarioTab() {
                 <Td>{p.nombre}</Td>
                 <Td numerico>{formatearMoneda(p.precio)}</Td>
                 <Td numerico>{p.cantidad}</Td>
-                <Td numerico className="font-medium text-slate-900">
+                <Td numerico className="font-medium text-foreground">
                   {formatearMoneda(calcularSubtotalInventario(p.precio, p.cantidad))}
                 </Td>
               </tr>

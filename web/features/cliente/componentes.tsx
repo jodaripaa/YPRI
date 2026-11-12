@@ -1,13 +1,14 @@
 "use client";
 
-// Piezas visuales de la app móvil del cliente, adaptadas del prototipo de v0
-// a Tailwind 3 y a los datos reales del dominio (sin fotos ni cifras inventadas).
+// Piezas visuales propias de la app móvil del cliente (adaptadas del prototipo
+// de v0). Los botones, estados y mensajes vacíos vienen del kit común en
+// components/ui para que toda YPRI se vea igual.
 
-import type { ButtonHTMLAttributes, FormEvent, ReactNode } from "react";
-import Image from "next/image";
-import { ArrowLeft, BadgeCheck, CalendarDays, Clock, Home, MapPin, Search, Star, User, type LucideIcon } from "lucide-react";
+import type { CSSProperties, FormEvent, ReactNode } from "react";
+import { ArrowLeft, BadgeCheck, Clock, MapPin, Search, Star } from "lucide-react";
+import { Logo } from "@/components/layout/Logo";
 import { cx } from "@/components/ui";
-import { CATEGORIA_LABEL, CATEGORIAS_SERVICIO, CIUDAD_LABEL, type CategoriaServicio, type EstadoContrato } from "@/lib/constants";
+import { CATEGORIA_LABEL, CATEGORIAS_SERVICIO, CIUDAD_LABEL, type CategoriaServicio } from "@/lib/constants";
 import { formatearCalificacion, formatearMoneda, iniciales, pluralizar } from "@/lib/format";
 import type { Servicio, Usuario } from "@/lib/types";
 import { ICONO_CATEGORIA, PROFESION_CATEGORIA } from "./categorias";
@@ -17,7 +18,7 @@ import { ICONO_CATEGORIA, PROFESION_CATEGORIA } from "./categorias";
 export function MarcoMovil({ children, conNavegacion = true }: { children: ReactNode; conNavegacion?: boolean }) {
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <div className={cx("relative mx-auto w-full max-w-[1180px] sm:px-6 lg:px-8", conNavegacion ? "pb-24" : "pb-28")}>{children}</div>
+      <div className={cx("relative mx-auto w-full max-w-[1180px] animate-fade-in sm:px-6 lg:px-8", conNavegacion ? "pb-24" : "pb-28")}>{children}</div>
     </div>
   );
 }
@@ -25,7 +26,7 @@ export function MarcoMovil({ children, conNavegacion = true }: { children: React
 export function EncabezadoInicio({ usuario, onPerfil }: { usuario: Usuario; onPerfil: () => void }) {
   return (
     <header className="flex items-center justify-between gap-3 bg-card px-4 py-3 sm:rounded-b-2xl">
-      <Image src="/images/ypri-logo.png" alt="YPRI" width={94} height={32} priority className="h-8 w-auto" />
+      <Logo prioridad />
       <div className="flex min-w-0 items-center gap-2">
         <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-accent/15">
           <MapPin className="h-4 w-4 text-accent-strong" aria-hidden />
@@ -69,58 +70,6 @@ export function BarraSuperior({ titulo, subtitulo, onVolver, accion }: { titulo:
   );
 }
 
-/* ------------------------------------------------------- Navegación inferior */
-
-export type PestanaCliente = "inicio" | "buscar" | "reservas" | "perfil";
-
-const PESTANAS: { id: PestanaCliente; etiqueta: string; icono: LucideIcon }[] = [
-  { id: "inicio", etiqueta: "Inicio", icono: Home },
-  { id: "buscar", etiqueta: "Buscar", icono: Search },
-  { id: "reservas", etiqueta: "Reservas", icono: CalendarDays },
-  { id: "perfil", etiqueta: "Perfil", icono: User },
-];
-
-export function NavegacionInferior({
-  activa,
-  onCambiar,
-  reservasActivas,
-}: {
-  activa: PestanaCliente;
-  onCambiar: (pestana: PestanaCliente) => void;
-  reservasActivas: number;
-}) {
-  return (
-    <nav aria-label="Principal" className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-card/95 backdrop-blur-md">
-      <div className="pb-safe mx-auto flex max-w-[1180px] items-center justify-around px-2 pt-2 sm:px-6">
-        {PESTANAS.map(({ id, etiqueta, icono: Icono }) => {
-          const seleccionada = id === activa;
-          return (
-            <button
-              key={id}
-              type="button"
-              onClick={() => onCambiar(id)}
-              aria-current={seleccionada ? "page" : undefined}
-              className="touch-feedback relative flex min-w-[64px] flex-col items-center gap-0.5 px-3 py-1.5"
-            >
-              <span className="relative">
-                <Icono className={cx("h-6 w-6 transition-colors", seleccionada ? "text-primary" : "text-muted-foreground")} aria-hidden />
-                {id === "reservas" && reservasActivas > 0 && (
-                  <span className="absolute -right-1.5 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-accent px-1 text-[9px] font-bold text-accent-foreground">
-                    {reservasActivas > 9 ? "9+" : reservasActivas}
-                    <span className="sr-only"> reservas activas</span>
-                  </span>
-                )}
-              </span>
-              <span className={cx("text-[11px] font-medium", seleccionada ? "text-primary" : "text-muted-foreground")}>{etiqueta}</span>
-              {seleccionada && <span aria-hidden className="absolute -bottom-0.5 h-1 w-1 rounded-full bg-accent" />}
-            </button>
-          );
-        })}
-      </div>
-    </nav>
-  );
-}
-
 /* --------------------------------------------------------------- Búsqueda */
 
 export function BarraBusqueda({
@@ -142,7 +91,7 @@ export function BarraBusqueda({
   };
   return (
     <form role="search" onSubmit={enviar} className="px-4 py-2">
-      <label className="flex items-center gap-3 rounded-xl bg-muted px-4 py-3 transition-shadow focus-within:ring-2 focus-within:ring-accent">
+      <label className="flex items-center gap-3 rounded-2xl bg-muted px-4 py-3 transition-all duration-200 focus-within:bg-card focus-within:shadow-suave focus-within:ring-2 focus-within:ring-accent">
         <Search className="h-5 w-5 shrink-0 text-muted-foreground" aria-hidden />
         <span className="sr-only">Buscar servicios</span>
         <input
@@ -169,7 +118,7 @@ export function CarruselCategorias({
 }) {
   return (
     <div className="hide-scrollbar flex gap-3 overflow-x-auto px-4 pb-2 sm:grid sm:grid-cols-5 sm:overflow-visible" role="group" aria-label="Categorías">
-      {CATEGORIAS_SERVICIO.map((categoria) => {
+      {CATEGORIAS_SERVICIO.map((categoria, i) => {
         const Icono = ICONO_CATEGORIA[categoria];
         const activa = seleccionada === categoria;
         return (
@@ -178,19 +127,18 @@ export function CarruselCategorias({
             type="button"
             aria-pressed={activa}
             onClick={() => onSeleccionar(categoria)}
-            className="touch-feedback flex min-w-[76px] flex-col items-center gap-2"
+            style={{ animationDelay: `${i * 50}ms` }}
+            className="group touch-feedback flex min-w-[76px] animate-fade-up flex-col items-center gap-2"
           >
             <span
               className={cx(
-                "flex h-14 w-14 items-center justify-center rounded-2xl transition-colors",
-                activa ? "bg-primary shadow-lg" : "bg-muted hover:bg-border/70",
+                "flex h-14 w-14 items-center justify-center rounded-2xl transition-all duration-200 group-hover:-translate-y-0.5",
+                activa ? "bg-primary shadow-lg" : "bg-muted group-hover:bg-primary-soft",
               )}
             >
-              <Icono className={cx("h-6 w-6", activa ? "text-primary-foreground" : "text-foreground")} aria-hidden />
+              <Icono className={cx("h-6 w-6 transition-colors", activa ? "text-primary-foreground" : "text-foreground group-hover:text-primary")} aria-hidden />
             </span>
-            <span className={cx("text-center text-xs font-medium", activa ? "text-primary" : "text-muted-foreground")}>
-              {CATEGORIA_LABEL[categoria]}
-            </span>
+            <span className={cx("text-center text-xs font-medium", activa ? "text-primary" : "text-muted-foreground")}>{CATEGORIA_LABEL[categoria]}</span>
           </button>
         );
       })}
@@ -205,7 +153,7 @@ export function ChipFiltro({ activa, onClick, children }: { activa: boolean; onC
       aria-pressed={activa}
       onClick={onClick}
       className={cx(
-        "touch-feedback shrink-0 rounded-full border px-3.5 py-1.5 text-sm font-medium transition-colors",
+        "touch-feedback shrink-0 rounded-full border px-3.5 py-1.5 text-sm font-medium transition-colors duration-200",
         activa ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card text-foreground hover:border-muted-foreground/40",
       )}
     >
@@ -232,7 +180,7 @@ export function EncabezadoSeccion({ titulo, accion, onAccion }: { titulo: string
 export function AvatarProfesional({ servicio, tamano = "md" }: { servicio: Servicio; tamano?: "md" | "lg" | "xl" }) {
   const clases = { md: "h-16 w-16 rounded-xl text-lg", lg: "h-20 w-20 rounded-2xl text-xl", xl: "h-28 w-28 rounded-full text-3xl" }[tamano];
   return (
-    <span aria-hidden className={cx("relative flex shrink-0 items-center justify-center bg-primary/10 font-semibold text-primary", clases)}>
+    <span aria-hidden className={cx("relative flex shrink-0 items-center justify-center bg-primary-soft font-semibold text-primary", clases)}>
       {iniciales(servicio.prestador_nombre)}
       {servicio.disponible && (
         <span className={cx("absolute rounded-full border-2 border-card bg-accent", tamano === "xl" ? "bottom-2 right-2 h-5 w-5" : "bottom-1 right-1 h-3 w-3")} />
@@ -254,16 +202,18 @@ export function Estrellas({ valor, resenas, compacto }: { valor: number; resenas
 }
 
 /** Tarjeta grande para el carrusel de destacados. */
-export function TarjetaDestacada({ servicio, onAbrir }: { servicio: Servicio; onAbrir: (servicio: Servicio) => void }) {
+export function TarjetaDestacada({ servicio, onAbrir, style }: { servicio: Servicio; onAbrir: (servicio: Servicio) => void; style?: CSSProperties }) {
   const Icono = ICONO_CATEGORIA[servicio.categoria];
   return (
     <button
       type="button"
       onClick={() => onAbrir(servicio)}
-      className="touch-feedback relative flex w-[min(78vw,280px)] shrink-0 flex-col overflow-hidden rounded-2xl border border-border bg-card text-left md:w-full"
+      style={style}
+      className="group touch-feedback hover-elevar relative flex w-[min(78vw,280px)] shrink-0 animate-fade-up flex-col overflow-hidden rounded-2xl border border-border bg-card text-left md:w-full"
     >
-      <span className="relative flex h-28 w-full items-center justify-center bg-gradient-to-br from-primary to-primary/80">
-        <Icono className="h-12 w-12 text-accent" aria-hidden />
+      <span className="relative flex h-28 w-full items-center justify-center overflow-hidden bg-gradient-to-br from-primary to-primary/80">
+        <span aria-hidden className="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-accent/20 blur-xl" />
+        <Icono className="h-12 w-12 text-accent transition-transform duration-300 group-hover:scale-110" aria-hidden />
         <span className="absolute left-3 top-3 rounded-full bg-card/90 px-2 py-0.5 text-[10px] font-semibold text-primary">
           {CATEGORIA_LABEL[servicio.categoria]}
         </span>
@@ -289,12 +239,13 @@ export function TarjetaDestacada({ servicio, onAbrir }: { servicio: Servicio; on
 }
 
 /** Fila de lista para resultados de búsqueda y "En tu ciudad". */
-export function TarjetaServicio({ servicio, onAbrir }: { servicio: Servicio; onAbrir: (servicio: Servicio) => void }) {
+export function TarjetaServicio({ servicio, onAbrir, style }: { servicio: Servicio; onAbrir: (servicio: Servicio) => void; style?: CSSProperties }) {
   return (
     <button
       type="button"
       onClick={() => onAbrir(servicio)}
-      className="touch-feedback relative flex w-full gap-3 rounded-2xl border border-border bg-card p-3 text-left sm:gap-4 sm:p-4"
+      style={style}
+      className="touch-feedback hover-elevar relative flex w-full animate-fade-up gap-3 rounded-2xl border border-border bg-card p-3 text-left sm:gap-4 sm:p-4"
     >
       <AvatarProfesional servicio={servicio} />
       <span className="min-w-0 flex-1">
@@ -320,70 +271,6 @@ export function TarjetaServicio({ servicio, onAbrir }: { servicio: Servicio; onA
         <span className="text-[10px] text-muted-foreground">por hora</span>
         {!servicio.disponible && <span className="mt-1 rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground">No disponible</span>}
       </span>
-    </button>
-  );
-}
-
-/* ---------------------------------------------------------------- Estados */
-
-const ESTILO_ESTADO: Record<EstadoContrato, string> = {
-  Pendiente: "bg-amber-100 text-amber-800",
-  "En proceso": "bg-sky-100 text-sky-800",
-  Completado: "bg-emerald-100 text-emerald-800",
-  Cancelado: "bg-muted text-muted-foreground",
-};
-
-export function PildoraEstado({ estado }: { estado: EstadoContrato }) {
-  return <span className={cx("shrink-0 rounded-full px-2.5 py-1 text-xs font-medium", ESTILO_ESTADO[estado])}>{estado}</span>;
-}
-
-export function Vacio({ icono: Icono, titulo, descripcion, accion }: { icono: LucideIcon; titulo: string; descripcion?: string; accion?: ReactNode }) {
-  return (
-    <div className="flex flex-col items-center px-6 py-12 text-center">
-      <span className="flex h-16 w-16 items-center justify-center rounded-full bg-muted">
-        <Icono className="h-7 w-7 text-muted-foreground" aria-hidden />
-      </span>
-      <p className="mt-4 text-base font-semibold">{titulo}</p>
-      {descripcion && <p className="mt-1 max-w-sm text-sm text-muted-foreground">{descripcion}</p>}
-      {accion && <div className="mt-5">{accion}</div>}
-    </div>
-  );
-}
-
-/* ---------------------------------------------------------------- Botones */
-
-type VarianteBoton = "primario" | "acento" | "contorno" | "peligro";
-
-const VARIANTES_BOTON: Record<VarianteBoton, string> = {
-  primario: "bg-primary text-primary-foreground hover:bg-primary/90",
-  acento: "bg-accent text-accent-foreground hover:bg-accent/90",
-  contorno: "border border-border bg-card text-foreground hover:bg-muted",
-  peligro: "border border-red-200 bg-card text-red-600 hover:bg-red-50",
-};
-
-export function BotonMovil({
-  variante = "primario",
-  icono: Icono,
-  bloque,
-  className,
-  children,
-  ...props
-}: ButtonHTMLAttributes<HTMLButtonElement> & { variante?: VarianteBoton; icono?: LucideIcon; bloque?: boolean }) {
-  return (
-    <button
-      type="button"
-      className={cx(
-        "touch-feedback inline-flex h-11 items-center justify-center gap-2 rounded-xl px-4 text-sm font-semibold transition-colors",
-        "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent",
-        "disabled:cursor-not-allowed disabled:opacity-50",
-        VARIANTES_BOTON[variante],
-        bloque && "w-full",
-        className,
-      )}
-      {...props}
-    >
-      {Icono && <Icono className="h-4 w-4" aria-hidden />}
-      {children}
     </button>
   );
 }

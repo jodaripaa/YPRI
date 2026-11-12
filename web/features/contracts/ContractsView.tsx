@@ -2,7 +2,7 @@
 
 import { useMemo, useState, type ReactNode } from "react";
 import { ClipboardList } from "lucide-react";
-import { EmptyState, PageHeader, Tabs, useToast } from "@/components/ui";
+import { EmptyState, escalonado, PageHeader, Tabs, useToast } from "@/components/ui";
 import type { EstadoContrato } from "@/lib/constants";
 import { accionesDisponibles, contratosVisiblesPara, type AccionContrato } from "@/lib/domain/contracts";
 import type { Contrato, Usuario } from "@/lib/types";
@@ -69,11 +69,12 @@ export function ContractsView({ usuario, titulo, descripcion, pestanas, accionVa
         }))}
       />
 
-      <div className="mt-6 space-y-4">
+      <div key={pestana.id} className="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-2">
         {contratos.length ? (
-          contratos.map((contrato) => (
+          contratos.map((contrato, i) => (
             <ContractCard
               key={contrato.id}
+              style={escalonado(i)}
               contrato={contrato}
               usuario={usuario}
               acciones={accionesDisponibles(contrato, usuario)}
@@ -81,7 +82,9 @@ export function ContractsView({ usuario, titulo, descripcion, pestanas, accionVa
             />
           ))
         ) : (
-          <EmptyState icono={ClipboardList} titulo={pestana.vacio} accion={accionVacia} />
+          <div className="lg:col-span-2">
+            <EmptyState icono={ClipboardList} titulo={pestana.vacio} accion={accionVacia} />
+          </div>
         )}
       </div>
 

@@ -7,16 +7,9 @@ import { estadisticasPlataforma, proximaReserva, serviciosDestacados } from "@/l
 import { filtrarCatalogo } from "@/lib/domain/services";
 import { formatearCalificacion, formatearFecha } from "@/lib/format";
 import type { Usuario } from "@/lib/types";
+import { escalonado } from "@/components/ui";
 import { useAppStore } from "@/store/AppStore";
-import {
-  BarraBusqueda,
-  CarruselCategorias,
-  EncabezadoInicio,
-  EncabezadoSeccion,
-  MarcoMovil,
-  TarjetaDestacada,
-  TarjetaServicio,
-} from "../componentes";
+import { BarraBusqueda, CarruselCategorias, EncabezadoInicio, EncabezadoSeccion, MarcoMovil, TarjetaDestacada, TarjetaServicio } from "../componentes";
 
 interface Props {
   usuario: Usuario;
@@ -55,7 +48,7 @@ export function InicioScreen({ usuario, onBuscar, onAbrirServicio, onVerReservas
           <button
             type="button"
             onClick={onVerReservas}
-            className="touch-feedback flex w-full items-center gap-4 rounded-2xl bg-primary p-4 text-left"
+            className="touch-feedback hover-elevar flex w-full animate-fade-up items-center gap-4 rounded-2xl bg-primary p-4 text-left shadow-elevada"
           >
             <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-accent">
               <CalendarDays className="h-5 w-5 text-accent-foreground" aria-hidden />
@@ -75,7 +68,7 @@ export function InicioScreen({ usuario, onBuscar, onAbrirServicio, onVerReservas
           <button
             type="button"
             onClick={() => onBuscar("")}
-            className="touch-feedback flex w-full items-center justify-between gap-4 rounded-2xl bg-primary p-4 text-left"
+            className="touch-feedback hover-elevar flex w-full animate-fade-up items-center justify-between gap-4 rounded-2xl bg-primary p-4 text-left shadow-elevada"
           >
             <span>
               <span className="mb-1 block text-lg font-bold text-primary-foreground">Agenda tu próximo servicio</span>
@@ -97,8 +90,8 @@ export function InicioScreen({ usuario, onBuscar, onAbrirServicio, onVerReservas
         <section className="py-2">
           <EncabezadoSeccion titulo="Mejor calificados" accion="Ver todo" onAccion={() => onBuscar("")} />
           <div className="hide-scrollbar flex gap-3 overflow-x-auto px-4 pb-2 md:grid md:grid-cols-2 md:overflow-visible lg:grid-cols-4">
-            {destacados.map((servicio) => (
-              <TarjetaDestacada key={servicio.codigo} servicio={servicio} onAbrir={(s) => onAbrirServicio(s.codigo)} />
+            {destacados.map((servicio, i) => (
+              <TarjetaDestacada key={servicio.codigo} style={escalonado(i, 70)} servicio={servicio} onAbrir={(s) => onAbrirServicio(s.codigo)} />
             ))}
           </div>
         </section>
@@ -107,8 +100,8 @@ export function InicioScreen({ usuario, onBuscar, onAbrirServicio, onVerReservas
       <section className="py-4">
         <EncabezadoSeccion titulo={`En ${CIUDAD_LABEL[usuario.ciudad]}`} accion="Ver todo" onAccion={() => onBuscar("")} />
         <div className="flex flex-col gap-3 px-4 md:grid md:grid-cols-2 xl:grid-cols-3">
-          {enTuCiudad.map((servicio) => (
-            <TarjetaServicio key={servicio.codigo} servicio={servicio} onAbrir={(s) => onAbrirServicio(s.codigo)} />
+          {enTuCiudad.map((servicio, i) => (
+            <TarjetaServicio key={servicio.codigo} style={escalonado(i + 2, 60)} servicio={servicio} onAbrir={(s) => onAbrirServicio(s.codigo)} />
           ))}
         </div>
       </section>

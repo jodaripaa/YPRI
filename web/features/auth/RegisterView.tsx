@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
-import { Briefcase, Home } from "lucide-react";
+import { Briefcase, CheckCircle2, Home } from "lucide-react";
 import { Button, Card, cx, Field, FormError, Input, Select, useToast } from "@/components/ui";
 import { CIUDAD_LABEL, CIUDADES_COBERTURA, LONGITUD_MINIMA_CONTRASENA, type CiudadCobertura } from "@/lib/constants";
 import type { DatosRegistro } from "@/lib/domain/auth";
@@ -41,10 +41,10 @@ export function RegisterView({ onIrALogin }: { onIrALogin: () => void }) {
 
   return (
     <AuthLayout titulo="Crea tu cuenta" descripcion="Regístrate gratis en menos de un minuto.">
-      <Card className="p-6">
+      <Card className="p-6 shadow-elevada lg:shadow-suave">
         <form onSubmit={enviar} className="space-y-4" noValidate>
           <fieldset>
-            <legend className="mb-1.5 text-sm font-medium text-slate-700">Tipo de cuenta</legend>
+            <legend className="mb-1.5 text-sm font-medium">Tipo de cuenta</legend>
             <div className="grid grid-cols-2 gap-3">
               {TIPOS_CUENTA.map(({ rol, titulo, descripcion, icono: Icono }) => {
                 const seleccionado = datos.rol === rol;
@@ -52,14 +52,17 @@ export function RegisterView({ onIrALogin }: { onIrALogin: () => void }) {
                   <label
                     key={rol}
                     className={cx(
-                      "cursor-pointer rounded-lg border p-3 transition-colors",
-                      seleccionado ? "border-blue-600 bg-blue-50" : "border-slate-300 hover:border-slate-400",
+                      "touch-feedback relative cursor-pointer rounded-2xl border-2 p-3.5 transition-all duration-200 focus-within:ring-4 focus-within:ring-accent/20",
+                      seleccionado ? "border-primary bg-primary-soft" : "border-border bg-card hover:border-muted-foreground/40",
                     )}
                   >
                     <input type="radio" name="rol" value={rol} checked={seleccionado} onChange={() => actualizar("rol", rol)} className="sr-only" />
-                    <Icono className={cx("h-5 w-5", seleccionado ? "text-blue-600" : "text-slate-500")} aria-hidden />
-                    <span className="mt-2 block text-sm font-medium text-slate-900">{titulo}</span>
-                    <span className="block text-xs text-slate-500">{descripcion}</span>
+                    <span className={cx("flex h-9 w-9 items-center justify-center rounded-xl transition-colors", seleccionado ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground")}>
+                      <Icono className="h-[18px] w-[18px]" aria-hidden />
+                    </span>
+                    {seleccionado && <CheckCircle2 className="absolute right-3 top-3 h-5 w-5 animate-pop text-accent-strong" aria-hidden />}
+                    <span className="mt-2.5 block text-sm font-semibold">{titulo}</span>
+                    <span className="block text-xs text-muted-foreground">{descripcion}</span>
                   </label>
                 );
               })}
@@ -125,13 +128,13 @@ export function RegisterView({ onIrALogin }: { onIrALogin: () => void }) {
             </Field>
           </div>
           <FormError mensaje={error} />
-          <Button type="submit" bloque>
+          <Button type="submit" bloque tamano="lg">
             Crear cuenta
           </Button>
         </form>
-        <p className="mt-5 text-center text-sm text-slate-500">
+        <p className="mt-5 text-center text-sm text-muted-foreground">
           ¿Ya tienes cuenta?{" "}
-          <button type="button" onClick={onIrALogin} className="font-medium text-blue-600 hover:text-blue-700">
+          <button type="button" onClick={onIrALogin} className="font-semibold text-accent-strong hover:underline">
             Inicia sesión
           </button>
         </p>

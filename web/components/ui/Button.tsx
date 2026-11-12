@@ -2,20 +2,22 @@ import { forwardRef, type ButtonHTMLAttributes } from "react";
 import type { LucideIcon } from "lucide-react";
 import { cx } from "./cx";
 
-type Variante = "primary" | "secondary" | "ghost" | "danger" | "success";
-type Tamano = "sm" | "md";
+type Variante = "primary" | "accent" | "secondary" | "ghost" | "danger" | "success";
+type Tamano = "sm" | "md" | "lg";
 
 const VARIANTES: Record<Variante, string> = {
-  primary: "bg-blue-600 text-white hover:bg-blue-700 disabled:bg-slate-200 disabled:text-slate-400",
-  secondary: "border border-slate-300 bg-white text-slate-700 hover:bg-slate-50 disabled:text-slate-400",
-  ghost: "text-slate-600 hover:bg-slate-100 hover:text-slate-900 disabled:text-slate-300",
-  danger: "border border-red-200 bg-white text-red-600 hover:bg-red-50 disabled:text-red-300",
-  success: "bg-emerald-600 text-white hover:bg-emerald-700 disabled:bg-slate-200 disabled:text-slate-400",
+  primary: "bg-primary text-primary-foreground shadow-sm hover:bg-primary/90",
+  accent: "bg-accent text-accent-foreground shadow-sm hover:bg-accent/90",
+  secondary: "border border-border bg-card text-foreground hover:bg-muted",
+  ghost: "text-muted-foreground hover:bg-muted hover:text-foreground",
+  danger: "border border-red-200 bg-card text-red-600 hover:bg-red-50",
+  success: "bg-accent-strong text-white shadow-sm hover:bg-accent-strong/90",
 };
 
 const TAMANOS: Record<Tamano, string> = {
-  sm: "h-8 px-3 text-xs gap-1.5",
-  md: "h-10 px-4 text-sm gap-2",
+  sm: "h-9 px-3 text-xs gap-1.5 rounded-lg",
+  md: "h-11 px-4 text-sm gap-2 rounded-xl",
+  lg: "h-12 px-6 text-base gap-2 rounded-xl",
 };
 
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
@@ -34,9 +36,9 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
       ref={ref}
       type={type}
       className={cx(
-        "inline-flex items-center justify-center rounded-lg font-medium transition-colors",
-        "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600",
-        "disabled:cursor-not-allowed",
+        "touch-feedback inline-flex shrink-0 items-center justify-center font-semibold",
+        "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent",
+        "disabled:pointer-events-none disabled:opacity-50",
         VARIANTES[variante],
         TAMANOS[tamano],
         bloque && "w-full",

@@ -1,7 +1,7 @@
 "use client";
 
-import { Wallet } from "lucide-react";
-import { Card, CardHeader, EmptyState, PageHeader, StatCard, Table, Td, Th } from "@/components/ui";
+import { Clock, Percent, Wallet } from "lucide-react";
+import { Card, CardHeader, EmptyState, escalonado, PageHeader, StatCard, Table, Td, Th } from "@/components/ui";
 import { COMISION_PLATAFORMA, RETENCION_FUENTE } from "@/lib/constants";
 import { contratosVisiblesPara } from "@/lib/domain/contracts";
 import { calcularComisionPlataforma, sumarTotales } from "@/lib/finance";
@@ -29,16 +29,19 @@ export function EarningsView({ usuario }: { usuario: Usuario }) {
       <PageHeader titulo="Ganancias" descripcion="Lo que has recibido por los servicios completados." />
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <StatCard etiqueta="Neto recibido" valor={formatearMoneda(totalNeto)} detalle={pluralizar(completados.length, "servicio completado", "servicios completados")} />
+        <StatCard destacado icono={Wallet} style={escalonado(0)} etiqueta="Neto recibido" valor={formatearMoneda(totalNeto)} detalle={pluralizar(completados.length, "servicio completado", "servicios completados")} />
         <StatCard
+          icono={Percent}
+          tono="neutral"
+          style={escalonado(1)}
           etiqueta="Comisión y retención"
           valor={formatearMoneda(totalDescuentos)}
           detalle={`Comisión ${porcentaje(COMISION_PLATAFORMA)} y retención ${porcentaje(RETENCION_FUENTE)}`}
         />
-        <StatCard etiqueta="Por cobrar" valor={formatearMoneda(porCobrar)} detalle={pluralizar(enCurso.length, "servicio en curso", "servicios en curso")} />
+        <StatCard icono={Clock} tono="accent" style={escalonado(2)} etiqueta="Por cobrar" valor={formatearMoneda(porCobrar)} detalle={pluralizar(enCurso.length, "servicio en curso", "servicios en curso")} />
       </div>
 
-      <Card className="mt-6">
+      <Card className="mt-6 animate-fade-up overflow-hidden" style={escalonado(3)}>
         <CardHeader titulo="Detalle por servicio" descripcion="Valores calculados sobre el total pagado por el cliente (IVA incluido)." />
         {completados.length ? (
           <Table>
@@ -62,7 +65,7 @@ export function EarningsView({ usuario }: { usuario: Usuario }) {
                   <Td numerico>{formatearMoneda(contrato.total)}</Td>
                   <Td numerico>{formatearMoneda(distribucion.comisionYpri)}</Td>
                   <Td numerico>{formatearMoneda(distribucion.retencionFuente)}</Td>
-                  <Td numerico className="font-semibold text-slate-900">
+                  <Td numerico className="font-semibold text-accent-strong">
                     {formatearMoneda(distribucion.pagoNetoPrestador)}
                   </Td>
                 </tr>

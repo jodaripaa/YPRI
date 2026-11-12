@@ -2,13 +2,13 @@
 
 import { useMemo, useState } from "react";
 import { SearchX } from "lucide-react";
-import { Select } from "@/components/ui";
+import { Button, EmptyState, escalonado, Select } from "@/components/ui";
 import { CATEGORIA_LABEL, CATEGORIAS_SERVICIO, CIUDAD_LABEL, CIUDADES_COBERTURA, type CategoriaServicio, type CiudadCobertura } from "@/lib/constants";
 import { filtrarCatalogo, type FiltrosCatalogo, type OrdenCatalogo } from "@/lib/domain/services";
 import { pluralizar } from "@/lib/format";
 import type { Usuario } from "@/lib/types";
 import { useAppStore } from "@/store/AppStore";
-import { BarraBusqueda, BarraSuperior, BotonMovil, ChipFiltro, MarcoMovil, TarjetaServicio, Vacio } from "../componentes";
+import { BarraBusqueda, BarraSuperior, ChipFiltro, MarcoMovil, TarjetaServicio } from "../componentes";
 
 export interface BusquedaInicial {
   /** Cambia en cada búsqueda nueva para reiniciar los filtros. */
@@ -90,19 +90,20 @@ export function BuscarScreen({ usuario, inicial, onAbrirServicio }: { usuario: U
 
       {resultados.length ? (
         <div className="flex flex-col gap-3 px-4 md:grid md:grid-cols-2 xl:grid-cols-3">
-          {resultados.map((servicio) => (
-            <TarjetaServicio key={servicio.codigo} servicio={servicio} onAbrir={(s) => onAbrirServicio(s.codigo)} />
+          {resultados.map((servicio, i) => (
+            <TarjetaServicio key={servicio.codigo} style={escalonado(i)} servicio={servicio} onAbrir={(s) => onAbrirServicio(s.codigo)} />
           ))}
         </div>
       ) : (
-        <Vacio
+        <EmptyState
+          sinMarco
           icono={SearchX}
           titulo="No encontramos profesionales"
           descripcion="Prueba con otra categoría o busca en todas las ciudades."
           accion={
-            <BotonMovil variante="contorno" onClick={() => setFiltros((f) => ({ ...f, texto: "", categoria: "todas", ciudad: "todas", soloDisponibles: false }))}>
+            <Button variante="secondary" onClick={() => setFiltros((f) => ({ ...f, texto: "", categoria: "todas", ciudad: "todas", soloDisponibles: false }))}>
               Limpiar filtros
-            </BotonMovil>
+            </Button>
           }
         />
       )}

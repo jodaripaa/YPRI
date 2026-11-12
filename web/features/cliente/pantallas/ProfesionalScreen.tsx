@@ -2,13 +2,13 @@
 
 import { useState } from "react";
 import { ArrowLeft, BadgeCheck, Briefcase, Clock, MapPin, MessageSquareText, Phone, SearchX, ShieldCheck, Star } from "lucide-react";
-import { cx } from "@/components/ui";
+import { Button, cx, EmptyState } from "@/components/ui";
 import { CATEGORIA_LABEL, CIUDAD_LABEL, IVA_PORCENTAJE } from "@/lib/constants";
 import { distribucionCalificaciones, otrosServiciosDelProfesional, resenasDeServicio } from "@/lib/domain/cliente";
 import { formatearCalificacion, formatearFecha, formatearMoneda, iniciales, pluralizar } from "@/lib/format";
 import { useAppStore } from "@/store/AppStore";
 import { PROFESION_CATEGORIA } from "../categorias";
-import { AvatarProfesional, BotonMovil, MarcoMovil, TarjetaServicio, Vacio } from "../componentes";
+import { AvatarProfesional, MarcoMovil, TarjetaServicio } from "../componentes";
 
 type Pestana = "servicio" | "resenas" | "acerca";
 
@@ -33,7 +33,7 @@ export function ProfesionalScreen({ codigo, onVolver, onReservar, onAbrirServici
   if (!servicio) {
     return (
       <MarcoMovil conNavegacion={false}>
-        <Vacio icono={SearchX} titulo="Este servicio ya no existe" accion={<BotonMovil onClick={onVolver}>Volver</BotonMovil>} />
+        <EmptyState sinMarco icono={SearchX} titulo="Este servicio ya no existe" accion={<Button onClick={onVolver}>Volver</Button>} />
       </MarcoMovil>
     );
   }
@@ -165,7 +165,8 @@ export function ProfesionalScreen({ codigo, onVolver, onReservar, onAbrirServici
               ))}
             </div>
           ) : (
-            <Vacio
+            <EmptyState
+              sinMarco
               icono={MessageSquareText}
               titulo="Aún no hay reseñas escritas"
               descripcion={
@@ -208,9 +209,9 @@ export function ProfesionalScreen({ codigo, onVolver, onReservar, onAbrirServici
                 <span className="text-xs font-normal text-muted-foreground"> /hora</span>
               </p>
             </div>
-            <BotonMovil variante="primario" className="px-8" onClick={() => onReservar(servicio.codigo)}>
+            <Button variante="primary" className="px-8" onClick={() => onReservar(servicio.codigo)}>
               Reservar ahora
-            </BotonMovil>
+            </Button>
           </div>
         </div>
       )}

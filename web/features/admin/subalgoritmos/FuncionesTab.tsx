@@ -50,7 +50,7 @@ export function FuncionesTab() {
             <DatoFila etiqueta="Total a pagar" valor={formatearMoneda(liquidacion.totalPagar)} destacado />
           </div>
           <div>
-            <p className="mb-1 font-mono text-xs text-slate-500">calcular_comision_plataforma(total)</p>
+            <p className="mb-1 font-mono text-xs text-muted-foreground">calcular_comision_plataforma(total)</p>
             <DatoFila etiqueta="Comisión plataforma (10 %)" valor={formatearMoneda(distribucion.comisionYpri)} />
             <DatoFila etiqueta="Retención en la fuente (4 %)" valor={formatearMoneda(distribucion.retencionFuente)} />
             <DatoFila etiqueta="Pago neto al profesional" valor={formatearMoneda(distribucion.pagoNetoPrestador)} destacado />
@@ -73,9 +73,9 @@ export function FuncionesTab() {
           <Field etiqueta="Nueva nota">
             {(p) => <Input {...p} type="number" step={0.1} min={1} max={5} value={campos.nuevaNota} onChange={actualizar("nuevaNota")} />}
           </Field>
-          <div className="rounded-lg bg-slate-50 px-4 py-2">
-            <p className="text-xs text-slate-500">Nuevo promedio</p>
-            <p className="text-lg font-semibold text-slate-900">{nuevoRating.toFixed(1)} / 5</p>
+          <div className="rounded-lg bg-muted/50 px-4 py-2">
+            <p className="text-xs text-muted-foreground">Nuevo promedio</p>
+            <p className="text-lg font-semibold text-foreground">{nuevoRating.toFixed(1)} / 5</p>
           </div>
         </div>
       </TarjetaSubalgoritmo>

@@ -3,7 +3,7 @@ import { Card } from "@/components/ui";
 
 export function BloqueCodigo({ lineas }: { lineas: readonly string[] }) {
   return (
-    <pre className="overflow-x-auto rounded-lg bg-slate-900 p-4 font-mono text-xs leading-relaxed text-slate-200">
+    <pre className="overflow-x-auto rounded-xl bg-primary p-4 font-mono text-xs leading-relaxed text-primary-foreground/90">
       {lineas.join("\n")}
     </pre>
   );
@@ -21,13 +21,13 @@ export function TarjetaSubalgoritmo({
   children: ReactNode;
 }) {
   return (
-    <Card className="p-5">
-      <div className="flex flex-col gap-2 border-b border-slate-100 pb-4 sm:flex-row sm:items-start sm:justify-between">
+    <Card className="animate-fade-up p-5">
+      <div className="flex flex-col gap-2 border-b border-border/70 pb-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <h3 className="font-mono text-sm font-semibold text-slate-900">{firma}</h3>
-          <p className="mt-1 text-sm text-slate-500">{descripcion}</p>
+          <h3 className="font-mono text-sm font-semibold text-foreground">{firma}</h3>
+          <p className="mt-1 text-sm text-muted-foreground">{descripcion}</p>
         </div>
-        <span className="shrink-0 rounded-md bg-slate-100 px-2 py-0.5 font-mono text-xs text-slate-600">{tipo}</span>
+        <span className="shrink-0 rounded-full bg-accent/15 px-2.5 py-0.5 font-mono text-xs text-accent-strong">{tipo}</span>
       </div>
       <div className="pt-4">{children}</div>
     </Card>

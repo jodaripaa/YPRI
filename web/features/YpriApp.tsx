@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { AppShell } from "@/components/layout/AppShell";
 import { useToast } from "@/components/ui";
 import { puedeVerVista, usaAppMovil, vistaInicial, vistasPermitidas, type VistaId } from "@/lib/domain/navigation";
@@ -26,7 +27,13 @@ export function YpriApp() {
     setVista(vistaInicial(usuarioActual));
   }
 
-  if (!hidratado) return <div className="min-h-screen bg-slate-100" aria-busy="true" />;
+  if (!hidratado) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-primary" aria-busy="true" aria-label="Cargando YPRI">
+        <Image src="/images/ypri-icon.png" alt="" width={72} height={72} priority className="h-[72px] w-[72px] animate-pulso-suave rounded-2xl" />
+      </div>
+    );
+  }
 
   if (!usuarioActual) {
     return pantallaAcceso === "login" ? (

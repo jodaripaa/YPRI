@@ -49,7 +49,7 @@ export function CatalogView({ usuario, onSolicitudCreada }: { usuario: Usuario; 
       <div className="space-y-4">
         <div className="flex flex-col gap-3 sm:flex-row">
           <div className="relative flex-1">
-            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" aria-hidden />
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground/70" aria-hidden />
             <Input
               aria-label="Buscar servicios"
               placeholder="Buscar por servicio o profesional"
@@ -95,18 +95,18 @@ export function CatalogView({ usuario, onSolicitudCreada }: { usuario: Usuario; 
               {categoria === "todas" ? "Todas" : CATEGORIA_LABEL[categoria]}
             </FiltroCategoria>
           ))}
-          <label className="ml-auto flex items-center gap-2 text-sm text-slate-600">
+          <label className="ml-auto flex items-center gap-2 text-sm text-foreground/70">
             <input
               type="checkbox"
               checked={filtros.soloDisponibles}
               onChange={(e) => actualizar("soloDisponibles", e.target.checked)}
-              className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-600"
+              className="h-4 w-4 rounded border-border text-primary focus:ring-accent"
             />
             Solo disponibles
           </label>
         </div>
 
-        <p className="text-sm text-slate-500">{pluralizar(servicios.length, "resultado", "resultados")}</p>
+        <p className="text-sm text-muted-foreground">{pluralizar(servicios.length, "resultado", "resultados")}</p>
 
         {servicios.length ? (
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -150,7 +150,7 @@ function FiltroCategoria({ activa, onClick, children }: { activa: boolean; onCli
       onClick={onClick}
       className={cx(
         "rounded-full border px-3.5 py-1.5 text-sm font-medium transition-colors",
-        activa ? "border-slate-900 bg-slate-900 text-white" : "border-slate-300 bg-white text-slate-700 hover:border-slate-400",
+        activa ? "border-primary bg-primary text-white" : "border-border bg-card text-foreground/80 hover:border-muted-foreground/40",
       )}
     >
       {children}

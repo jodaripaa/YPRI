@@ -4,7 +4,7 @@ import { cx } from "./cx";
 export function Table({ className, ...props }: HTMLAttributes<HTMLTableElement>) {
   return (
     <div className="overflow-x-auto">
-      <table className={cx("w-full border-collapse text-left text-sm", className)} {...props} />
+      <table className={cx("w-full border-collapse text-left text-sm [&_tbody_tr]:transition-colors [&_tbody_tr:hover]:bg-muted/40", className)} {...props} />
     </div>
   );
 }
@@ -14,7 +14,7 @@ export function Th({ className, numerico, ...props }: ThHTMLAttributes<HTMLTable
     <th
       scope="col"
       className={cx(
-        "whitespace-nowrap border-b border-slate-200 bg-slate-50 px-4 py-2.5 text-xs font-medium uppercase tracking-wide text-slate-500",
+        "whitespace-nowrap border-b border-border bg-muted/50 px-4 py-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground",
         numerico && "text-right",
         className,
       )}
@@ -26,7 +26,7 @@ export function Th({ className, numerico, ...props }: ThHTMLAttributes<HTMLTable
 export function Td({ className, numerico, ...props }: TdHTMLAttributes<HTMLTableCellElement> & { numerico?: boolean }) {
   return (
     <td
-      className={cx("whitespace-nowrap border-b border-slate-100 px-4 py-3 text-slate-700", numerico && "text-right tabular-nums", className)}
+      className={cx("whitespace-nowrap border-b border-border/70 px-4 py-3 text-foreground/80", numerico && "text-right tabular-nums", className)}
       {...props}
     />
   );

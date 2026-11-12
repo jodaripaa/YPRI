@@ -1,8 +1,8 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, type CSSProperties } from "react";
 import { CalendarDays, CalendarX, Clock, MapPin, Star } from "lucide-react";
-import { cx, useToast } from "@/components/ui";
+import { Button, cx, EmptyState, escalonado, EstadoContratoBadge, useToast } from "@/components/ui";
 import type { EstadoContrato } from "@/lib/constants";
 import { accionesDisponibles, contratosVisiblesPara, ESTADOS_ACTIVOS, type AccionContrato } from "@/lib/domain/contracts";
 import { formatearFecha, formatearMoneda, iniciales, pluralizar } from "@/lib/format";
@@ -11,7 +11,7 @@ import { useAppStore } from "@/store/AppStore";
 import { useContratos } from "@/store/hooks";
 import { ConfirmDialog, RateDialog } from "../../contracts/ContractDialogs";
 import { CONFIGURACION_ACCIONES } from "../../contracts/contractActions";
-import { BarraSuperior, BotonMovil, MarcoMovil, PildoraEstado, Vacio } from "../componentes";
+import { BarraSuperior, MarcoMovil } from "../componentes";
 
 type Pestana = "proximas" | "historial";
 
@@ -74,10 +74,11 @@ export function ReservasScreen({ usuario, onExplorar, onAbrirServicio }: Props) 
       </div>
 
       {visibles.length ? (
-        <div className="flex flex-col gap-3 px-4 py-4 md:grid md:grid-cols-2 xl:grid-cols-3">
-          {visibles.map((contrato) => (
+        <div key={pestana} className="flex flex-col gap-3 px-4 py-4 md:grid md:grid-cols-2 xl:grid-cols-3">
+          {visibles.map((contrato, i) => (
             <TarjetaReserva
               key={contrato.id}
+              style={escalonado(i)}
               contrato={contrato}
               acciones={accionesDisponibles(contrato, usuario)}
               onAccion={alAccionar}
@@ -86,11 +87,12 @@ export function ReservasScreen({ usuario, onExplorar, onAbrirServicio }: Props) 
           ))}
         </div>
       ) : (
-        <Vacio
+        <EmptyState
+          sinMarco
           icono={CalendarX}
           titulo={pestana === "proximas" ? "No tienes reservas próximas" : "Aún no tienes servicios finalizados"}
           descripcion={pestana === "proximas" ? "Encuentra un profesional y agenda tu servicio en minutos." : undefined}
-          accion={pestana === "proximas" && <BotonMovil onClick={onExplorar}>Buscar un servicio</BotonMovil>}
+          accion={pestana === "proximas" && <Button onClick={onExplorar}>Buscar un servicio</Button>}
         />
       )}
 
@@ -126,17 +128,19 @@ function TarjetaReserva({
   acciones,
   onAccion,
   onVerProfesional,
+  style,
 }: {
+  style?: CSSProperties;
   contrato: Contrato;
   acciones: AccionContrato[];
   onAccion: (contrato: Contrato, accion: AccionContrato) => void;
   onVerProfesional: () => void;
 }) {
   return (
-    <article className="flex flex-col rounded-2xl border border-border bg-card p-4">
+    <article style={style} className="hover-elevar flex animate-fade-up flex-col rounded-2xl border border-border bg-card p-4">
       <div className="mb-3 flex items-center justify-between gap-2">
         <span className="font-mono text-xs text-muted-foreground">{contrato.id}</span>
-        <PildoraEstado estado={contrato.estado} />
+        <EstadoContratoBadge estado={contrato.estado} />
       </div>
 
       <button type="button" onClick={onVerProfesional} className="touch-feedback mb-3 flex items-center gap-3 text-left">
@@ -172,14 +176,14 @@ function TarjetaReserva({
         </p>
         <div className="flex gap-2">
           {acciones.includes("cancelar") && (
-            <BotonMovil variante="peligro" className="h-9 px-3 text-xs" onClick={() => onAccion(contrato, "cancelar")}>
+            <Button variante="danger" className="h-9 px-3 text-xs" onClick={() => onAccion(contrato, "cancelar")}>
               Cancelar
-            </BotonMovil>
+            </Button>
           )}
           {acciones.includes("calificar") && (
-            <BotonMovil variante="acento" icono={Star} className="h-9 px-3 text-xs" onClick={() => onAccion(contrato, "calificar")}>
+            <Button variante="accent" icono={Star} className="h-9 px-3 text-xs" onClick={() => onAccion(contrato, "calificar")}>
               Calificar
-            </BotonMovil>
+            </Button>
           )}
         </div>
       </div>

@@ -2,8 +2,9 @@
 
 import { useMemo, useState } from "react";
 import { Search } from "lucide-react";
-import { Badge, Button, Card, Input, PageHeader, Select, Table, Td, Th, useToast } from "@/components/ui";
+import { Avatar, Badge, Button, Card, Input, PageHeader, Select, Table, Td, Th, useToast } from "@/components/ui";
 import { CIUDAD_LABEL, ROL_LABEL, ROLES_SISTEMA, type RolUsuario } from "@/lib/constants";
+import { iniciales } from "@/lib/format";
 import type { Usuario } from "@/lib/types";
 import { useAppStore } from "@/store/AppStore";
 import { useAdministracionUsuarios } from "@/store/hooks";
@@ -36,7 +37,7 @@ export function UsersView({ usuario: administrador }: { usuario: Usuario }) {
 
       <div className="mb-4 flex flex-col gap-3 sm:flex-row">
         <div className="relative flex-1">
-          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" aria-hidden />
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground/70" aria-hidden />
           <Input aria-label="Buscar usuarios" placeholder="Buscar por nombre o correo" className="pl-9" value={texto} onChange={(e) => setTexto(e.target.value)} />
         </div>
         <Select aria-label="Filtrar por rol" className="sm:w-48" value={rol} onChange={(e) => setRol(e.target.value as RolUsuario | "todos")}>
@@ -49,7 +50,7 @@ export function UsersView({ usuario: administrador }: { usuario: Usuario }) {
         </Select>
       </div>
 
-      <Card>
+      <Card className="animate-fade-up overflow-hidden">
         <Table>
           <thead>
             <tr>
@@ -69,8 +70,13 @@ export function UsersView({ usuario: administrador }: { usuario: Usuario }) {
               return (
                 <tr key={u.id}>
                   <Td>
-                    <span className="block font-medium text-slate-900">{u.nombre}</span>
-                    <span className="text-xs text-slate-500">{u.correo}</span>
+                    <span className="flex items-center gap-3">
+                      <Avatar texto={iniciales(u.nombre)} className={u.activo ? "" : "opacity-50"} />
+                      <span>
+                        <span className="block font-medium text-foreground">{u.nombre}</span>
+                        <span className="text-xs text-muted-foreground">{u.correo}</span>
+                      </span>
+                    </span>
                   </Td>
                   <Td>{ROL_LABEL[u.rol]}</Td>
                   <Td>{CIUDAD_LABEL[u.ciudad]}</Td>
@@ -92,7 +98,7 @@ export function UsersView({ usuario: administrador }: { usuario: Usuario }) {
             })}
           </tbody>
         </Table>
-        {usuarios.length === 0 && <p className="px-5 py-8 text-center text-sm text-slate-500">No hay usuarios que coincidan con la búsqueda.</p>}
+        {usuarios.length === 0 && <p className="px-5 py-8 text-center text-sm text-muted-foreground">No hay usuarios que coincidan con la búsqueda.</p>}
       </Card>
     </>
   );

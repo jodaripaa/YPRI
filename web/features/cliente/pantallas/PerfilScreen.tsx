@@ -5,8 +5,9 @@ import { CIUDAD_LABEL, ROL_LABEL } from "@/lib/constants";
 import { resumenCliente } from "@/lib/domain/cliente";
 import { formatearMoneda, iniciales } from "@/lib/format";
 import type { Usuario } from "@/lib/types";
+import { Button } from "@/components/ui";
 import { useAppStore } from "@/store/AppStore";
-import { BotonMovil, MarcoMovil } from "../componentes";
+import { MarcoMovil } from "../componentes";
 
 interface Props {
   usuario: Usuario;
@@ -23,7 +24,7 @@ export function PerfilScreen({ usuario, onCerrarSesion, onVerReservas }: Props) 
       <div className="bg-primary px-4 pb-16 pt-8 text-center sm:rounded-b-3xl">
         <span
           aria-hidden
-          className="mx-auto flex h-20 w-20 items-center justify-center rounded-full border-4 border-primary-foreground/20 bg-accent text-2xl font-bold text-accent-foreground"
+          className="mx-auto flex h-20 w-20 animate-pop items-center justify-center rounded-full border-4 border-primary-foreground/20 bg-accent text-2xl font-bold text-accent-foreground"
         >
           {iniciales(usuario.nombre)}
         </span>
@@ -33,7 +34,7 @@ export function PerfilScreen({ usuario, onCerrarSesion, onVerReservas }: Props) 
         </p>
       </div>
 
-      <div className="relative z-10 mx-4 -mt-10 grid grid-cols-3 divide-x divide-border rounded-2xl border border-border bg-card py-4 text-center shadow-sm">
+      <div className="relative z-10 mx-4 -mt-10 grid animate-fade-up grid-cols-3 divide-x divide-border rounded-2xl border border-border bg-card py-4 text-center shadow-sm">
         <Cifra valor={String(resumen.solicitudes)} etiqueta="Reservas" />
         <Cifra valor={String(resumen.completados)} etiqueta="Completadas" />
         <Cifra valor={formatearMoneda(resumen.totalInvertido)} etiqueta="Invertido" />
@@ -69,9 +70,9 @@ export function PerfilScreen({ usuario, onCerrarSesion, onVerReservas }: Props) 
           </button>
         </section>
 
-        <BotonMovil variante="peligro" icono={LogOut} bloque onClick={onCerrarSesion}>
+        <Button variante="danger" icono={LogOut} bloque onClick={onCerrarSesion}>
           Cerrar sesión
-        </BotonMovil>
+        </Button>
       </div>
     </MarcoMovil>
   );

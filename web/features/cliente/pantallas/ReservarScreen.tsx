@@ -2,14 +2,14 @@
 
 import { useState } from "react";
 import { CalendarDays, CheckCircle2, Clock, MapPin, Minus, Plus, SearchX } from "lucide-react";
-import { cx, Field, FormError, Input, Textarea, useToast } from "@/components/ui";
+import { Button, cx, EmptyState, Field, FormError, Input, Textarea, useToast } from "@/components/ui";
 import { CATEGORIA_LABEL, CIUDAD_LABEL, HORAS_MAXIMAS, HORAS_MINIMAS, IVA_PORCENTAJE } from "@/lib/constants";
 import { calcularLiquidacionContrato } from "@/lib/finance";
 import { fechaIsoHoy, formatearFecha, formatearMoneda, pluralizar } from "@/lib/format";
 import type { Contrato } from "@/lib/types";
 import { useAppStore } from "@/store/AppStore";
 import { useContratos } from "@/store/hooks";
-import { AvatarProfesional, BarraSuperior, BotonMovil, MarcoMovil, Vacio } from "../componentes";
+import { AvatarProfesional, BarraSuperior, MarcoMovil } from "../componentes";
 
 type Paso = "fecha" | "direccion" | "confirmar";
 
@@ -43,7 +43,7 @@ export function ReservarScreen({ codigo, onVolver, onConfirmada }: Props) {
     return (
       <MarcoMovil conNavegacion={false}>
         <BarraSuperior titulo="Reservar" onVolver={onVolver} />
-        <Vacio icono={SearchX} titulo="Este servicio no está disponible" descripcion="Elige otro profesional o inténtalo más tarde." />
+        <EmptyState sinMarco icono={SearchX} titulo="Este servicio no está disponible" descripcion="Elige otro profesional o inténtalo más tarde." />
       </MarcoMovil>
     );
   }
@@ -87,7 +87,7 @@ export function ReservarScreen({ codigo, onVolver, onConfirmada }: Props) {
 
       <div className="flex gap-2 px-4 pt-3" aria-hidden>
         {PASOS.map((p, i) => (
-          <span key={p.id} className={cx("h-1 flex-1 rounded-full transition-colors", i <= indice ? "bg-accent" : "bg-border")} />
+          <span key={p.id} className={cx("h-1 flex-1 rounded-full transition-colors duration-500", i <= indice ? "bg-accent" : "bg-border")} />
         ))}
       </div>
 
@@ -100,7 +100,7 @@ export function ReservarScreen({ codigo, onVolver, onConfirmada }: Props) {
         </div>
       </div>
 
-      <div className="mx-auto max-w-xl space-y-5 px-4 py-5">
+      <div key={paso} className="mx-auto max-w-xl animate-fade-up space-y-5 px-4 py-5">
         {paso === "fecha" && (
           <>
             <Field etiqueta="¿Qué día lo necesitas?">
@@ -187,13 +187,13 @@ export function ReservarScreen({ codigo, onVolver, onConfirmada }: Props) {
             <p className="text-lg font-bold text-primary">{formatearMoneda(liquidacion.totalPagar)}</p>
           </div>
           {paso === "confirmar" ? (
-            <BotonMovil variante="acento" className="px-6" onClick={confirmar}>
+            <Button variante="accent" className="px-6" onClick={confirmar}>
               Confirmar reserva
-            </BotonMovil>
+            </Button>
           ) : (
-            <BotonMovil className="px-8" onClick={siguiente}>
+            <Button className="px-8" onClick={siguiente}>
               Continuar
-            </BotonMovil>
+            </Button>
           )}
         </div>
       </div>
@@ -228,7 +228,7 @@ export function ReservaConfirmadaScreen({ contrato, onVerReservas, onInicio }: {
   return (
     <MarcoMovil conNavegacion={false}>
       <div className="mx-auto flex min-h-screen max-w-md flex-col items-center justify-center px-6 text-center">
-        <span className="flex h-20 w-20 items-center justify-center rounded-full bg-accent/20">
+        <span className="flex h-20 w-20 animate-pop items-center justify-center rounded-full bg-accent/20">
           <CheckCircle2 className="h-10 w-10 text-accent-strong" aria-hidden />
         </span>
         <h1 className="mt-6 text-2xl font-bold">¡Reserva enviada!</h1>
@@ -241,12 +241,12 @@ export function ReservaConfirmadaScreen({ contrato, onVerReservas, onInicio }: {
           <Fila etiqueta="Total estimado" valor={formatearMoneda(contrato.total)} />
         </div>
         <div className="mt-8 flex w-full flex-col gap-3">
-          <BotonMovil bloque onClick={onVerReservas}>
+          <Button bloque onClick={onVerReservas}>
             Ver mis reservas
-          </BotonMovil>
-          <BotonMovil bloque variante="contorno" onClick={onInicio}>
+          </Button>
+          <Button bloque variante="secondary" onClick={onInicio}>
             Volver al inicio
-          </BotonMovil>
+          </Button>
         </div>
       </div>
     </MarcoMovil>

@@ -4,11 +4,12 @@
 // mismas reglas de dominio que el resto de YPRI: solo cambia la presentación.
 
 import { useState } from "react";
+import { CalendarDays, Home, Search, User } from "lucide-react";
+import { BottomNav, type ItemNavegacion } from "@/components/layout/BottomNav";
 import type { CategoriaServicio } from "@/lib/constants";
 import { ESTADOS_ACTIVOS, contratosVisiblesPara } from "@/lib/domain/contracts";
 import type { Contrato, Usuario } from "@/lib/types";
 import { useAppStore } from "@/store/AppStore";
-import { NavegacionInferior, type PestanaCliente } from "./componentes";
 import { BuscarScreen, type BusquedaInicial } from "./pantallas/BuscarScreen";
 import { InicioScreen } from "./pantallas/InicioScreen";
 import { PerfilScreen } from "./pantallas/PerfilScreen";
@@ -16,11 +17,20 @@ import { ProfesionalScreen } from "./pantallas/ProfesionalScreen";
 import { ReservaConfirmadaScreen, ReservarScreen } from "./pantallas/ReservarScreen";
 import { ReservasScreen } from "./pantallas/ReservasScreen";
 
+export type PestanaCliente = "inicio" | "buscar" | "reservas" | "perfil";
+
 /** Pantallas que se abren encima de las pestañas (sin barra inferior). */
 type Detalle =
   | { tipo: "profesional"; codigo: string }
   | { tipo: "reservar"; codigo: string }
   | { tipo: "confirmada"; contrato: Contrato };
+
+const PESTANAS: ItemNavegacion<PestanaCliente>[] = [
+  { id: "inicio", etiqueta: "Inicio", icono: Home },
+  { id: "buscar", etiqueta: "Buscar", icono: Search },
+  { id: "reservas", etiqueta: "Reservas", icono: CalendarDays },
+  { id: "perfil", etiqueta: "Perfil", icono: User },
+];
 
 export function ClienteApp({ usuario, onCerrarSesion }: { usuario: Usuario; onCerrarSesion: () => void }) {
   const { data } = useAppStore();
@@ -92,7 +102,13 @@ export function ClienteApp({ usuario, onCerrarSesion }: { usuario: Usuario; onCe
       {pestana === "buscar" && <BuscarScreen key={busqueda.id} usuario={usuario} inicial={busqueda} onAbrirServicio={abrirProfesional} />}
       {pestana === "reservas" && <ReservasScreen usuario={usuario} onExplorar={() => cambiarPestana("buscar")} onAbrirServicio={abrirProfesional} />}
       {pestana === "perfil" && <PerfilScreen usuario={usuario} onCerrarSesion={onCerrarSesion} onVerReservas={() => cambiarPestana("reservas")} />}
-      <NavegacionInferior activa={pestana} onCambiar={cambiarPestana} reservasActivas={reservasActivas} />
+      <BottomNav<PestanaCliente>
+        activa={pestana}
+        onCambiar={cambiarPestana}
+        items={PESTANAS.map((item) =>
+          item.id === "reservas" ? { ...item, insignia: reservasActivas, descripcionInsignia: "reservas activas" } : item,
+        )}
+      />
     </>
   );
 }
