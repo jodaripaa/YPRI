@@ -26,6 +26,19 @@ CATEGORIAS_SERVICIO = (
     "Plomeria",
     "Limpieza",
     "Climatizacion",
+    "Cerrajeria",
+    "Belleza"
+)
+
+# [SEMANA 9 - FILAS DE MATRIZ]
+# Filas de las matrices analiticas (5x6 semanal y 5x5 cuadrada por ciudad).
+# Son los cinco oficios originales: Belleza se ofrece en la plataforma pero no
+# tiene fila en estas matrices, para conservar sus dimensiones (Guia 9).
+CATEGORIAS_MATRIZ = (
+    "Electricidad",
+    "Plomeria",
+    "Limpieza",
+    "Climatizacion",
     "Cerrajeria"
 )
 

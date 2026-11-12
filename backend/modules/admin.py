@@ -19,7 +19,7 @@ DOCUMENTACION DE TEMAS POR SEMANAS:
 
 from core.constantes import (
     ROLES_SISTEMA,
-    CATEGORIAS_SERVICIO,
+    CATEGORIAS_MATRIZ,
     ESTADOS_CONTRATO,
     CIUDADES_COBERTURA,
     DIAS_SEMANA_MATRIZ,
@@ -91,7 +91,7 @@ def ver_estadisticas():
     # Metricas calculadas sobre matrices bidimensionales (Semana 9 - Guia 9)
     total_matriz_semanal = calcular_total_general(matriz_ventas_semanales)
     promedio_matriz = calcular_promedio_general(matriz_ventas_semanales)
-    analisis = analizar_rendimiento_matriz(matriz_ventas_semanales, CATEGORIAS_SERVICIO, DIAS_SEMANA_MATRIZ)
+    analisis = analizar_rendimiento_matriz(matriz_ventas_semanales, CATEGORIAS_MATRIZ, DIAS_SEMANA_MATRIZ)
 
     print(f"  USUARIOS (Vector usuarios[])")
     print(f"    Total registrados: {len(usuarios)}")
@@ -125,14 +125,14 @@ def ver_reporte_matricial_admin():
     print()
     mostrar_matriz_tabulada(
         matriz_ventas_semanales,
-        CATEGORIAS_SERVICIO,
+        CATEGORIAS_MATRIZ,
         DIAS_SEMANA_MATRIZ,
         "MATRIZ 1: FACTURACION SEMANAL POR CATEGORIA (5x6)"
     )
     print()
     mostrar_matriz_tabulada(
         matriz_ventas_ciudades,
-        CATEGORIAS_SERVICIO,
+        CATEGORIAS_MATRIZ,
         CIUDADES_COBERTURA,
         "MATRIZ 2: MATRIZ CUADRADA DE COBERTURA Y DEMANDA (5x5)"
     )

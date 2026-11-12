@@ -1,4 +1,4 @@
-import { SERVICIOS_INICIALES } from "@/lib/seed";
+import { SERVICIOS_INICIALES, USUARIOS_INICIALES } from "@/lib/seed";
 import type { AppData, Servicio } from "@/lib/types";
 import { BARRIOS, RADIO_COBERTURA_KM } from "@/lib/zonas";
 
@@ -33,7 +33,10 @@ export function migrarEstado(estado: AppData): AppData {
       radio_km: s.radio_km ?? semilla?.radio_km ?? RADIO_COBERTURA_KM,
     };
   });
-  return { ...estado, servicios };
+  // Registros de prueba agregados después (por ejemplo, la profesional de Belleza).
+  const usuariosNuevos = USUARIOS_INICIALES.filter((u) => !estado.usuarios.some((x) => x.id === u.id));
+  const serviciosNuevos = SERVICIOS_INICIALES.filter((s) => !servicios.some((x) => x.codigo === s.codigo));
+  return { ...estado, usuarios: [...estado.usuarios, ...usuariosNuevos], servicios: [...servicios, ...serviciosNuevos] };
 }
 
 export function cargarEstado(): AppData | null {

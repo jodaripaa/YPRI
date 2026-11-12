@@ -54,7 +54,7 @@ export function ReservarScreen({ codigo, onVolver, onConfirmada }: Props) {
   }
 
   const indice = PASOS.findIndex((p) => p.id === paso);
-  const cercania = calcularCercania(servicio, ubicacion.coordenadas);
+  const cercania = calcularCercania(servicio, ubicacion.coordenadas, data.contratos);
   const liquidacion = calcularLiquidacionContrato(servicio.tarifa_hora, horas);
   const ajustarHoras = (delta: number) => setHoras((h) => Math.min(HORAS_MAXIMAS, Math.max(HORAS_MINIMAS, h + delta)));
 

@@ -73,6 +73,7 @@ export interface SolicitudContrato {
   direccion: string;
   nota?: string;
   ubicacion?: Coordenadas;
+  urgente?: boolean;
 }
 
 export function crearContrato(
@@ -93,6 +94,7 @@ export function crearContrato(
     return fail("Selecciona una fecha a partir de hoy.");
   if (solicitud.direccion.trim().length < 5) return fail("Escribe la dirección donde se prestará el servicio.");
   if (solicitud.ubicacion !== undefined && !sonCoordenadasValidas(solicitud.ubicacion)) return fail("La ubicación del servicio no es válida.");
+  if (solicitud.urgente && solicitud.fecha !== hoy) return fail("Un pedido inmediato solo puede ser para hoy.");
 
   const liquidacion = calcularLiquidacionContrato(servicio.tarifa_hora, solicitud.horas);
   const contrato: Contrato = {
@@ -113,6 +115,7 @@ export function crearContrato(
     direccion: solicitud.direccion.trim(),
     nota: solicitud.nota?.trim() || undefined,
     ubicacion: solicitud.ubicacion,
+    urgente: solicitud.urgente || undefined,
   };
 
   return ok({ data: { ...data, contratos: [contrato, ...data.contratos] }, contrato });

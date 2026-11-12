@@ -1,17 +1,19 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { ArrowRight, CalendarDays, MapPinOff } from "lucide-react";
+import { ArrowRight, CalendarDays, MapPinOff, Zap } from "lucide-react";
 import { Mapa, type MarcadorMapa } from "@/components/mapa/Mapa";
-import { CATEGORIA_LABEL, CIUDAD_LABEL, type CategoriaServicio } from "@/lib/constants";
+import { CIUDAD_LABEL, type CategoriaServicio } from "@/lib/constants";
 import { calcularCercania, serviciosCercanos } from "@/lib/domain/cercania";
 import { estadisticasPlataforma, proximaReserva, serviciosDestacados } from "@/lib/domain/cliente";
-import { formatearCalificacion, formatearFecha, iniciales, pluralizar } from "@/lib/format";
-import { formatearDistancia, formatearTiempo } from "@/lib/geo";
+import { formatearCalificacion, formatearFecha, pluralizar } from "@/lib/format";
+import { formatearTiempo } from "@/lib/geo";
 import type { Usuario } from "@/lib/types";
 import { EmptyState, escalonado } from "@/components/ui";
 import { useAppStore } from "@/store/AppStore";
-import { BarraBusqueda, CarruselCategorias, EncabezadoInicio, EncabezadoSeccion, MarcoMovil, TarjetaDestacada, TarjetaServicio } from "../componentes";
+import { CarruselCategorias, EncabezadoInicio, EncabezadoSeccion, MarcoMovil, TarjetaDestacada, TarjetaServicio } from "../componentes";
+import { BusquedaRapida } from "../BusquedaRapida";
+import { cercaniaTarjeta, marcadorOperario } from "../marcadores";
 import { BotonUbicacion } from "../SelectorUbicacion";
 import { useUbicacion } from "../ubicacion";
 
@@ -21,30 +23,27 @@ interface Props {
   onAbrirServicio: (codigo: string) => void;
   onVerReservas: () => void;
   onPerfil: () => void;
+  onPedirAhora: (categoria: CategoriaServicio | undefined, texto: string) => void;
 }
 
-export function InicioScreen({ usuario, onBuscar, onAbrirServicio, onVerReservas, onPerfil }: Props) {
+export function InicioScreen({ usuario, onBuscar, onAbrirServicio, onVerReservas, onPerfil, onPedirAhora }: Props) {
   const { data } = useAppStore();
-  const [texto, setTexto] = useState("");
 
   const { ubicacion } = useUbicacion();
   const ciudad = ubicacion.ciudad;
   const destacados = useMemo(() => serviciosDestacados(data.servicios, ciudad), [data.servicios, ciudad]);
   // Profesionales que atienden en la ubicación del cliente, del más cercano al más lejano.
-  const cercanos = useMemo(() => serviciosCercanos(data.servicios, ubicacion.coordenadas), [data.servicios, ubicacion.coordenadas]);
+  const cercanos = useMemo(
+    () => serviciosCercanos(data.servicios, ubicacion.coordenadas, { contratos: data.contratos }),
+    [data.servicios, data.contratos, ubicacion.coordenadas],
+  );
   const [seleccionado, setSeleccionado] = useState<string | null>(null);
 
   const marcadores: MarcadorMapa[] = [
     { id: "yo", coordenadas: ubicacion.coordenadas, tipo: "cliente", etiqueta: `Tú: ${ubicacion.etiqueta}` },
-    ...cercanos.map(({ servicio, distanciaKm }) => ({
-      id: servicio.codigo,
-      coordenadas: servicio.ubicacion,
-      tipo: servicio.disponible ? ("profesional" as const) : ("inactivo" as const),
-      etiqueta: `${servicio.prestador_nombre} · ${CATEGORIA_LABEL[servicio.categoria]} · a ${formatearDistancia(distanciaKm)}`,
-      texto: iniciales(servicio.prestador_nombre),
-      seleccionado: seleccionado === servicio.codigo,
-      onClic: () => setSeleccionado(servicio.codigo),
-    })),
+    ...cercanos.map((c) =>
+      marcadorOperario(c, { seleccionado: seleccionado === c.servicio.codigo, onClic: () => setSeleccionado(c.servicio.codigo) }),
+    ),
   ];
   const proxima = proximaReserva(data.contratos, usuario);
   const stats = estadisticasPlataforma(data);
@@ -66,13 +65,23 @@ export function InicioScreen({ usuario, onBuscar, onAbrirServicio, onVerReservas
               Profesionales verificados en {CIUDAD_LABEL[ciudad]}, con precios claros y calificaciones reales.
             </p>
           </div>
-          <BarraBusqueda
-            valor={texto}
-            onCambiar={setTexto}
-            onEnviar={(valor) => onBuscar(valor.trim())}
+          <BusquedaRapida
+            onPedirAhora={onPedirAhora}
+            onVerOpciones={(t, categoria) => onBuscar(t, categoria)}
             className="lg:px-0 lg:pb-0 lg:pt-6"
             claseCampo="lg:bg-card lg:py-4 lg:shadow-elevada"
           />
+          <div className="flex items-center gap-2 px-4 pb-1 pt-1 lg:px-0 lg:pt-4">
+            <button
+              type="button"
+              onClick={() => onPedirAhora(undefined, "")}
+              className="touch-feedback inline-flex items-center gap-2 rounded-full bg-accent px-4 py-2 text-sm font-semibold text-accent-foreground shadow-sm hover:bg-accent/90"
+            >
+              <Zap className="h-4 w-4" aria-hidden />
+              Necesito a alguien ya
+            </button>
+            <span className="text-xs text-muted-foreground lg:text-primary-foreground/70">Te asignamos al operario libre más cercano</span>
+          </div>
         </div>
 
       <div className="relative px-4 py-2 lg:p-0">
@@ -138,12 +147,12 @@ export function InicioScreen({ usuario, onBuscar, onAbrirServicio, onVerReservas
           </div>
           {cercanos.length ? (
             <div className="flex flex-col gap-3">
-              {cercanos.map(({ servicio, distanciaKm, minutos }, i) => (
-                <div key={servicio.codigo} onMouseEnter={() => setSeleccionado(servicio.codigo)} onFocus={() => setSeleccionado(servicio.codigo)}>
+              {cercanos.map((c, i) => (
+                <div key={c.servicio.codigo} onMouseEnter={() => setSeleccionado(c.servicio.codigo)} onFocus={() => setSeleccionado(c.servicio.codigo)}>
                   <TarjetaServicio
                     style={escalonado(i + 1, 60)}
-                    servicio={servicio}
-                    cercania={{ distanciaKm, minutos }}
+                    servicio={c.servicio}
+                    cercania={cercaniaTarjeta(c)}
                     onAbrir={(s) => onAbrirServicio(s.codigo)}
                   />
                 </div>
@@ -169,7 +178,7 @@ export function InicioScreen({ usuario, onBuscar, onAbrirServicio, onVerReservas
                 key={servicio.codigo}
                 style={escalonado(i, 70)}
                 servicio={servicio}
-                cercania={calcularCercania(servicio, ubicacion.coordenadas)}
+                cercania={cercaniaTarjeta(calcularCercania(servicio, ubicacion.coordenadas, data.contratos))}
                 onAbrir={(s) => onAbrirServicio(s.codigo)}
               />
             ))}

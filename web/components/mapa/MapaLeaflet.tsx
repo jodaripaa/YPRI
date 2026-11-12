@@ -12,6 +12,7 @@ import type { PropsMapa, TipoMarcador } from "./tipos";
 const ESTILO_MARCADOR: Record<TipoMarcador, string> = {
   cliente: "ypri-pin ypri-pin--cliente",
   profesional: "ypri-pin ypri-pin--profesional",
+  ocupado: "ypri-pin ypri-pin--ocupado",
   inactivo: "ypri-pin ypri-pin--inactivo",
   movil: "ypri-pin ypri-pin--movil",
 };

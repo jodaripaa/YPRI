@@ -3,7 +3,7 @@
 // ubicación del cliente sin GPS. Coinciden con backend/modules/geolocalizacion.py.
 
 import type { CiudadCobertura } from "./constants";
-import type { Coordenadas } from "./geo";
+import { distanciaKm, type Coordenadas } from "./geo";
 
 export interface Zona {
   nombre: string;
@@ -66,4 +66,9 @@ export const RADIOS_COBERTURA_KM = [3, 5, 8, 10, 15, 20] as const;
 
 export function barrioPorNombre(ciudad: CiudadCobertura, nombre: string): Zona | undefined {
   return BARRIOS[ciudad].find((b) => b.nombre === nombre);
+}
+
+/** Barrio de prueba más cercano a un punto (para describir "más o menos" dónde está alguien). */
+export function barrioMasCercano(ciudad: CiudadCobertura, punto: Coordenadas): Zona {
+  return BARRIOS[ciudad].reduce((mejor, b) => (distanciaKm(b.coordenadas, punto) < distanciaKm(mejor.coordenadas, punto) ? b : mejor));
 }

@@ -21,6 +21,9 @@ FUNCIONES CON RETORNO (subalgoritmos, Guia 10):
     6. buscar_servicios_cercanos(servicios, lat, lng, ...) -> list
     7. profesional_mas_cercano(servicios, lat, lng, categoria) -> dict | None
     8. simular_seguimiento(origen, destino, transcurrido_seg, duracion_seg) -> dict
+    9. barrio_mas_cercano(lat, lng) -> tuple
+   10. posicion_actual(servicio, contratos) -> dict
+   11. candidatos_pedido_inmediato(servicios, contratos, lat, lng, categoria) -> dict
 PROCEDIMIENTOS (sin retorno):
     * mostrar_servicios_cercanos(resultados, etiqueta_origen)
     * menu_geolocalizacion_interactivo()
@@ -159,6 +162,50 @@ def simular_seguimiento(origen, destino, transcurrido_seg, duracion_seg):
     }
 
 
+def barrio_mas_cercano(lat, lng):
+    """Barrio de prueba de Cucuta mas cercano a un punto: (nombre, lat, lng)."""
+    return min(BARRIOS_CUCUTA, key=lambda b: distancia_haversine(b[1], b[2], lat, lng))
+
+
+def posicion_actual(servicio, contratos):
+    """
+    Donde esta el operario ahora: si atiende un servicio "En proceso" con ubicacion
+    conocida, es ese lugar; si no, su barrio base.
+    """
+    for contrato in contratos:
+        mismo_operario = (contrato.get("servicio_codigo") == servicio["codigo"]
+                          or contrato.get("prestador_id") == servicio["prestador_id"])
+        if mismo_operario and contrato.get("estado") == "En proceso" and "lat" in contrato and "lng" in contrato:
+            return {
+                "lat": contrato["lat"],
+                "lng": contrato["lng"],
+                "en_servicio": True,
+                "contrato_id": contrato["id"],
+                "zona_referencia": barrio_mas_cercano(contrato["lat"], contrato["lng"])[0],
+            }
+    return {"lat": servicio["lat"], "lng": servicio["lng"], "en_servicio": False,
+            "contrato_id": None, "zona_referencia": servicio.get("zona", "Centro")}
+
+
+def candidatos_pedido_inmediato(servicios, contratos, lat, lng, categoria):
+    """
+    Pedido inmediato (estilo Uber): asigna al operario libre que llega antes entre los
+    del oficio que atienden al cliente. Los ocupados quedan como alternativa.
+    Retorna {"libres": [...], "ocupados": [...], "asignado": dict | None}.
+    """
+    libres, ocupados = [], []
+    for cercania in buscar_servicios_cercanos(servicios, lat, lng, solo_disponibles=True, categoria=categoria):
+        posicion = posicion_actual(cercania["servicio"], contratos)
+        cercania["posicion"] = posicion
+        cercania["distancia_km"] = distancia_haversine(posicion["lat"], posicion["lng"], lat, lng)
+        cercania["minutos"] = tiempo_llegada_min(posicion["lat"], posicion["lng"], lat, lng)
+        (ocupados if posicion["en_servicio"] else libres).append(cercania)
+    orden = lambda c: (c["minutos"], -c["servicio"]["calificacion"])
+    libres.sort(key=orden)
+    ocupados.sort(key=orden)
+    return {"libres": libres, "ocupados": ocupados, "asignado": libres[0] if libres else None}
+
+
 def formatear_distancia(km):
     """Metros por debajo de 1 km; kilometros con un decimal desde 1 km."""
     if km < 1:
@@ -187,8 +234,12 @@ def mostrar_servicios_cercanos(resultados, etiqueta_origen):
 
 
 def menu_geolocalizacion_interactivo():
-    """Menu de consola: el cliente elige su barrio y ve a los profesionales mas cercanos."""
-    from data.database import servicios
+    """
+    Menu de consola: el cliente elige su barrio (ubicacion simulada), escribe lo que
+    necesita y ve a los profesionales mas cercanos de ese oficio.
+    """
+    from data.database import servicios, contratos
+    from modules.palabras_clave import interpretar_necesidad, parece_urgente
 
     while True:
         print("\n  PROFESIONALES CERCA DE MI (Geolocalizacion)")
@@ -202,10 +253,29 @@ def menu_geolocalizacion_interactivo():
             print("\n[!] Opcion invalida.")
             continue
         nombre, lat, lng = BARRIOS_CUCUTA[int(opcion) - 1]
-        resultados = buscar_servicios_cercanos(servicios, lat, lng)
+
+        necesidad = input("  ¿Que necesita? (ej: se me quedaron las llaves adentro; Enter para ver todos): ").strip()
+        detectada = interpretar_necesidad(necesidad) if necesidad else None
+        if necesidad and not detectada:
+            print("  No reconocimos el oficio; se muestran todos los profesionales cercanos.")
+        categoria = detectada["categoria"] if detectada else None
+        if detectada:
+            print(f"  Oficio detectado: {categoria} (por '{detectada['coincidencia']}').")
+
+        resultados = buscar_servicios_cercanos(servicios, lat, lng, categoria=categoria)
         mostrar_servicios_cercanos(resultados, f"{nombre}, Cucuta")
-        mas_cercano = profesional_mas_cercano(servicios, lat, lng)
-        if mas_cercano:
-            s = mas_cercano["servicio"]
-            print(f"  Mas cercano disponible: {s['prestador_nombre']} ({s['categoria']}), "
-                  f"llega en unos {mas_cercano['minutos']} minutos.")
+
+        if categoria and parece_urgente(necesidad):
+            pedido = candidatos_pedido_inmediato(servicios, contratos, lat, lng, categoria)
+            if pedido["asignado"]:
+                s = pedido["asignado"]["servicio"]
+                print(f"  PEDIDO INMEDIATO: asignado a {s['prestador_nombre']}, "
+                      f"llega en unos {pedido['asignado']['minutos']} minutos.")
+            else:
+                print("  PEDIDO INMEDIATO: no hay operarios libres de ese oficio cerca en este momento.")
+        else:
+            mas_cercano = profesional_mas_cercano(servicios, lat, lng, categoria)
+            if mas_cercano:
+                s = mas_cercano["servicio"]
+                print(f"  Mas cercano disponible: {s['prestador_nombre']} ({s['categoria']}), "
+                      f"llega en unos {mas_cercano['minutos']} minutos.")

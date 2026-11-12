@@ -14,6 +14,7 @@ export const USUARIOS_INICIALES: Usuario[] = [
   { id: "USR-006", nombre: "Jorge Mendoza", correo: "jorge.mendoza@email.com", contrasena: "jorge123", rol: "prestador", ciudad: "Cucuta", telefono: "3136789012", activo: true },
   { id: "USR-007", nombre: "Sandra Rios", correo: "sandra.rios@email.com", contrasena: "sandra123", rol: "prestador", ciudad: "Cucuta", telefono: "3147890123", activo: true },
   { id: "USR-008", nombre: "Laura Martinez", correo: "laura.martinez@email.com", contrasena: "laura123", rol: "cliente", ciudad: "Cucuta", telefono: "3158901234", activo: true },
+  { id: "USR-010", nombre: "Valentina Ruiz", correo: "valentina.ruiz@email.com", contrasena: "valentina123", rol: "prestador", ciudad: "Cucuta", telefono: "3171234567", activo: true },
   { id: "USR-009", nombre: "Diana Torres", correo: "diana.torres@email.com", contrasena: "diana123", rol: "prestador", ciudad: "Bogota", telefono: "3169012345", activo: true },
 ];
 
@@ -24,6 +25,7 @@ export const SERVICIOS_INICIALES: Servicio[] = [
   { codigo: "SERV-04", prestador_id: "USR-006", prestador_nombre: "Jorge Mendoza", categoria: "Cerrajeria", descripcion: "Apertura de puertas, cambio de guardas y cerraduras de seguridad.", tarifa_hora: 38000, ciudad: "Cucuta", disponible: true, calificacion: 4.7, num_contratos: 15, num_resenas: 12, anios_experiencia: 12, zona: "Centro", ubicacion: { lat: 7.8918, lng: -72.5079 }, radio_km: 10 },
   { codigo: "SERV-05", prestador_id: "USR-007", prestador_nombre: "Sandra Rios", categoria: "Limpieza", descripcion: "Limpieza profunda de hogares y oficinas, incluye insumos.", tarifa_hora: 25000, ciudad: "Cucuta", disponible: true, calificacion: 4.3, num_contratos: 20, num_resenas: 16, anios_experiencia: 4, zona: "Atalaya", ubicacion: { lat: 7.8752, lng: -72.5368 }, radio_km: 8 },
   { codigo: "SERV-06", prestador_id: "USR-009", prestador_nombre: "Diana Torres", categoria: "Limpieza", descripcion: "Limpieza de apartamentos antes y después de mudanzas.", tarifa_hora: 28000, ciudad: "Bogota", disponible: true, calificacion: 4.6, num_contratos: 9, num_resenas: 8, anios_experiencia: 6, zona: "Chapinero", ubicacion: { lat: 4.6505, lng: -74.0651 }, radio_km: 10 },
+  { codigo: "SERV-07", prestador_id: "USR-010", prestador_nombre: "Valentina Ruiz", categoria: "Belleza", descripcion: "Corte de cabello y barba, cepillado, manicure y pedicure a domicilio.", tarifa_hora: 30000, ciudad: "Cucuta", disponible: true, calificacion: 4.9, num_contratos: 18, num_resenas: 14, anios_experiencia: 7, zona: "Quinta Oriental", ubicacion: { lat: 7.8872, lng: -72.4948 }, radio_km: 8 },
 ];
 
 function contratoSemilla(

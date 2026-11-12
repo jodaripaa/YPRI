@@ -1,7 +1,7 @@
 import type { Coordenadas } from "@/lib/geo";
 
-/** cliente: tu ubicación · profesional: disponible · inactivo: no disponible · movil: profesional en camino */
-export type TipoMarcador = "cliente" | "profesional" | "inactivo" | "movil";
+/** cliente: tu ubicación · profesional: libre · ocupado: atendiendo otro servicio · inactivo: pausado · movil: en camino */
+export type TipoMarcador = "cliente" | "profesional" | "ocupado" | "inactivo" | "movil";
 
 export interface MarcadorMapa {
   id: string;

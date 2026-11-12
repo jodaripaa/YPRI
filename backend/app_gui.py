@@ -28,6 +28,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from core.constantes import (
     ROLES_SISTEMA,
     CATEGORIAS_SERVICIO,
+    CATEGORIAS_MATRIZ,
     ESTADOS_CONTRATO,
     CIUDADES_COBERTURA,
     DIAS_SEMANA_MATRIZ,
@@ -1284,7 +1285,7 @@ class YpriApp(tk.Tk):
             cols_nombres = CIUDADES_COBERTURA
             subtitulo_matriz = "Demanda Geográfica por Categoría y Ciudad (5x5 — MATRIZ CUADRADA)"
 
-        filas_nombres = CATEGORIAS_SERVICIO
+        filas_nombres = CATEGORIAS_MATRIZ
 
         # Analisis Matematico (Actividad 4)
         info_analisis = analizar_rendimiento_matriz(matriz_actual, filas_nombres, cols_nombres)

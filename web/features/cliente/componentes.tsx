@@ -20,6 +20,10 @@ export interface Cercania {
   distanciaKm: number;
   minutos: number;
   enCobertura?: boolean;
+  /** Está atendiendo otro servicio ahora (la distancia se mide desde allí). */
+  enServicio?: boolean;
+  /** Barrio aproximado donde está el operario ahora. */
+  zonaReferencia?: string;
 }
 
 /* ------------------------------------------------------------------ Marco */
@@ -77,7 +81,7 @@ export function BarraBusqueda({
   valor,
   onCambiar,
   onEnviar,
-  placeholder = "Buscar electricistas, plomeros...",
+  placeholder = "Oficio o problema: plomero, sin luz, llaves…",
   autoFocus,
   className,
   claseCampo,
@@ -122,7 +126,7 @@ export function CarruselCategorias({
   onSeleccionar: (categoria: CategoriaServicio) => void;
 }) {
   return (
-    <div className="hide-scrollbar flex gap-3 overflow-x-auto px-4 pb-2 sm:grid sm:grid-cols-5 sm:overflow-visible" role="group" aria-label="Categorías">
+    <div className="hide-scrollbar flex gap-3 overflow-x-auto px-4 pb-2 sm:grid sm:grid-cols-6 sm:overflow-visible" role="group" aria-label="Categorías">
       {CATEGORIAS_SERVICIO.map((categoria, i) => {
         const Icono = ICONO_CATEGORIA[categoria];
         const activa = seleccionada === categoria;
@@ -278,7 +282,10 @@ export function TarjetaServicio({
           <span className="truncate text-base font-semibold">{servicio.prestador_nombre}</span>
           <BadgeCheck className="h-4 w-4 shrink-0 text-accent-strong" aria-label="Verificado" />
         </span>
-        <span className="mb-2 block text-sm text-muted-foreground">{PROFESION_CATEGORIA[servicio.categoria]}</span>
+        <span className="mb-2 block text-sm text-muted-foreground">
+          {PROFESION_CATEGORIA[servicio.categoria]}
+          {cercania?.zonaReferencia && ` · cerca de ${cercania.zonaReferencia}`}
+        </span>
         <span className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
           <Estrellas valor={servicio.calificacion} resenas={servicio.num_resenas} compacto />
           <span className="flex items-center gap-1">
@@ -302,6 +309,9 @@ export function TarjetaServicio({
         <span className="text-base font-bold text-enfasis">{formatearMoneda(servicio.tarifa_hora)}</span>
         <span className="text-[10px] text-muted-foreground">por hora</span>
         {!servicio.disponible && <span className="mt-1 rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground">No disponible</span>}
+        {servicio.disponible && cercania?.enServicio && (
+          <span className="mt-1 rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-medium text-amber-800 dark:bg-amber-400/15 dark:text-amber-300">Ocupado ahora</span>
+        )}
         {servicio.disponible && cercania?.enCobertura === false && (
           <span className="mt-1 rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-medium text-amber-800 dark:bg-amber-400/15 dark:text-amber-300">Fuera de su zona</span>
         )}

@@ -8,6 +8,7 @@ import {
   type CiudadCobertura,
 } from "../constants";
 import { siguienteId } from "../ids";
+import { detectarCategorias, normalizar } from "../palabrasClave";
 import { fail, ok, type Result } from "../result";
 import type { AppData, Servicio, Usuario } from "../types";
 import { BARRIOS, barrioPorNombre, RADIO_COBERTURA_KM } from "../zonas";
@@ -32,6 +33,9 @@ const COMPARADORES: Record<OrdenCatalogo, (a: Servicio, b: Servicio) => number> 
 
 export function filtrarCatalogo(servicios: readonly Servicio[], filtros: FiltrosCatalogo): Servicio[] {
   const texto = filtros.texto.trim().toLowerCase();
+  // Además del texto literal, se aceptan los oficios que el catálogo de palabras
+  // clave reconoce ("llaves adentro" -> Cerrajería, "plomero" -> Plomería).
+  const categoriasDelTexto = new Set(detectarCategorias(texto).map((d) => d.categoria));
   return servicios
     .filter((s) => filtros.categoria === "todas" || s.categoria === filtros.categoria)
     .filter((s) => filtros.ciudad === "todas" || s.ciudad === filtros.ciudad)
@@ -39,7 +43,8 @@ export function filtrarCatalogo(servicios: readonly Servicio[], filtros: Filtros
     .filter(
       (s) =>
         !texto ||
-        [s.descripcion, s.prestador_nombre, s.categoria].some((campo) => campo.toLowerCase().includes(texto)),
+        categoriasDelTexto.has(s.categoria) ||
+        [s.descripcion, s.prestador_nombre, s.categoria, s.zona].some((campo) => normalizar(campo).includes(normalizar(texto))),
     )
     .sort(COMPARADORES[filtros.orden]);
 }

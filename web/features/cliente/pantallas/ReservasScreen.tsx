@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState, type CSSProperties } from "react";
-import { CalendarDays, CalendarX, Clock, MapPin, Navigation, Star } from "lucide-react";
+import { CalendarDays, CalendarX, Clock, MapPin, Navigation, Star, Zap } from "lucide-react";
 import { Button, cx, EmptyState, escalonado, EstadoContratoBadge, useToast } from "@/components/ui";
 import type { EstadoContrato } from "@/lib/constants";
 import { accionesDisponibles, contratosVisiblesPara, ESTADOS_ACTIVOS, type AccionContrato } from "@/lib/domain/contracts";
@@ -27,14 +27,16 @@ interface Props {
   usuario: Usuario;
   onExplorar: () => void;
   onAbrirServicio: (codigo: string) => void;
+  /** Abre de una vez el seguimiento de este contrato (pedido inmediato recién confirmado). */
+  seguirContrato?: Contrato | null;
 }
 
-export function ReservasScreen({ usuario, onExplorar, onAbrirServicio }: Props) {
+export function ReservasScreen({ usuario, onExplorar, onAbrirServicio, seguirContrato }: Props) {
   const { data } = useAppStore();
   const { transicionar, calificar } = useContratos();
   const toast = useToast();
   const [pestana, setPestana] = useState<Pestana>("proximas");
-  const [dialogo, setDialogo] = useState<Dialogo>(null);
+  const [dialogo, setDialogo] = useState<Dialogo>(() => (seguirContrato ? { tipo: "seguir", contrato: seguirContrato } : null));
 
   const propias = useMemo(() => contratosVisiblesPara(data.contratos, usuario), [data.contratos, usuario]);
   const porPestana = (p: Pestana) => propias.filter((c) => ESTADOS_PESTANA[p].includes(c.estado));
@@ -150,7 +152,15 @@ function TarjetaReserva({
   return (
     <article style={style} className="hover-elevar flex animate-fade-up flex-col rounded-2xl border border-border bg-card p-4">
       <div className="mb-3 flex items-center justify-between gap-2">
-        <span className="font-mono text-xs text-muted-foreground">{contrato.id}</span>
+        <span className="flex items-center gap-2">
+          <span className="font-mono text-xs text-muted-foreground">{contrato.id}</span>
+          {contrato.urgente && (
+            <span className="inline-flex items-center gap-1 rounded-full bg-red-100 px-2 py-0.5 text-[11px] font-semibold text-red-700 dark:bg-red-500/15 dark:text-red-300">
+              <Zap className="h-3 w-3" aria-hidden />
+              Inmediato
+            </span>
+          )}
+        </span>
         <EstadoContratoBadge estado={contrato.estado} />
       </div>
 
