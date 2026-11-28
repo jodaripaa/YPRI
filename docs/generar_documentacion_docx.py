@@ -10,12 +10,15 @@ formato de entregas de la FESC y normas APA 7:
   * Referencias con sangria francesa.
 
 Requiere python-docx (pip install python-docx). No es una dependencia del aplicativo.
-Uso, desde la carpeta YPRI:  python docs/generar_documentacion_docx.py
+Uso, desde la carpeta YPRI:
+  python docs/generar_documentacion_docx.py            -> documentacion tecnica
+  python docs/generar_documentacion_docx.py guia11     -> informe de la Guia 11
 El indice se actualiza y el PDF se exporta despues con LibreOffice o Word.
 """
 
 import os
 import re
+import sys
 
 from docx import Document
 from docx.enum.section import WD_SECTION
@@ -26,8 +29,29 @@ from docx.oxml.ns import qn
 from docx.shared import Cm, Inches, Pt, RGBColor
 
 RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-ENTRADA = os.path.join(RAIZ, "DOCUMENTACION_TECNICA.md")
-SALIDA = os.path.join(RAIZ, "docs", "DOCUMENTACION_TECNICA.docx")
+MODOS = {
+    "tecnica": {
+        "entrada": os.path.join(RAIZ, "DOCUMENTACION_TECNICA.md"),
+        "salida": os.path.join(RAIZ, "docs", "DOCUMENTACION_TECNICA.docx"),
+        "inicio": "# PARTE 1",
+        "subtitulos": ["Documentación técnica del aplicativo: proyecto final",
+                       "Technical documentation of the application: final project"],
+        "salto_en_cada_parte": True,
+        "niveles_indice": "1-2",
+    },
+    "guia11": {
+        "entrada": os.path.join(RAIZ, "docs", "guia11", "ENTREGA_GUIA_11.md"),
+        "salida": os.path.join(RAIZ, "docs", "guia11", "YPRI_ENTREGA_GUIA_11.docx"),
+        "inicio": "# ",
+        "subtitulos": ["Guía de aprendizaje N.º 11",
+                       "Manejo de archivos, Excel y programación orientada a objetos en Python"],
+        "salto_en_cada_parte": False,
+        "niveles_indice": "1-1",
+    },
+}
+MODO = MODOS[sys.argv[1] if len(sys.argv) > 1 else "tecnica"]
+ENTRADA = MODO["entrada"]
+SALIDA = MODO["salida"]
 
 FUENTE = "Times New Roman"
 NEGRO = RGBColor(0, 0, 0)
@@ -71,7 +95,7 @@ def agregar_campo(parrafo, instruccion):
     return run
 
 
-def texto_con_formato(parrafo, texto, tamano=12):
+def texto_con_formato(parrafo, texto, tamano=12, negrilla=False):
     """Escribe texto con **negrilla**, *cursiva* y `codigo` de Markdown."""
     patron = re.compile(r"(\*\*[^*]+\*\*|\*[^*]+\*|`[^`]+`)")
     for parte in patron.split(texto):
@@ -88,9 +112,11 @@ def texto_con_formato(parrafo, texto, tamano=12):
         elif parte.startswith("`") and parte.endswith("`"):
             run = parrafo.add_run(parte[1:-1])
             fijar_fuente(run, "Consolas", tamano - 1.5)
+            run.bold = negrilla or None
         else:
             run = parrafo.add_run(parte)
             fijar_fuente(run, tamano=tamano)
+            run.bold = negrilla or None
 
 
 def formato_parrafo(parrafo, sangria=True, alineacion=None, interlineado=2.0, antes=0, despues=0):
@@ -187,9 +213,7 @@ def tabla_md(doc, filas, titulo_texto):
             if anchos:
                 celda.width = Cm(anchos[j])
             p = celda.paragraphs[0]
-            if i == 0:
-                valor = f"**{valor}**"
-            texto_con_formato(p, valor, tamano=10)
+            texto_con_formato(p, valor, tamano=10, negrilla=(i == 0))
             formato_parrafo(p, sangria=False, interlineado=1.0, antes=2, despues=2)
             # El encabezado se mantiene en la misma pagina que la primera fila
             p.paragraph_format.keep_with_next = i == 0
@@ -236,8 +260,9 @@ def portada(doc):
 
     centrado("YPRI", negrilla=True, lineas_antes=2)
     centrado("PLATAFORMA DE SERVICIOS A DOMICILIO «TALENTO AL TOQUE»", negrilla=True)
-    centrado("Documentación técnica del aplicativo: proyecto final", lineas_antes=1)
-    centrado("Technical documentation of the application: final project")
+    centrado(MODO["subtitulos"][0], lineas_antes=1)
+    for subtitulo in MODO["subtitulos"][1:]:
+        centrado(subtitulo)
     centrado("Jann Pierre Ortiz Zambrano", lineas_antes=2)
     centrado("Josué David Rincón Palomino")
     centrado("Diseño Funcional", lineas_antes=1)
@@ -257,7 +282,7 @@ def tabla_de_contenido(doc):
     formato_parrafo(p, sangria=False, alineacion=WD_ALIGN_PARAGRAPH.CENTER)
     p = doc.add_paragraph()
     formato_parrafo(p, sangria=False, interlineado=1.5)
-    agregar_campo(p, 'TOC \\o "1-2" \\h \\z \\u')
+    agregar_campo(p, 'TOC \\o "' + MODO["niveles_indice"] + '" \\h \\z \\u')
 
 
 # ------------------------------------------------------------------------------------
@@ -298,7 +323,8 @@ def convertir(doc, lineas):
                 else:
                     texto = texto.replace("PARTE 1 — ESPAÑOL", "Parte 1. Documentación en español") \
                                  .replace("PART 2 — ENGLISH", "Part 2. Documentation in English")
-                titulo(doc, texto, 1, salto_pagina=not primera_parte)
+                salto = en_referencias or (MODO["salto_en_cada_parte"] and not primera_parte)
+                titulo(doc, texto, 1, salto_pagina=salto)
                 primera_parte = False
             else:
                 titulo(doc, texto, nivel)
@@ -365,7 +391,7 @@ def main():
     with open(ENTRADA, encoding="utf-8") as archivo:
         lineas = archivo.readlines()
     # El encabezado del Markdown (titulo y datos) se reemplaza por la portada APA
-    inicio = next(n for n, l in enumerate(lineas) if l.startswith("# PARTE 1"))
+    inicio = next(n for n, l in enumerate(lineas) if l.startswith(MODO["inicio"]))
 
     doc = Document()
     seccion = doc.sections[0]

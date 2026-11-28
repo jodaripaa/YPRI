@@ -1,0 +1,23 @@
+YPRI - PLATAFORMA DE SERVICIOS A DOMICILIO «TALENTO AL TOQUE»
+Guía de aprendizaje N.º 11 - Manejo de archivos, Excel y programación orientada a objetos en Python
+Diseño Funcional - Unidad 3
+Estudiantes: Jann Pierre Ortiz Zambrano y Josué David Rincón Palomino
+Docente: Robinson Damián Gómez Sánchez
+
+ENLACES
+-------
+Carpeta de Google Drive de la Guía 11:
+https://drive.google.com/drive/folders/1xy0gqDMrNE-Gj3JugeikjGmnbuwUhUVh
+
+Repositorio de GitHub:
+https://github.com/JannPi10/YPRI
+
+CONTENIDO DE LA ENTREGA
+-----------------------
+- YPRI_ENTREGA_GUIA_11.docx y .pdf: informe de las actividades 1 a 7 de la guía (formato FESC, normas APA).
+- YPRI_Guia_11.zip: proyecto completo en Python con las funcionalidades de la guía integradas.
+  * DOCUMENTACION_TECNICA.md (carpeta raíz, español e inglés) y requirements.txt.
+  * backend/modules/persistencia.py: archivos (Actividad 1).
+  * backend/modules/reportes_excel.py: Excel (Actividad 2).
+  * backend/models/: clases, getters y setters, herencia y operadores (Actividades 3 a 6).
+  * backend/tests_guia11.py y backend/evidencias/: pruebas y evidencias (Actividad 7).
